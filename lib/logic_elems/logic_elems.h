@@ -25,6 +25,9 @@ public:
   virtual bool get_value () const = 0;
 
   virtual Element& operator!();
+  // logic::Element& operator>> (logic::Element& b) const;
+  virtual void add_sorce (logic::Element const& t) = 0;
+  virtual void add_sorce (logic::Element const* t) = 0;
 };
 
 class logic::Logic : public logic::Element
@@ -38,10 +41,12 @@ protected:
 public:
   Logic& operator~();
   Logic& operator!();
-  void add_sorce (const logic::Element& t);
+  void add_sorce (logic::Element const& t) override;
+  void add_sorce (logic::Element const* t) override;
 };
 
-logic::Logic& operator>> (const logic::Element& a, logic::Logic& b);
+// logic::Logic& operator>> (const logic::Element& a, logic::Element& b);
+logic::Element& operator>> (logic::Element const& a, logic::Element& b);
 
 class logic::spec::Input_element
 {
@@ -87,5 +92,15 @@ public:
   Src(bool value_);
   void set_value (bool value_);
   bool get_value () const;
+
+  void add_sorce (logic::Element const&) override
+  {
+    throw std::runtime_error("src can't get '&'sources");
+  }
+
+  void add_sorce (logic::Element const*) override
+  {
+    throw std::runtime_error("src can't get '*'sources");
+  }
 };
 #endif

@@ -29,7 +29,7 @@ bool Or ::get_value() const
   return value;
 }
 
-bool Src::get_value() const { return value; }
+bool Src::get_value() const { return inverted ? !value : value; }
 
 void Src::set_value(bool value_) { value = value_; }
 
@@ -48,7 +48,19 @@ void Logic::add_sorce(const Element& t)
   inverse_input = 0;
 }
 
-Logic& operator>> (const Element& a, Logic& b)
+void Logic::add_sorce(const Element* t)
+{
+  spec::Input_element temp{t, inverse_input};
+  this->arg_vec.push_back(temp);
+  inverse_input = 0;
+}
+
+// Logic& operator>> (const Element& a, Logic& b)
+// {
+//   b.add_sorce(a);
+//   return b;
+// }
+Element& operator>> (Element const& a, Element& b)
 {
   b.add_sorce(a);
   return b;
