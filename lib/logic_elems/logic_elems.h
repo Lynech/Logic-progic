@@ -35,7 +35,6 @@ protected:
   void add_dependings (logic::Logic* t);
 
 public:
-  virtual void calculate_value () = 0;
   Value get_value () const;
   void calculate_dependings ();
   void remove_depending (logic::Logic* t);
@@ -55,8 +54,9 @@ protected:
   std::vector<logic::spec::Input_element> arg_vec;
 
 public:
+  virtual void calculate_value () = 0;
   Logic& operator~();
-  Logic& operator!();  // поменять на invert
+  // Logic& operator!();  // поменять на invert
   void add_sorce (logic::Element& t);  // возможна ошибка, надо обдумать
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
@@ -86,7 +86,6 @@ public:
   Src();
   Src(bool value_);
   void set_value (bool value_);
-  void calculate_value () override;
 
   void add_sorce (logic::Element&)  // возможна ошибка, надо обдумать
   {
