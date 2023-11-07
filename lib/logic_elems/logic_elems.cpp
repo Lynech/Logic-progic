@@ -1,10 +1,13 @@
 #include "logic_elems.h"
 #include <algorithm>
 #include <iostream>
+#include <vector>
 using namespace logic;
 
 Value spec::Input_element::get_value() const
 {
+  if (!arg)
+    return Value::Undef;
   if (inverted)
   {
     if (arg->get_value() == Value::False)
@@ -17,10 +20,15 @@ Value spec::Input_element::get_value() const
 
 void Element::calculate_dependings()
 {
+  std::vector<Value> depend_value;
   for (size_t i = 0; i < dependings.size(); i++)
+  {
+    depend_value.push_back(dependings[i]->get_value());
     dependings[i]->calculate_value();
+  }
   for (size_t i = 0; i < dependings.size(); i++)
-    dependings[i]->calculate_dependings();
+    if (depend_value[i] != dependings[i]->get_value())
+      dependings[i]->calculate_dependings();
 }
 
 void And::calculate_value()
@@ -63,17 +71,7 @@ void Or::calculate_value()
   }
 }
 
-Value Element::get_value() const
-{
-  if (inverted)
-  {
-    if (value == Value::False)
-      return Value::True;
-    else if (value == Value::True)
-      return Value::False;
-  }
-  return value;
-}
+Value Element::get_value() const { return value; }
 
 void Src::set_value(bool value_)
 {
@@ -116,6 +114,7 @@ void Logic::add_sorce(Element* t)
   spec::Input_element temp{t, inverse_input};
   this->arg_vec.push_back(temp);
   inverse_input = 0;
+  t->dependings.push_back(this);
   calculate_value();
   calculate_dependings();
 }
@@ -141,6 +140,12 @@ Logic& Logic::operator~()
 Element& Element::operator!()
 {
   inverted = !inverted;
+  if (value == Value::False)
+    value = Value::True;
+  else if (value == Value::True)
+    value = Value::False;
+
+  calculate_dependings();
   return *this;
 }
 
@@ -148,6 +153,17 @@ Element& Element::operator!()
 // {
 //   inverted = !inverted;
 //   return *this;
+// }
+
+// void Src::calculate_value()
+// {
+//   if (inverted)
+//   {
+//     if (value == Value::False)
+//       value = Value::True;
+//     else if (value == Value::True)
+//       value = Value::False;
+//   }
 // }
 
 void Element::add_dependings(logic::Logic& t) { dependings.push_back(&t); }

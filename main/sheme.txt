@@ -6,7 +6,12 @@ or o2
 ! o2
 o1 << s1 , o2 .
 o2 << s2 , o1 .
-! s2
+! s1
+out s1
+out s2
+out o1
+out o2
+! s1
 out s1
 out s2
 out o1

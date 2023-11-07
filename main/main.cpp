@@ -9,8 +9,7 @@ int main ()
 try
 {
   map<string, logic::Element*> sheme;
-  // map<string, logic::Logic*> sheme;
-  vector<string> out;
+  // vector<string> out;
   ifstream f("C:/Users/Niyaz/git_projects/Logic-progic/main/sheme.txt",
              ios_base::in);
   string str;
@@ -38,7 +37,14 @@ try
     else if (str == "out")
     {
       f >> str;
-      out.push_back(str);
+      // out.push_back(str);
+      logic::Value val = sheme[str]->get_value();
+      string str_val = "Undef";
+      if (val == logic::Value::True)
+        str_val = "True";
+      else if (val == logic::Value::False)
+        str_val = "False";
+      cout << str << " " << str_val << "\n";
     }
     else if (sheme.find(str) != sheme.end())
     {
@@ -85,16 +91,16 @@ try
     }
   }
   f.close();
-  for (size_t i = 0; i < out.size(); i++)
-  {
-    logic::Value val = sheme[out[i]]->get_value();
-    string str = "Undef";
-    if (val == logic::Value::True)
-      str = "True";
-    else if (val == logic::Value::False)
-      str = "False";
-    cout << i << " " << str << "\n";
-  }
+  // for (size_t i = 0; i < out.size(); i++)
+  // {
+  //   logic::Value val = sheme[out[i]]->get_value();
+  //   string str = "Undef";
+  //   if (val == logic::Value::True)
+  //     str = "True";
+  //   else if (val == logic::Value::False)
+  //     str = "False";
+  //   cout << i << " " << str << "\n";
+  // }
   // for (auto i = sheme.begin(); i != sheme.end(); i++)
   //   delete i->second;
 }

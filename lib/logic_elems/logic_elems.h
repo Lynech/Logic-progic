@@ -30,14 +30,15 @@ class logic::Element
 protected:
   bool inverted{0};
   Value value{Value::Undef};
-  std::vector<logic::Logic*> dependings;
   void add_dependings (logic::Logic& t);
   void add_dependings (logic::Logic* t);
 
 public:
+  std::vector<logic::Logic*> dependings;
   Value get_value () const;
   void calculate_dependings ();
   void remove_depending (logic::Logic* t);
+  // virtual void calculate_value () = 0;
 
   virtual Element& operator!();
   virtual void
@@ -54,10 +55,12 @@ protected:
   std::vector<logic::spec::Input_element> arg_vec;
 
 public:
-  virtual void calculate_value () = 0;
   Logic& operator~();
+  // virtual void calculate_value () = 0;
   // Logic& operator!();  // поменять на invert
-  void add_sorce (logic::Element& t);  // возможна ошибка, надо обдумать
+  virtual void calculate_value () = 0;
+  void
+  add_sorce (logic::Element& t) override;  // возможна ошибка, надо обдумать
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
 };
@@ -87,7 +90,10 @@ public:
   Src(bool value_);
   void set_value (bool value_);
 
-  void add_sorce (logic::Element&)  // возможна ошибка, надо обдумать
+  // void calculate_value () override;
+
+  void
+  add_sorce (logic::Element&) override  // возможна ошибка, надо обдумать
   {
     throw std::runtime_error("src can't get '&'sources");
   }
