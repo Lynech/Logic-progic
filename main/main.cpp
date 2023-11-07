@@ -16,7 +16,6 @@ try
   string str;
   while (f)
   {
-    cout << "lol\n";
     f >> str;
     if (str == "and")
     {
@@ -67,13 +66,13 @@ try
       {
         f >> str;
         if (sheme.find(str) != sheme.end())
-          *(sheme[str]) >> *(sheme[name]);
+          *(sheme[name]) << *(sheme[str]);
         f >> str;
         while (str == "," && f)
         {
           f >> str;
           if (sheme.find(str) != sheme.end())
-            *(sheme[str]) >> *(sheme[name]);
+            *(sheme[name]) << *(sheme[str]);
           f >> str;
         }
       }
@@ -88,9 +87,16 @@ try
   f.close();
   for (size_t i = 0; i < out.size(); i++)
   {
-    bool val = sheme[out[i]]->get_value();
-    cout << i << " " << val << "\n";
+    logic::Value val = sheme[out[i]]->get_value();
+    string str = "Undef";
+    if (val == logic::Value::True)
+      str = "True";
+    else if (val == logic::Value::False)
+      str = "False";
+    cout << i << " " << str << "\n";
   }
+  // for (auto i = sheme.begin(); i != sheme.end(); i++)
+  //   delete i->second;
 }
 catch (exception& e)
 {

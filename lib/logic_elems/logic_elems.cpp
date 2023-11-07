@@ -1,69 +1,135 @@
 #include "logic_elems.h"
+#include <algorithm>
 #include <iostream>
 using namespace logic;
 
-bool spec::Input_element::get_value() const
+Value spec::Input_element::get_value() const
 {
-  return (inverted ? !(arg->get_value()) : arg->get_value());
+  if (inverted)
+  {
+    if (arg->get_value() == Value::False)
+      return Value::True;
+    else if (arg->get_value() == Value::True)
+      return Value::False;
+  }
+  return arg->get_value();
 }
 
-bool And ::get_value() const
+void Element::calculate_dependings()
+{
+  for (size_t i = 0; i < dependings.size(); i++)
+    dependings[i]->calculate_value();
+  for (size_t i = 0; i < dependings.size(); i++)
+    dependings[i]->calculate_dependings();
+}
+
+void And::calculate_value()
 {
   if (arg_vec.size() < 2)
-    throw std::runtime_error("and must have >= 2 inputs");
-  bool value = 1;
-  for (size_t i = 0; value && i < arg_vec.size(); i++)
-    value = arg_vec[i].get_value();
-  value = inverted ? !value : value;
+    // throw std::runtime_error("and must have >= 2 inputs");
+    value = Value::Undef;
+  else
+  {
+    value = Value::True;
+    for (size_t i = 0; value > Value::False && i < arg_vec.size(); i++)
+      value = arg_vec[i].get_value();
+    if (inverted)
+    {
+      if (value == Value::True)
+        value = Value::False;
+      else if (value == Value::False)
+        value = Value::True;
+    }
+  }
+}
+
+void Or::calculate_value()
+{
+  if (arg_vec.size() < 2)
+    // throw std::runtime_error("or must have >= 2 inputs");
+    value = Value::Undef;
+  else
+  {
+    value = Value::False;
+    for (size_t i = 0; value < Value::True && i < arg_vec.size(); i++)
+      value = arg_vec[i].get_value();
+    if (inverted)
+    {
+      if (value == Value::True)
+        value = Value::False;
+      else if (value == Value::False)
+        value = Value::True;
+    }
+  }
+}
+
+Value Element::get_value() const
+{
+  if (inverted)
+  {
+    if (value == Value::False)
+      return Value::True;
+    else if (value == Value::True)
+      return Value::False;
+  }
   return value;
 }
 
-bool Or ::get_value() const
+void Src::set_value(bool value_)
 {
-  if (arg_vec.size() < 2)
-    throw std::runtime_error("or must have >= 2 inputs");
-  bool value = 0;
-  for (size_t i = 0; !value && i < arg_vec.size(); i++)
-    value = arg_vec[i].get_value();
-  value = inverted ? !value : value;
-  return value;
+  value = value_ ? Value::True : Value::False;
+  calculate_dependings();
 }
 
-bool Src::get_value() const { return inverted ? !value : value; }
-
-void Src::set_value(bool value_) { value = value_; }
-
-void And ::reset_sorses() { arg_vec.clear(); }
-
-void Or ::reset_sorses() { arg_vec.clear(); }
-
-Src::Src(bool value_) { value = value_; }
-
-Src::Src() { value = 0; }
-
-void Logic::add_sorce(const Element& t)
+void Element::remove_depending(logic::Logic* t)
 {
-  spec::Input_element temp{&t, inverse_input};
-  this->arg_vec.push_back(temp);
-  inverse_input = 0;
+  auto temp = std::find(dependings.begin(), dependings.end(),
+                        t);  // потенциальная ошибка
+  if (temp != dependings.end())
+    dependings.erase(temp);
 }
 
-void Logic::add_sorce(const Element* t)
+void spec::Input_element::remove(logic::Logic* t)
+{
+  arg->remove_depending(t);
+}
+
+void Logic ::reset_sorses()
+{
+  for (size_t i = 0; i < arg_vec.size(); i++)
+  {
+    arg_vec[i].remove(this);
+  }
+  arg_vec.clear();
+}
+
+// void Or ::reset_sorses() { arg_vec.clear(); }
+
+Src::Src(bool value_) { set_value(value_); }
+
+Src::Src() { set_value(0); }
+
+void Logic::add_sorce(Element& t) { add_sorce(&t); }
+
+void Logic::add_sorce(Element* t)
 {
   spec::Input_element temp{t, inverse_input};
   this->arg_vec.push_back(temp);
   inverse_input = 0;
+  calculate_value();
+  calculate_dependings();
 }
 
-// Logic& operator>> (const Element& a, Logic& b)
-// {
-//   b.add_sorce(a);
-//   return b;
-// }
-Element& operator>> (Element const& a, Element& b)
+Element& operator>> (Element& a, Element& b)
 {
   b.add_sorce(a);
   return b;
+}
+
+Element& operator<< (Element& a, Element& b)
+{
+  a.add_sorce(b);
+  return a;
 }
 
 Logic& Logic::operator~()
@@ -78,8 +144,12 @@ Element& Element::operator!()
   return *this;
 }
 
-Logic& Logic::operator!()
-{
-  inverted = !inverted;
-  return *this;
-}
+// Logic& Logic::operator!()
+// {
+//   inverted = !inverted;
+//   return *this;
+// }
+
+void Element::add_dependings(logic::Logic& t) { dependings.push_back(&t); }
+
+void Element::add_dependings(logic::Logic* t) { dependings.push_back(t); }

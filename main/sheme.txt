@@ -1,10 +1,13 @@
-and a1
-or o2
 src s1
 src s2
+or o1
+or o2
+! o1
+! o2
+o1 << s1 , o2 .
+o2 << s2 , o1 .
 ! s2
-s1 >> o2 .
-s2 >> o2 .
-a1 << s1 , s2 .
-out a1
+out s1
+out s2
+out o1
 out o2
