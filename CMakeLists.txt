@@ -5,6 +5,7 @@ set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
 # add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 cmake_path(SET LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+cmake_path(SET FLTK_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../git_stash/fltk-1.3.8")
 
 include_directories(
     ${LIB_DIR}
