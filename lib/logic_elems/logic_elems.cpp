@@ -33,22 +33,19 @@ void Element::calculate_dependings()
 
 void And::calculate_value()
 {
+  std::cout << "\nbefore: " << value;
   if (arg_vec.size() < 2)
     // throw std::runtime_error("and must have >= 2 inputs");
     value = Value::Undef;
   else
   {
-    value = Value::True;
-    for (size_t i = 0; value > Value::False && i < arg_vec.size(); i++)
-      value = arg_vec[i].get_value();
-    if (inverted)
-    {
-      if (value == Value::True)
-        value = Value::False;
-      else if (value == Value::False)
-        value = Value::True;
-    }
+    Value temp = Value::True;
+    for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
+      if (temp > arg_vec[i].get_value())
+        temp = arg_vec[i].get_value();
+    value = inverted ? !temp : temp;
   }
+  std::cout << "\nafter: " << value << "\n";
 }
 
 void Or::calculate_value()
@@ -58,16 +55,11 @@ void Or::calculate_value()
     value = Value::Undef;
   else
   {
-    value = Value::False;
-    for (size_t i = 0; value < Value::True && i < arg_vec.size(); i++)
-      value = arg_vec[i].get_value();
-    if (inverted)
-    {
-      if (value == Value::True)
-        value = Value::False;
-      else if (value == Value::False)
-        value = Value::True;
-    }
+    Value temp = Value::False;
+    for (size_t i = 0; temp != Value::True && i < arg_vec.size(); i++)
+      if (temp < arg_vec[i].get_value())
+        temp = arg_vec[i].get_value();
+    value = inverted ? !temp : temp;
   }
 }
 
@@ -149,23 +141,26 @@ Element& Element::operator!()
   return *this;
 }
 
-// Logic& Logic::operator!()
-// {
-//   inverted = !inverted;
-//   return *this;
-// }
-
-// void Src::calculate_value()
-// {
-//   if (inverted)
-//   {
-//     if (value == Value::False)
-//       value = Value::True;
-//     else if (value == Value::True)
-//       value = Value::False;
-//   }
-// }
-
 void Element::add_dependings(logic::Logic& t) { dependings.push_back(&t); }
 
 void Element::add_dependings(logic::Logic* t) { dependings.push_back(t); }
+
+std::ostream& operator<< (std::ostream& stream, logic::Value val)
+{
+  std::string str_val = "Undef";
+  if (val == logic::Value::True)
+    str_val = "True";
+  else if (val == logic::Value::False)
+    str_val = "False";
+  stream << str_val;
+  return stream;
+}
+
+logic::Value operator!(logic::Value value)
+{
+  if (value == Value::True)
+    value = Value::False;
+  else if (value == Value::False)
+    value = Value::True;
+  return value;
+}

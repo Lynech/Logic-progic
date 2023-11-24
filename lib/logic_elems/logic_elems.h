@@ -24,6 +24,8 @@ class Input_element;
 
 logic::Element& operator>> (logic::Element& a, logic::Element& b);
 logic::Element& operator<< (logic::Element& a, logic::Element& b);
+std::ostream& operator<< (std::ostream& a, logic::Value b);
+logic::Value operator!(logic::Value value);
 
 class logic::Element
 {
@@ -41,8 +43,7 @@ public:
   // virtual void calculate_value () = 0;
 
   virtual Element& operator!();
-  virtual void
-  add_sorce (logic::Element& t) = 0;  // возможна ошибка, надо обдумать
+  virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
 };
 
@@ -56,11 +57,8 @@ protected:
 
 public:
   Logic& operator~();
-  // virtual void calculate_value () = 0;
-  // Logic& operator!();  // поменять на invert
   virtual void calculate_value () = 0;
-  void
-  add_sorce (logic::Element& t) override;  // возможна ошибка, надо обдумать
+  void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
 };

@@ -38,13 +38,12 @@ try
     {
       f >> str;
       // out.push_back(str);
-      logic::Value val = sheme[str]->get_value();
-      string str_val = "Undef";
-      if (val == logic::Value::True)
-        str_val = "True";
-      else if (val == logic::Value::False)
-        str_val = "False";
-      cout << str << " " << str_val << "\n";
+
+      cout << str << " " << sheme[str]->get_value() << "\n";
+    }
+    else if (str == "out-")
+    {
+      cout << "---------\n";
     }
     else if (sheme.find(str) != sheme.end())
     {
