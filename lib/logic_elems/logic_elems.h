@@ -10,21 +10,41 @@ class Logic;
 class And;
 class Or;
 class Src;
+enum class Value
+{
+  False = 0,
+  Undef,
+  True,
+};
 
 namespace spec {
 class Input_element;
 }
 }  // namespace logic
 
+logic::Element& operator>> (logic::Element& a, logic::Element& b);
+logic::Element& operator<< (logic::Element& a, logic::Element& b);
+std::ostream& operator<< (std::ostream& a, logic::Value b);
+logic::Value operator!(logic::Value value);
+
 class logic::Element
 {
 protected:
   bool inverted{0};
+  Value value{Value::Undef};
+  void add_dependings (logic::Logic& t);
+  void add_dependings (logic::Logic* t);
 
 public:
-  virtual bool get_value () const = 0;
+  std::vector<logic::Logic*> dependings;
+  Value get_value () const;
+  void calculate_dependings ();
+  void remove_depending (logic::Logic* t);
+  // virtual void calculate_value () = 0;
 
   virtual Element& operator!();
+  virtual void add_sorce (logic::Element& t) = 0;
+  virtual void add_sorce (logic::Element* t) = 0;
 };
 
 class logic::Logic : public logic::Element
@@ -37,26 +57,10 @@ protected:
 
 public:
   Logic& operator~();
-  Logic& operator!();
-  void add_sorce (const logic::Element& t);
-};
-
-logic::Logic& operator>> (const logic::Element& a, logic::Logic& b);
-
-class logic::spec::Input_element
-{
-private:
-  const logic::Element* arg;
-  bool inverted{0};
-
-public:
-  bool get_value () const;
-  Input_element() : arg{nullptr}, inverted{0} {};
-  Input_element(const logic::spec::Input_element& elem)
-      : arg{elem.arg}, inverted{elem.inverted} {};
-  Input_element(const logic::Element* arg_) : arg{arg_}, inverted{0} {};
-  Input_element(const logic::Element* arg_, bool inverted_)
-      : arg{arg_}, inverted{inverted_} {};
+  virtual void calculate_value () = 0;
+  void add_sorce (logic::Element& t) override;
+  void add_sorce (logic::Element* t) override;
+  void reset_sorses ();
 };
 
 class logic::And : public logic::Logic
@@ -64,8 +68,7 @@ class logic::And : public logic::Logic
 private:
 
 public:
-  bool get_value () const;
-  void reset_sorses ();
+  void calculate_value () override;
 };
 
 class logic::Or : public logic::Logic
@@ -73,19 +76,49 @@ class logic::Or : public logic::Logic
 private:
 
 public:
-  bool get_value () const;
-  void reset_sorses ();
+  void calculate_value () override;
 };
 
 class logic::Src : public logic::Element
 {
 private:
-  bool value{0};
 
 public:
   Src();
   Src(bool value_);
   void set_value (bool value_);
-  bool get_value () const;
+
+  // void calculate_value () override;
+
+  void
+  add_sorce (logic::Element&) override  // возможна ошибка, надо обдумать
+  {
+    throw std::runtime_error("src can't get '&'sources");
+  }
+
+  void add_sorce (logic::Element*) override
+  {
+    throw std::runtime_error("src can't get '*'sources");
+  }
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+class logic::spec::Input_element
+{
+private:
+  logic::Element* arg;
+  bool inverted{0};
+
+public:
+  Value get_value () const;
+  void remove (logic::Logic*);
+  Input_element() : arg{nullptr}, inverted{0} {};
+  Input_element(const logic::spec::Input_element& elem)
+      : arg{elem.arg}, inverted{elem.inverted} {};
+  Input_element(logic::Element* arg_) : arg{arg_}, inverted{0} {};
+  Input_element(logic::Element* arg_, bool inverted_)
+      : arg{arg_}, inverted{inverted_} {};
+};
+
 #endif

@@ -1,0 +1,7 @@
+src s1
+and a1
+! s1
+! a1
+a1 << s1 , s1 , a1 .
+out a1
+out s1
