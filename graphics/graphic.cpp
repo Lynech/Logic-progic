@@ -1,5 +1,7 @@
 #include "fltk.h"
 
+#include <FL/Fl_Line_Dial.H>
+
 // int main (int argc, char** argv)
 // {
 //   Fl_Window* window = new Fl_Window(50, 50, 600, 600);
@@ -26,6 +28,7 @@
 
 int main (int argc, char** argv)
 {
+
   LogicWindow* window = new LogicWindow{};
   window->end();
   window->show(argc, argv);
