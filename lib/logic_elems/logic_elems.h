@@ -40,7 +40,10 @@ public:
   Value get_value () const;
   void calculate_dependings ();
   void remove_depending (logic::Logic* t);
+
   // virtual void calculate_value () = 0;
+
+  bool is_inverted () { return inverted; }
 
   virtual Element& operator!();
   virtual void add_sorce (logic::Element& t) = 0;
