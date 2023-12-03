@@ -3,10 +3,17 @@ cmake_minimum_required(VERSION 3.20)
 set(TARGET "graphics")
 
 set(HEADERS
+# fltk.h
+# logicmap.h
+# mapgroup.h
+# logicwindow.h
 )
 set(SOURCES
     graphic.cpp
     fltk.cpp
+    # logicmap.cpp 
+    # logicwindow.cpp
+    # mapgroup.cpp 
 )
 
 project(${TARGET} CXX)
