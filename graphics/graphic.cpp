@@ -1,4 +1,34 @@
+#include <FL/Fl.H>
+#include <FL/fl_draw.H>
+
 #include "fltk.h"
+#include <cmath>
+
+// int main (int argc, char** argv)
+// {
+//   Fl_Window* window = new Fl_Window(50, 50, 600, 600);
+//   // window->color(FL_RED);
+//   new Not{200, 200};
+//   new And{100, 100};
+//   new Or{300, 300};
+//   window->color(FL_BLACK);
+//   window->end();
+//   window->show(argc, argv);
+//   return Fl::run();
+// }
+
+int main (int argc, char** argv)
+{
+
+  LogicWindow* window = new LogicWindow{};
+  // new Not{200, 200};
+  // new And{100, 100};
+  // new Or{300, 300};
+  window->color(FL_BLACK);
+  window->end();
+  window->show(argc, argv);
+  return Fl::run();
+}
 
 // int main (int argc, char** argv)
 // {
@@ -23,6 +53,7 @@
 //   window->show(argc, argv);
 //   return Fl::run();
 // }
+/*
 
 int main (int argc, char** argv)
 {

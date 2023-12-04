@@ -7,6 +7,7 @@ set(HEADERS
 set(SOURCES
     graphic.cpp
     fltk.cpp
+    graph_elems/graph_elems.cpp
 )
 
 project(${TARGET} CXX)

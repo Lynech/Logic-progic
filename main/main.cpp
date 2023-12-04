@@ -10,7 +10,7 @@ try
 {
   map<string, logic::Element*> sheme;
   // vector<string> out;
-  ifstream f("C:/university projects/logic/Logic-progic/main/sheme.txt",
+  ifstream f("C:/university\ projects/logic/Logic-progic/main/sheme.txt",
              ios_base::in);
   string str;
   while (f)
