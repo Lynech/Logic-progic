@@ -164,3 +164,12 @@ logic::Value operator!(logic::Value value)
     value = Value::True;
   return value;
 }
+
+bool logic::spec::Input_element::is_inverted() { return inverted; }
+
+std::vector<logic::spec::Input_element> logic::Logic::get_input_elements()
+{
+  return arg_vec;
+};
+
+logic::Element* logic::spec::Input_element::get_arg() { return arg; }

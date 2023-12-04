@@ -1,4 +1,4 @@
-#include "read.h"
+#include "drawing_elems.h"
 
 vector<Drawing_Element*> sheme;
 
@@ -12,13 +12,6 @@ int get_pos (const string& el)
   return -1;
 }
 
-// bool is_valid(Drawing_Element* el)
-// {
-
-//     return false;
-//   return true;
-// }
-
 void read_file (const string& file_name)
 try
 {
@@ -30,34 +23,34 @@ try
     if (str == "and" || str == "src" || str == "or")
     {
       int what_el = 0;
-      logic::Element* elem = nullptr;
-      if (str == "and")
-        elem = new logic::And;
-      else if (str == "or")
-      {
-        elem = new logic::Or;
+      if (str == "or")
         what_el = 1;
-      }
-      else
-      {
-        elem = new logic::Src;
+      else if (str == "src")
         what_el = 2;
-      }
       f >> str;
       string name = str;
       f >> str;
-      bool is_inv = stoi(str);
+      bool inverted = stoi(str);
       f >> str;
       int xx = stoi(str);
       f >> str;
       int yy = stoi(str);
       Drawing_Element* temp = nullptr;
       if (what_el == 0)
-        temp = new Drawing_And{elem, name, is_inv, xx, yy};
+      {
+        logic::And* elem = new logic::And;
+        temp = new Drawing_And{elem, name, inverted, xx, yy};
+      }
       else if (what_el == 1)
-        temp = new Drawing_Or{elem, name, is_inv, xx, yy};
+      {
+        logic::Or* elem = new logic::Or;
+        temp = new Drawing_Or{elem, name, inverted, xx, yy};
+      }
       else
-        temp = new Drawing_Source{elem, name, is_inv, xx, yy};
+      {
+        logic::Src* elem = new logic::Src;
+        temp = new Drawing_Src{elem, name, inverted, xx, yy};
+      }
       sheme.push_back(temp);
     }
     f >> str;
@@ -77,21 +70,15 @@ try
           f >> str;
           int input_elpos = get_pos(str);
           if (input_elpos != -1)
-          {
-            sheme[elpos]->push(sheme[input_elpos]);
-            *(sheme[elpos]->get_element())
-                << !*(sheme[input_elpos]->get_element());
-          }
+            *(sheme[input_elpos]->get_element()) >>
+                ~*(sheme[elpos]->get_element());
         }
         else
         {
           int input_elpos = get_pos(str);
           if (input_elpos != -1)
-          {
-            sheme[elpos]->push(sheme[input_elpos]);
             *(sheme[elpos]->get_element())
-                << !*(sheme[input_elpos]->get_element());
-          }
+                << *(sheme[input_elpos]->get_element());
         }
       }
     }
@@ -108,44 +95,55 @@ void write_file (const string& file_name)
   ofstream f{file_name, ios_base::trunc};
   for (size_t i = 0; i < sheme.size(); ++i)
   {
-    vector<Drawing_Element*> input_elements =
-        sheme[i]->get_input_elements();
-    if (sheme[i]->get_name()[0] == 's' || input_elements.size() == 0)
+    string name = sheme[i]->get_name();
+    if (name[0] == 's')
+      f << "src" << ' ';
+    else if (name[0] == 'o')
+      f << "or" << ' ';
+    else
+      f << "and" << ' ';
+    f << sheme[i]->get_name() << ' ';
+    f << sheme[i]->is_inverted() << ' ';
+    f << sheme[i]->get_x() << ' ';
+    f << sheme[i]->get_y() << '\n';
+  }
+  f << ';' << '\n';
+  for (size_t i = 0; i < sheme.size(); ++i)
+  {
+    if (sheme[i]->get_name()[0] == 's')
+      continue;
+    vector<logic::spec::Input_element> input_elements =
+        sheme[i]->get_input_elems();
+    if (input_elements.size() == 0)
       continue;
     f << sheme[i]->get_name();
     f << " <<";
     for (size_t i = 0; i < input_elements.size(); ++i)
     {
-      if (input_elements[i]->get_element()->is_inverted())
-        f << " "
-          << "~";
-      f << " " << input_elements[i]->get_name();
-      if (i + 1 != input_elements.size())
-        f << " ,";
+      for (size_t j = 0; j < sheme.size(); ++j)
+      {
+        if (sheme[j]->get_element() == input_elements[i].get_arg())
+        {
+          f << " ";
+          if (input_elements[i].is_inverted())
+            f << "~ ";
+          f << sheme[j]->get_name();
+          if (i + 1 != input_elements.size())
+            f << " ,";
+          break;
+        }
+      }
     }
     f << " "
       << "." << '\n';
   }
-}
-
-const string& Drawing_Element::get_name() { return name; }
-
-logic::Element* Drawing_Element::get_element() { return elem; }
-
-void Drawing_Element::push(Drawing_Element* el)
-{
-  vec_input_elements.push_back(el);
+  f.close();
 }
 
 // void Drawing_Or::push(Drawing_Element* el)
 // {
 //   vec_input_elements.push_back(el);
 // }
-
-vector<Drawing_Element*> Drawing_Element::get_input_elements()
-{
-  return vec_input_elements;
-}
 
 // void Drawing_Or::get_input_elements() { return vec_input_elements; }
 
