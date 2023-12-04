@@ -2,6 +2,13 @@
 
 vector<Drawing_Element*> sheme;
 
+enum class Type_Element
+{
+  SRC,
+  OR,
+  AND
+};
+
 int get_pos (const string& el)
 {
   for (size_t i = 0; i < sheme.size(); ++i)
@@ -22,11 +29,13 @@ try
   {
     if (str == "and" || str == "src" || str == "or")
     {
-      int what_el = 0;
-      if (str == "or")
-        what_el = 1;
-      else if (str == "src")
-        what_el = 2;
+      Type_Element what_el;
+      if (str == "src")
+        what_el = Type_Element::SRC;
+      else if (str == "or")
+        what_el = Type_Element::OR;
+      else if (str == "and")
+        what_el = Type_Element::AND;
       f >> str;
       string name = str;
       f >> str;
@@ -35,22 +44,13 @@ try
       int xx = stoi(str);
       f >> str;
       int yy = stoi(str);
-      Drawing_Element* temp = nullptr;
-      if (what_el == 0)
-      {
-        logic::And* elem = new logic::And;
-        temp = new Drawing_And{elem, name, inverted, xx, yy};
-      }
-      else if (what_el == 1)
-      {
-        logic::Or* elem = new logic::Or;
-        temp = new Drawing_Or{elem, name, inverted, xx, yy};
-      }
-      else
-      {
-        logic::Src* elem = new logic::Src;
-        temp = new Drawing_Src{elem, name, inverted, xx, yy};
-      }
+      Drawing_Element* temp;
+      if (what_el == Type_Element::SRC)
+        temp = new Drawing_Src{new logic::Src, name, inverted, xx, yy};
+      else if (what_el == Type_Element::OR)
+        temp = new Drawing_Or{new logic::Or, name, inverted, xx, yy};
+      else if (what_el == Type_Element::AND)
+        temp = new Drawing_And{new logic::And, name, inverted, xx, yy};
       sheme.push_back(temp);
     }
     f >> str;
@@ -116,8 +116,7 @@ void write_file (const string& file_name)
         sheme[i]->get_input_elems();
     if (input_elements.size() == 0)
       continue;
-    f << sheme[i]->get_name();
-    f << " <<";
+    f << sheme[i]->get_name() << " <<";
     for (size_t i = 0; i < input_elements.size(); ++i)
     {
       for (size_t j = 0; j < sheme.size(); ++j)
@@ -135,7 +134,9 @@ void write_file (const string& file_name)
       }
     }
     f << " "
-      << "." << '\n';
+      << ".";
+    if (i + 1 != sheme.size())
+      f << "\n";
   }
   f.close();
 }
