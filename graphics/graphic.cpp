@@ -1,4 +1,5 @@
 #include "fltk.h"
+#include "logicwindow.h"
 
 // class MyDot : public Fl_Widget
 // {
