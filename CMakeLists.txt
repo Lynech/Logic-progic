@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+
+project("graphic" CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDSARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
@@ -8,6 +12,5 @@ include_directories(
     ${LIB_DIR}
 )
 
-# add_subdirectory("test_graphics")
-add_subdirectory("main")
+# add_subdirectory("main")
 add_subdirectory("graphics")

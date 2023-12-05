@@ -65,11 +65,15 @@ void Or::calculate_value()
 
 void Buff::calculate_value()
 {
-  Value temp = arg_vec[0].get_value();
-  value = inverted ? temp : !temp;
-}
+  if (arg_vec.size() > 1)
+    throw std::runtime_error("or must have >= 2 inputs");
 
-void Res::calculate_value() { calculate_dependings(); }
+  else
+  {
+    Value temp = arg_vec[0].get_value();
+    value = inverted ? !temp : temp;
+  }
+}
 
 Value Element::get_value() const { return value; }
 
@@ -172,12 +176,3 @@ logic::Value operator!(logic::Value value)
     value = Value::True;
   return value;
 }
-
-bool logic::spec::Input_element::is_inverted() { return inverted; }
-
-std::vector<logic::spec::Input_element> logic::Logic::get_input_elements()
-{
-  return arg_vec;
-};
-
-logic::Element* logic::spec::Input_element::get_arg() { return arg; }
