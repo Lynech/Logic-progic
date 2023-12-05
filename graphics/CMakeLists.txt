@@ -1,37 +1,59 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(TARGET "graphics")
+set(FLTK_SKIP_FLUID True)
+set(FLTK_SKIP_FORMS True)
+
+find_package(FLTK REQUIRED)
+find_package(OpenGL REQUIRED)
 
 set(HEADERS
-# fltk.h
+fltk.h
 # logicmap.h
 # mapgroup.h
 # logicwindow.h
 )
 set(SOURCES
-    graphic.cpp
+    # graphic.cpp
     fltk.cpp
     # logicmap.cpp 
     # logicwindow.cpp
     # mapgroup.cpp 
 )
 
-project(${TARGET} CXX)
+add_library(my_lib ${HEADERS} ${SOURCES})
 
-set(FLTK_SKIP_FLUID True)
-set(FLTK_SKIP_FORMS True)
+target_include_directories(
+    my_lib
+    SYSTEM
+    PUBLIC
+    ${FLTK_INCLUDE_DIR}
+)
 
-find_package(FLTK 1.3.8 EXACT REQUIRED)
-find_package(OpenGL REQUIRED)
+target_include_directories(
+    my_lib
+    PUBLIC
+    ../
+)
 
-include_directories(SYSTEM ${FLTK_INCLUDE_DIR})
-link_directories(${FLTK_INCLUDE_DIR}/../lib)
+target_link_directories(
+    my_lib
+    PUBLIC
+    ${FLTK_INCLUDE_DIR}/../lib
+)
 
-add_executable(${TARGET} ${HEADERS} ${SOURCES})
+target_link_libraries(
+    my_lib
+    ${FLTK_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+)
 
-target_link_libraries(${TARGET} ${FLTK_LIBRARIES} ${OPENGL_LIBRARIES})
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(${TARGET} fltk_jpeg fltk_png fltk_z)
-endif()
+target_link_libraries(my_lib fltk fltk_jpeg fltk_png fltk_z)
 
-install(TARGETS ${TARGET})
+add_executable(
+    my_exe
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphic.cpp
+)
+target_link_libraries(
+    my_exe
+    my_lib
+)

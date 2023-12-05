@@ -13,6 +13,7 @@
 #include <FL/Fl_Scrollbar.H>
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Window.H>
+#include <FL/fl_draw.H>
 #include <iostream>
 
 // #include "logicmap.h"
@@ -74,30 +75,7 @@ public:
   {
   }  // надо сделать поле type с названием типа
 
-  int handle (int event)
-  {
-    if (event == FL_RELEASE)
-    {
-      Fl_Window* map = (Fl_Window*)(parent()->parent()->parent());
-      int n = map->children();
-      LogicMap* scroll = nullptr;
-      for (int i = 0; i < n && !scroll; i++)
-        scroll = dynamic_cast<LogicMap*>(map->child(i));
-      MapGroup* group = nullptr;
-      if (scroll)
-      {
-        n = scroll->children();
-        for (int i = 0; i < n && !group; i++)
-          group = dynamic_cast<MapGroup*>(scroll->child(i));
-      }
-      if (group)
-        add_elem<T>(nullptr, group);
-      return Fl_Button::handle(event);
-    }
-    if (event == FL_DRAG)
-      return 1;
-    return Fl_Button::handle(event);
-  }
+  int handle (int event);
 };
 
 class LogicWindow : public Fl_Window

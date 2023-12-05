@@ -31,7 +31,7 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
 {
   MapGroup* map = (MapGroup*)userdata;
   LogicMap* mamamap = (LogicMap*)map->parent();
-
+  int w = 50, h = 50;
   if ((Fl::event_x() > mamamap->x() &&
        Fl::event_x() <
            (mamamap->x() + mamamap->w() - mamamap->scrollbar.w())) &&
@@ -40,7 +40,7 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
            (mamamap->y() + mamamap->h() - mamamap->hscrollbar.h())))
   {
     map->begin();
-    new T{Fl::event_x(), Fl::event_y(), 50, 50};
+    new T{Fl::event_x(), Fl::event_y(), w, h};
     map->end();
     map->redraw();
   }
@@ -144,3 +144,28 @@ ElemList::ElemList(int x, int y, int w, int h, MapGroup* map)
                                     "кнопка с лампочкой"};
   ElemGroup->end();
 };
+
+template <class T> int CreateButton<T>::handle(int event)
+{
+  if (event == FL_RELEASE)
+  {
+    Fl_Window* map = (Fl_Window*)(parent()->parent()->parent());
+    int n = map->children();
+    LogicMap* scroll = nullptr;
+    for (int i = 0; i < n && !scroll; i++)
+      scroll = dynamic_cast<LogicMap*>(map->child(i));
+    MapGroup* group = nullptr;
+    if (scroll)
+    {
+      n = scroll->children();
+      for (int i = 0; i < n && !group; i++)
+        group = dynamic_cast<MapGroup*>(scroll->child(i));
+    }
+    if (group)
+      add_elem<T>(nullptr, group);
+    return Fl_Button::handle(event);
+  }
+  if (event == FL_DRAG)
+    return 1;
+  return Fl_Button::handle(event);
+}
