@@ -1,4 +1,5 @@
 #include "fltk.h"
+#include "graph_elems/graph_elems.h"
 
 int choise (int a, int b, int c)
 {
@@ -31,7 +32,7 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
 {
   MapGroup* map = (MapGroup*)userdata;
   LogicMap* mamamap = (LogicMap*)map->parent();
-  int w = 50, h = 50;
+
   if ((Fl::event_x() > mamamap->x() &&
        Fl::event_x() <
            (mamamap->x() + mamamap->w() - mamamap->scrollbar.w())) &&
@@ -40,7 +41,7 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
            (mamamap->y() + mamamap->h() - mamamap->hscrollbar.h())))
   {
     map->begin();
-    new T{Fl::event_x(), Fl::event_y(), w, h};
+    new T{Fl::event_x(), Fl::event_y(), 70, 50};
     map->end();
     map->redraw();
   }
@@ -53,7 +54,7 @@ LogicMap::LogicMap(int x, int y, int w, int h, const char* l)
   map_group->end();
 
   type(Fl_Scroll::BOTH_ALWAYS);
-  color(FL_BLACK);
+  color(FL_WHITE);
 };
 
 int LogicMap::handle(int x)
@@ -115,10 +116,15 @@ int MapGroup::handle(int event)
 MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
     : Fl_Group{x, y, w, h, l}
 {
-  menu = new Fl_Menu_Item[3];
-  menu[0] = Fl_Menu_Item{"jessi button", 0, add_butt, this};
-  menu[1] = Fl_Menu_Item{"heisenberg button", 0, add_butt2, this};
-  menu[2] = Fl_Menu_Item{0};
+  menu = new Fl_Menu_Item[7];
+  menu[0] = Fl_Menu_Item{"add elem", 0, 0, 0, FL_SUBMENU};
+  menu[1] = Fl_Menu_Item{"and", 0, add_elem<graph::And>, this};
+  menu[2] = Fl_Menu_Item{"or", 0, add_elem<graph::Or>, this};
+  menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Not>, this};
+  menu[4] = Fl_Menu_Item{0};
+  menu[5] = Fl_Menu_Item{"00", 0, add_elem<graph::And>, this};
+  menu[6] = Fl_Menu_Item{0};
+
   Fl_Scroll* mama = (Fl_Scroll*)parent();
   x_min = 0;
   y_min = 0;
@@ -137,35 +143,15 @@ ElemList::ElemList(int x, int y, int w, int h, MapGroup* map)
   gap_y = h / 60;
   button_h = h / 5 - 2 * gap_y / 3;
   button_w = w - scrollbar.w() - 2 * gap_x;
-  new CreateButton<Fl_Button>{gap_x + x, y + gap_y, button_w, button_h,
-                              "кнопка"};
-  new CreateButton<Fl_Light_Button>{gap_x + x, y + 2 * gap_y + button_h,
-                                    button_w, button_h,
-                                    "кнопка с лампочкой"};
+  new CreateButton<graph::Not>{gap_x + x, y + gap_y, button_w, button_h,
+                               "not"};
+  new CreateButton<graph::And>{gap_x + x, y + 2 * gap_y + button_h,
+                               button_w, button_h, "and"};
+  new CreateButton<graph::Or>{gap_x + x, y + 3 * gap_y + 2 * button_h,
+                              button_w, button_h, "or"};
+  // int size = 50;
+  // new graph::Not{x + (w - size) / 2, y + 30, size};
+  // new graph::And{x + (w - size) / 2, y + 30 * 2 + size, size};
+  // new graph::Or{x + (w - size) / 2, x + 30 * 3 + 2 * size, size};
   ElemGroup->end();
 };
-
-template <class T> int CreateButton<T>::handle(int event)
-{
-  if (event == FL_RELEASE)
-  {
-    Fl_Window* map = (Fl_Window*)(parent()->parent()->parent());
-    int n = map->children();
-    LogicMap* scroll = nullptr;
-    for (int i = 0; i < n && !scroll; i++)
-      scroll = dynamic_cast<LogicMap*>(map->child(i));
-    MapGroup* group = nullptr;
-    if (scroll)
-    {
-      n = scroll->children();
-      for (int i = 0; i < n && !group; i++)
-        group = dynamic_cast<MapGroup*>(scroll->child(i));
-    }
-    if (group)
-      add_elem<T>(nullptr, group);
-    return Fl_Button::handle(event);
-  }
-  if (event == FL_DRAG)
-    return 1;
-  return Fl_Button::handle(event);
-}

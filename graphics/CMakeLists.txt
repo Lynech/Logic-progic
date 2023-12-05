@@ -11,6 +11,7 @@ fltk.h
 # logicmap.h
 # mapgroup.h
 # logicwindow.h
+graph_elems/graph_elems.cpp
 )
 set(SOURCES
     # graphic.cpp

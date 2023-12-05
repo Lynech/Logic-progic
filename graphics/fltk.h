@@ -1,5 +1,6 @@
 #ifndef MY_FLTK_H
 #define MY_FLTH_H
+#include "graph_elems/graph_elems.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
@@ -13,7 +14,6 @@
 #include <FL/Fl_Scrollbar.H>
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Window.H>
-#include <FL/fl_draw.H>
 #include <iostream>
 
 // #include "logicmap.h"
@@ -77,6 +77,31 @@ public:
 
   int handle (int event);
 };
+
+template <class T> int CreateButton<T>::handle(int event)
+{
+  if (event == FL_RELEASE)
+  {
+    Fl_Window* map = (Fl_Window*)(parent()->parent()->parent());
+    int n = map->children();
+    LogicMap* scroll = nullptr;
+    for (int i = 0; i < n && !scroll; i++)
+      scroll = dynamic_cast<LogicMap*>(map->child(i));
+    MapGroup* group = nullptr;
+    if (scroll)
+    {
+      n = scroll->children();
+      for (int i = 0; i < n && !group; i++)
+        group = dynamic_cast<MapGroup*>(scroll->child(i));
+    }
+    if (group)
+      add_elem<T>(nullptr, group);
+    return Fl_Button::handle(event);
+  }
+  if (event == FL_DRAG)
+    return 1;
+  return Fl_Button::handle(event);
+}
 
 class LogicWindow : public Fl_Window
 {

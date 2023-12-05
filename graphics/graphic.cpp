@@ -1,5 +1,4 @@
 #include "fltk.h"
-#include <FL/fl_draw.H>
 
 // class MyDot : public Fl_Widget
 // {
