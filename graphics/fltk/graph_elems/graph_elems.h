@@ -1,5 +1,7 @@
 #ifndef GRAPH_ELEMS_H
 #define GRAPH_ELEMS_H
+#include "fltk.h"
+#include "logic_elems/logic_elems.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Counter.H>
@@ -20,11 +22,17 @@
 namespace graph {
 class And;
 class Or;
-class Not;
+class Buff;
+class Element;
 };  // namespace graph
 
 const int link_circle_radius = 5;
 const int elem_link_lenth = 20;
+enum class link_circle_types
+{
+  input = 0,
+  output = 1
+};
 
 // класс для точки
 class Point
@@ -49,70 +57,67 @@ public:
   void set_y (int yyy) { yy = yyy; }
 };
 
-enum class link_circles
-{
-  input = 1,
-  output = 2
-};
-
+// класс кружочков связи
 class LinkCircle : public Fl_Widget
 {
 private:
-  int x, y;
-  // link_circles link_type;
+  Point p_center;
+  link_circle_types type;
   bool is_entered = false;
+  graph::Element* parent_elem;
 
 public:
-  LinkCircle(int xx = 0, int yy = 0, int w = 0, int h = 0,
-             const char* l = 0)
-      : Fl_Widget{xx - link_circle_radius, yy - link_circle_radius,
-                  link_circle_radius * 2, link_circle_radius * 2, l}
+  LinkCircle(int xx = 0, int yy = 0,
+             link_circle_types t = link_circle_types::input, int h = 0,
+             const char* l = 0);
+
+  void draw () override;
+  int handle (int event) override;
+
+  void set_parent_elem (graph::Element* e) { parent_elem = e; }
+
+  graph::Element* get_parent_elem () { return parent_elem; }
+
+  link_circle_types get_type () { return type; }
+};
+
+// класс связи
+class Link : public Fl_Widget
+{
+private:
+  Point p_start, p_end;
+  LinkCircle *start_circle, *end_circle;
+
+public:
+  Link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0, const char* l = 0);
+
+  void draw () override;
+};
+
+// абстрактный класс для всех элементов
+class graph::Element : public Fl_Widget
+{
+private:
+  std::vector<Link*> input_links;
+  std::vector<Link*> output_links;
+
+public:
+  Element(int x = 0, int y = 0, int s = 50, int h = 0, const char* l = 0)
+      : Fl_Widget{x - 5, y - 5, s + 10, s + 10, l}
   {
-    x = xx;
-    y = yy;
+    // input_links = {0};
+    // output_links = {0};
   }
 
-  void draw () override
-  {
-    fl_color(16);
-    fl_begin_polygon();
-    fl_circle(x, y, link_circle_radius);
-    fl_end_polygon();
+  // virtual void print () = 0;
 
-    if (is_entered == true)
-    {
-      fl_color(FL_BLACK);
-    }
-    else
-    {
-      fl_color(16);
-    }
-    fl_line_style(0, 4);
-    fl_begin_loop();
-    fl_circle(x, y, link_circle_radius);
-    fl_end_loop();
-  }
+  void add_input_link (Link* link) { input_links.push_back(link); }
 
-  int handle (int x) override
-  {
-    switch (x)
-    {
-    case FL_ENTER:
-      is_entered = true;
-      redraw();
-      return 1;
-    case FL_LEAVE:
-      is_entered = false;
-      redraw();
-      return 1;
-    default:
-      return Fl_Widget::handle(x);
-    }
-  }
+  void add_output_link (Link* link) { output_links.push_back(link); }
 };
 
 // класс для элемента И
-class graph::And : public Fl_Widget
+class graph::And : public graph::Element
 
 {
 private:
@@ -120,6 +125,9 @@ private:
   bool is_entered = false;
   Point p1, p2, p3, p4, p_center, p_frame, p_input_link, p_output_link;
   LinkCircle *input_link, *output_link;
+  logic::And* logic_and;
+  // std::vector<Link*> input_links;
+  // std::vector<Link*> output_links;
 
 public:
   And(int x, int y, int s = 50, int h = 0, const char* l = 0);
@@ -130,16 +138,17 @@ public:
 };
 
 // класс для элемента НЕ
-class graph::Not : public Fl_Widget
+class graph::Buff : public Fl_Widget
 {
 private:
   int size = 50;
   Point p1, p2, p3, p_frame, p_input_link, p_output_link;
   bool is_entered = false;
   LinkCircle *input_link, *output_link;
+  logic::Buff* logic_buff;
 
 public:
-  Not(int x, int y, int fr_size, int h = 0, const char* l = 0);
+  Buff(int x, int y, int fr_size, int h = 0, const char* l = 0);
 
   int get_size () { return size; }
 
@@ -156,6 +165,7 @@ private:
   bool is_entered = false;
   Point p_ellipse, p_circle, p_frame, p_input_link, p_output_link;
   LinkCircle *input_link, *output_link;
+  logic::Or* logic_or;
 
 public:
   Or(int x, int y, int fr_size = 50, int h = 0, const char* l = 0);

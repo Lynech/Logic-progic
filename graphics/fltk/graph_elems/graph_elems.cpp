@@ -5,10 +5,129 @@
 
 using namespace graph;
 
-// конструктор класса И
-And::And(int x, int y, int s, int h, const char* l)
-    : Fl_Widget{x - 5, y - 5, s + 10, s + 10, l}
+// конструктор класса LinkCircle
+LinkCircle::LinkCircle(int xx, int yy, link_circle_types t, int h,
+                       const char* l)
+    : Fl_Widget{xx - link_circle_radius - 5, yy - link_circle_radius - 5,
+                link_circle_radius * 2 + 10, link_circle_radius * 2 + 10, l}
 {
+  p_center = Point{xx, yy};
+  type = t;
+}
+
+// отрисовка объектов класса LinkCircle
+void LinkCircle::draw()
+{
+  fl_color(16);
+  fl_begin_polygon();
+  fl_circle(p_center.x(), p_center.y(), link_circle_radius);
+  fl_end_polygon();
+
+  if (is_entered == true)
+  {
+    fl_color(FL_BLACK);
+  }
+  else
+  {
+    fl_color(16);
+  }
+  fl_line_style(0, 4);
+  fl_begin_loop();
+  fl_circle(p_center.x(), p_center.y(), link_circle_radius);
+  fl_end_loop();
+}
+
+// обработка взаимодействий с объектом класса LinkCircle
+int LinkCircle::handle(int event)
+{
+  switch (event)
+  {
+  case FL_ENTER:
+    is_entered = true;
+    redraw();
+    return 1;
+  case FL_LEAVE:
+    is_entered = false;
+    redraw();
+    return 1;
+  case FL_DRAG:
+    is_entered =
+        true;  //////////////////////////////// рисование новой линии
+    redraw();
+    return 1;
+  case FL_RELEASE:
+  {
+    MapGroup* par = (MapGroup*)this->parent();
+    int n = par->children();
+    int x = Fl::event_x();
+    int y = Fl::event_y();
+    LinkCircle* baby;
+    for (int i = 0; i < n; i++)
+    {
+      baby = dynamic_cast<LinkCircle*>(par->child(i));
+      // лежит ли ребенок под мышью и правильно ли соединяем
+      if (((baby != nullptr) &&
+           ((x >= baby->x() && x <= baby->x() + baby->w()) &&
+            (y >= baby->y() && y <= baby->y() + baby->w()))) &&
+          (baby->type != this->type))
+        break;
+    }
+    if (!baby)
+      return 1;
+    // определяем, из какого выходит связь и в какой входит
+    Element* input_el;
+    Element* output_el;
+    if (baby->type == link_circle_types::input)
+    {
+      input_el = baby->parent_elem;
+      output_el = this->parent_elem;
+    }
+    else
+    {
+      output_el = baby->parent_elem;
+      input_el = this->parent_elem;
+    }
+    Link* l = new Link{baby->x(), baby->y(), this->x(), this->y()};
+    input_el->add_input_link(l);
+    output_el->add_output_link(l);
+
+    is_entered = false;
+    redraw();
+    return 1;
+  }
+  default:
+    return Fl_Widget::handle(event);
+  }
+}
+
+// конструктор класса Link
+Link::Link(int x1, int y1, int x2, int y2, const char* l)
+    : Fl_Widget{0, 0, 0, 0, l}
+{
+  p_start = Point{x1, y1};
+  p_end = Point{x2, y2};
+}
+
+// отрисовка объектов класса Link
+void Link::draw()
+{
+  fl_line_style(0, 4);
+  fl_color(16);
+  fl_line(p_start.x(), p_start.y(), p_end.x(), p_end.y());
+}
+
+// конструктор абстрактного класса Element
+// Element::Element(int x, int y, int s, int h, const char* l)
+//     : Fl_Widget{x - 5, y - 5, s + 10, s + 10, l}
+// {
+// }
+
+//  конструктор класса И
+And::And(int x, int y, int s, int h, const char* l)
+    : Element{x - 5, y - 5, s + 10, s + 10, l}
+{
+  logic_and = new logic::And;
+
   size = s;
 
   p_frame = Point{x, y};
@@ -41,8 +160,12 @@ And::And(int x, int y, int s, int h, const char* l)
   int y_output_link = p_frame.y() + size / 2;
   p_output_link = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y()};
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y()};
+  input_link = new LinkCircle{p_input_link.x(), p_input_link.y(),
+                              link_circle_types::input};
+  input_link->set_parent_elem(this);
+  output_link = new LinkCircle{p_output_link.x(), p_output_link.y(),
+                               link_circle_types::output};
+  output_link->set_parent_elem(this);
 }
 
 // рисование объекта класса И
@@ -118,9 +241,11 @@ int And::handle(int x)
 }
 
 // конструктор класса НЕ
-Not::Not(int x, int y, int fr_size, int h, const char* l)
+Buff::Buff(int x, int y, int fr_size, int h, const char* l)
     : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
+  logic_buff = new logic::Buff;
+
   size = fr_size;
   p_frame = Point{x, y};
 
@@ -150,7 +275,7 @@ Not::Not(int x, int y, int fr_size, int h, const char* l)
 }
 
 // рисование объекта класса НЕ
-void Not::draw()
+void Buff::draw()
 {
   // рамка
   fl_color(16);
@@ -192,7 +317,7 @@ void Not::draw()
 }
 
 // обработка взаимодействия с объектом класса НЕ
-int Not::handle(int x)
+int Buff::handle(int x)
 {
   switch (x)
   {
@@ -213,6 +338,8 @@ int Not::handle(int x)
 Or::Or(int x, int y, int fr_size, int h, const char* l)
     : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
+  logic_or = new logic::Or;
+
   size = fr_size;
   p_frame = Point{x, y};
 

@@ -53,7 +53,7 @@ MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
   menu[0] = Fl_Menu_Item{"add elem", 0, 0, 0, FL_SUBMENU};
   menu[1] = Fl_Menu_Item{"and", 0, add_elem<graph::And>, this};
   menu[2] = Fl_Menu_Item{"or", 0, add_elem<graph::Or>, this};
-  menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Not>, this};
+  menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Buff>, this};
   menu[4] = Fl_Menu_Item{0};
   menu[5] = Fl_Menu_Item{"00", 0, add_elem<graph::And>, this};
   menu[6] = Fl_Menu_Item{0};

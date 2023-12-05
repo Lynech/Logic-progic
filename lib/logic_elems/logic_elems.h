@@ -10,6 +10,7 @@ class Logic;
 class And;
 class Or;
 class Src;
+class Buff;
 enum class Value
 {
   False = 0,
@@ -42,7 +43,7 @@ public:
   void remove_depending (logic::Logic* t);
   // virtual void calculate_value () = 0;
 
-  virtual Element& operator!();
+  Element& operator!();
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
 };
@@ -72,6 +73,14 @@ public:
 };
 
 class logic::Or : public logic::Logic
+{
+private:
+
+public:
+  void calculate_value () override;
+};
+
+class logic::Buff : public logic::Logic
 {
 private:
 
