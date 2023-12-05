@@ -63,6 +63,18 @@ void Or::calculate_value()
   }
 }
 
+void Buff::calculate_value()
+{
+  if (arg_vec.size() > 1)
+    throw std::runtime_error("or must have >= 2 inputs");
+
+  else
+  {
+    Value temp = arg_vec[0].get_value();
+    value = inverted ? !temp : temp;
+  }
+}
+
 Value Element::get_value() const { return value; }
 
 void Src::set_value(bool value_)
