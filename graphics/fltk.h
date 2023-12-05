@@ -1,5 +1,6 @@
 #ifndef MY_FLTK_H
 #define MY_FLTH_H
+#include "graph_elems/graph_elems.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
@@ -77,6 +78,31 @@ public:
   int handle (int event);
 };
 
+template <class T> int CreateButton<T>::handle(int event)
+{
+  if (event == FL_RELEASE)
+  {
+    Fl_Window* map = (Fl_Window*)(parent()->parent()->parent());
+    int n = map->children();
+    LogicMap* scroll = nullptr;
+    for (int i = 0; i < n && !scroll; i++)
+      scroll = dynamic_cast<LogicMap*>(map->child(i));
+    MapGroup* group = nullptr;
+    if (scroll)
+    {
+      n = scroll->children();
+      for (int i = 0; i < n && !group; i++)
+        group = dynamic_cast<MapGroup*>(scroll->child(i));
+    }
+    if (group)
+      add_elem<T>(nullptr, group);
+    return Fl_Button::handle(event);
+  }
+  if (event == FL_DRAG)
+    return 1;
+  return Fl_Button::handle(event);
+}
+
 class LogicWindow : public Fl_Window
 {
   Fl_Menu_Bar* menu_bar;
@@ -97,11 +123,6 @@ public:
 
     elems_box = new Fl_Box{FL_BORDER_BOX, 700, 25, 195, 590, ""};
     elems = new ElemList{705, 30, 185, 580, map->map()};
-    new graph::Not{elems_x + (elems_w - size) / 2, elems_y + 30, size};
-    new graph::And{elems_x + (elems_w - size) / 2, elems_y + 30 * 2 + size,
-                   size};
-    new graph::Or{elems_x + (elems_w - size) / 2,
-                  elems_y + 30 * 3 + 2 * size, size};
     elems->end();
     color(FL_MAGENTA);
   }

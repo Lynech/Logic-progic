@@ -1,4 +1,5 @@
 #include "fltk.h"
+#include "graph_elems/graph_elems.h"
 
 int choise (int a, int b, int c)
 {
@@ -40,7 +41,7 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
            (mamamap->y() + mamamap->h() - mamamap->hscrollbar.h())))
   {
     map->begin();
-    new T{Fl::event_x(), Fl::event_y(), 50, 50};
+    new T{Fl::event_x(), Fl::event_y(), 70, 50};
     map->end();
     map->redraw();
   }
@@ -53,7 +54,7 @@ LogicMap::LogicMap(int x, int y, int w, int h, const char* l)
   map_group->end();
 
   type(Fl_Scroll::BOTH_ALWAYS);
-  color(FL_BLACK);
+  color(FL_WHITE);
 };
 
 int LogicMap::handle(int x)
@@ -115,10 +116,15 @@ int MapGroup::handle(int event)
 MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
     : Fl_Group{x, y, w, h, l}
 {
-  menu = new Fl_Menu_Item[3];
-  menu[0] = Fl_Menu_Item{"jessi button", 0, add_butt, this};
-  menu[1] = Fl_Menu_Item{"heisenberg button", 0, add_butt2, this};
-  menu[2] = Fl_Menu_Item{0};
+  menu = new Fl_Menu_Item[7];
+  menu[0] = Fl_Menu_Item{"add elem", 0, 0, 0, FL_SUBMENU};
+  menu[1] = Fl_Menu_Item{"and", 0, add_elem<graph::And>, this};
+  menu[2] = Fl_Menu_Item{"or", 0, add_elem<graph::Or>, this};
+  menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Not>, this};
+  menu[4] = Fl_Menu_Item{0};
+  menu[5] = Fl_Menu_Item{"00", 0, add_elem<graph::And>, this};
+  menu[6] = Fl_Menu_Item{0};
+
   Fl_Scroll* mama = (Fl_Scroll*)parent();
   x_min = 0;
   y_min = 0;
@@ -137,10 +143,15 @@ ElemList::ElemList(int x, int y, int w, int h, MapGroup* map)
   gap_y = h / 60;
   button_h = h / 5 - 2 * gap_y / 3;
   button_w = w - scrollbar.w() - 2 * gap_x;
-  new CreateButton<Fl_Button>{gap_x + x, y + gap_y, button_w, button_h,
-                              "кнопка"};
-  new CreateButton<Fl_Light_Button>{gap_x + x, y + 2 * gap_y + button_h,
-                                    button_w, button_h,
-                                    "кнопка с лампочкой"};
+  new CreateButton<graph::Not>{gap_x + x, y + gap_y, button_w, button_h,
+                               "not"};
+  new CreateButton<graph::And>{gap_x + x, y + 2 * gap_y + button_h,
+                               button_w, button_h, "and"};
+  new CreateButton<graph::Or>{gap_x + x, y + 3 * gap_y + 2 * button_h,
+                              button_w, button_h, "or"};
+  // int size = 50;
+  // new graph::Not{x + (w - size) / 2, y + 30, size};
+  // new graph::And{x + (w - size) / 2, y + 30 * 2 + size, size};
+  // new graph::Or{x + (w - size) / 2, x + 30 * 3 + 2 * size, size};
   ElemGroup->end();
 };
