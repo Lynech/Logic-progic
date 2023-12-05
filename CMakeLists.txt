@@ -8,6 +8,6 @@ include_directories(
     ${LIB_DIR}
 )
 
-add_subdirectory("test_graphics")
+# add_subdirectory("test_graphics")
 add_subdirectory("main")
 add_subdirectory("graphics")

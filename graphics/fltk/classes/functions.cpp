@@ -1,6 +1,6 @@
 #include "drawing_elems.h"
 
-vector<DrawingElement*> sheme;
+std::vector<DrawingElement*> sheme;
 
 enum class TypeElement
 {
@@ -11,7 +11,7 @@ enum class TypeElement
   RES
 };
 
-int get_pos (const string& el)
+int get_pos (const std::string& el)
 {
   for (size_t i = 0; i < sheme.size(); ++i)
   {
@@ -21,11 +21,11 @@ int get_pos (const string& el)
   return -1;
 }
 
-void read_file (const string& file_name)
+std::vector<DrawingElement*> read_file (const std::string& file_name)
 try
 {
-  ifstream f(file_name, ios_base::in);
-  string str;
+  std::ifstream f(file_name, std::ios_base::in);
+  std::string str;
   f >> str;
   while (str != ";")
   {
@@ -43,7 +43,7 @@ try
       else if (str == "res")
         what_el = TypeElement::RES;
       f >> str;
-      string name = str;
+      std::string name = str;
       f >> str;
       bool inverted = stoi(str);
       f >> str;
@@ -94,18 +94,19 @@ try
     }
   }
   f.close();
+  return sheme;
 }
 catch (const std::exception& e)
 {
   std::cerr << e.what() << '\n';
 }
 
-void write_file (const string& file_name)
+void write_file (const std::string& file_name)
 {
-  ofstream f{file_name, ios_base::trunc};
+  std::ofstream f{file_name, std::ios_base::trunc};
   for (size_t i = 0; i < sheme.size(); ++i)
   {
-    string name = sheme[i]->get_name();
+    std::string name = sheme[i]->get_name();
     if (name[0] == 's')
       f << "src" << ' ';
     else if (name[0] == 'o')
@@ -124,7 +125,7 @@ void write_file (const string& file_name)
   {
     if (sheme[i]->get_name()[0] == 's')
       continue;
-    vector<logic::spec::Input_element> input_elements =
+    std::vector<logic::spec::Input_element> input_elements =
         sheme[i]->get_input_elems();
     if (input_elements.size() == 0)
       continue;
@@ -159,24 +160,24 @@ void write_file (const string& file_name)
 
 // void Drawing_Or::get_input_elements() { return vec_input_elements; }
 
-// void new_red_file(const string& file_name)
+// void new_red_file(const std::string& file_name)
 // {
-//   map<string, logic::Element&> sheme;
-//   map<string, pair<logic::Element&, pair<int, int>>> new_sheme;
+//   map<std::string, logic::Element&> sheme;
+//   map<std::string, pair<logic::Element&, pair<int, int>>> new_sheme;
 //   ifstream f(file_name, ios_base::in);
-//   string curr_str;
+//   std::string curr_str;
 //   while(curr_str != ";")
 //   {
 
 //   }
 // }
 
-// void read_file (const string& file_name)
+// void read_file (const std::string& file_name)
 // try
 // {
-//   map<string, logic::Element&> sheme;
+//   map<std::string, logic::Element&> sheme;
 //   ifstream f(file_name, ios_base::in);
-//   string str;
+//   std::string str;
 //   while (f)
 //   {
 //     f >> str;
@@ -214,7 +215,7 @@ void write_file (const string& file_name)
 //     else if (sheme.find(str) != sheme.end())
 //     {
 //       cout << '-' << endl;
-//       string name = str;
+//       std::string name = str;
 //       f >> str;
 //       bool is_left = str == "<<" ? true : false;
 //       while (str != ".")

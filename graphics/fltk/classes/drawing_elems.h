@@ -7,19 +7,19 @@
 #include <map>
 #include <string>
 
-using namespace std;
+// using namespace std;
 
 class DrawingElement
 {
 protected:
   logic::Element* elem = nullptr;
-  string name;
+  std::string name;
   int x{0};
   int y{0};
   bool inverted{0};
 
 public:
-  DrawingElement(logic::Element* const elem_, const string& name_,
+  DrawingElement(logic::Element* const elem_, const std::string& name_,
                  bool inverted_, int x_, int y_)
       : elem{elem_}, name{name_}, x{x_}, y{y_}, inverted{inverted_}
   {
@@ -27,7 +27,7 @@ public:
 
   logic::Element* get_element ();
 
-  const string& get_name ();
+  const std::string& get_name ();
 
   int get_x ();
 
@@ -35,7 +35,7 @@ public:
 
   bool is_inverted ();
 
-  virtual vector<logic::spec::Input_element> get_input_elems () = 0;
+  virtual std::vector<logic::spec::Input_element> get_input_elems () = 0;
 };
 
 class DrawingLogic : public DrawingElement
@@ -44,7 +44,7 @@ private:
   logic::Logic* elem;
 
 public:
-  DrawingLogic(logic::Logic* const elem_, const string& name_,
+  DrawingLogic(logic::Logic* const elem_, const std::string& name_,
                bool inverted_, int x_, int y_)
       : DrawingElement(elem_, name_, inverted_, x_, y_)
   {
@@ -53,7 +53,7 @@ public:
 
   logic::Logic* get_element ();
 
-  vector<logic::spec::Input_element> get_input_elems () override;
+  std::vector<logic::spec::Input_element> get_input_elems () override;
 };
 
 class DrawingAnd : public DrawingLogic
@@ -61,8 +61,8 @@ class DrawingAnd : public DrawingLogic
 private:
 
 public:
-  DrawingAnd(logic::And* const elem_, const string& name_, bool inverted_,
-             int x_, int y_)
+  DrawingAnd(logic::And* const elem_, const std::string& name_,
+             bool inverted_, int x_, int y_)
       : DrawingLogic(elem_, name_, inverted_, x_, y_)
 
   {
@@ -74,8 +74,8 @@ class DrawingOr : public DrawingLogic
 private:
 
 public:
-  DrawingOr(logic::Or* const elem_, const string& name_, bool inverted_,
-            int x_, int y_)
+  DrawingOr(logic::Or* const elem_, const std::string& name_,
+            bool inverted_, int x_, int y_)
       : DrawingLogic(elem_, name_, inverted_, x_, y_)
   {
   }
@@ -86,8 +86,8 @@ class DrawingBuff : public DrawingLogic
 private:
 
 public:
-  DrawingBuff(logic::Buff* const elem_, const string& name_, bool inverted_,
-              int x_, int y_)
+  DrawingBuff(logic::Buff* const elem_, const std::string& name_,
+              bool inverted_, int x_, int y_)
       : DrawingLogic(elem_, name_, inverted_, x_, y_)
   {
   }
@@ -98,8 +98,8 @@ class DrawingRes : public DrawingLogic
 private:
 
 public:
-  DrawingRes(logic::Res* const elem_, const string& name_, bool inverted_,
-             int x_, int y_)
+  DrawingRes(logic::Res* const elem_, const std::string& name_,
+             bool inverted_, int x_, int y_)
       : DrawingLogic(elem_, name_, inverted_, x_, y_)
   {
   }
@@ -111,19 +111,19 @@ class DrawingSrc : public DrawingElement
 private:
 
 public:
-  DrawingSrc(logic::Src* const elem_, const string& name_, bool inverted_,
-             int x_, int y_)
+  DrawingSrc(logic::Src* const elem_, const std::string& name_,
+             bool inverted_, int x_, int y_)
       : DrawingElement(elem_, name_, inverted_, x_, y_)
   {
   }
 
-  virtual vector<logic::spec::Input_element> get_input_elems ()
+  virtual std::vector<logic::spec::Input_element> get_input_elems ()
   {
-    throw runtime_error("src has no input elements");
+    throw std::runtime_error("src has no input elements");
   };
 };
 
-void read_file (const string& file_name);
-void write_file (const string& file_name);
+std::vector<DrawingElement*> read_file (const std::string& file_name);
+void write_file (const std::string& file_name);
 
 #endif

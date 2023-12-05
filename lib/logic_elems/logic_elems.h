@@ -10,6 +10,8 @@ class Logic;
 class And;
 class Or;
 class Src;
+class Buff;
+class Res;
 enum class Value
 {
   False = 0,
@@ -87,7 +89,24 @@ public:
   void calculate_value () override;
 };
 
+class logic::Buff : public logic::Logic
+{
+private:
+
+public:
+  void calculate_value () override;
+};
+
+class logic::Res : public logic::Logic
+{
+private:
+
+public:
+  void calculate_value ();
+};
+
 class logic::Src : public logic::Element
+
 {
 private:
 

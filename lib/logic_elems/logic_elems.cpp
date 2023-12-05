@@ -63,6 +63,14 @@ void Or::calculate_value()
   }
 }
 
+void Buff::calculate_value()
+{
+  Value temp = arg_vec[0].get_value();
+  value = inverted ? temp : !temp;
+}
+
+void Res::calculate_value() { calculate_dependings(); }
+
 Value Element::get_value() const { return value; }
 
 void Src::set_value(bool value_)
