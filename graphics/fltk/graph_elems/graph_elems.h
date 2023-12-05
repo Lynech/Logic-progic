@@ -105,8 +105,8 @@ public:
   Element(int x = 0, int y = 0, int s = 50, int h = 0, const char* l = 0)
       : Fl_Widget{x - 5, y - 5, s + 10, s + 10, l}
   {
-    // input_links = {0};
-    // output_links = {0};
+    input_links = {0};
+    output_links = {0};
   }
 
   // virtual void print () = 0;
