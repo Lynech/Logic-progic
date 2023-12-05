@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class Drawing_Element
+class DrawingElement
 {
 protected:
   logic::Element* elem = nullptr;
@@ -19,8 +19,8 @@ protected:
   bool inverted{0};
 
 public:
-  Drawing_Element(logic::Element* const elem_, const string& name_,
-                  bool inverted_, int x_, int y_)
+  DrawingElement(logic::Element* const elem_, const string& name_,
+                 bool inverted_, int x_, int y_)
       : elem{elem_}, name{name_}, x{x_}, y{y_}, inverted{inverted_}
   {
   }
@@ -38,15 +38,15 @@ public:
   virtual vector<logic::spec::Input_element> get_input_elems () = 0;
 };
 
-class Drawing_Logic : public Drawing_Element
+class DrawingLogic : public DrawingElement
 {
 private:
   logic::Logic* elem;
 
 public:
-  Drawing_Logic(logic::Logic* const elem_, const string& name_,
-                bool inverted_, int x_, int y_)
-      : Drawing_Element(elem_, name_, inverted_, x_, y_)
+  DrawingLogic(logic::Logic* const elem_, const string& name_,
+               bool inverted_, int x_, int y_)
+      : DrawingElement(elem_, name_, inverted_, x_, y_)
   {
     elem = elem_;
   }
@@ -56,39 +56,39 @@ public:
   vector<logic::spec::Input_element> get_input_elems () override;
 };
 
-class Drawing_And : public Drawing_Logic
+class DrawingAnd : public DrawingLogic
 {
 private:
 
 public:
-  Drawing_And(logic::And* const elem_, const string& name_, bool inverted_,
-              int x_, int y_)
-      : Drawing_Logic(elem_, name_, inverted_, x_, y_)
-
-  {
-  }
-};
-
-class Drawing_Or : public Drawing_Logic
-{
-private:
-
-public:
-  Drawing_Or(logic::Or* const elem_, const string& name_, bool inverted_,
+  DrawingAnd(logic::And* const elem_, const string& name_, bool inverted_,
              int x_, int y_)
-      : Drawing_Logic(elem_, name_, inverted_, x_, y_)
+      : DrawingLogic(elem_, name_, inverted_, x_, y_)
+
   {
   }
 };
 
-class Drawing_Src : public Drawing_Element
+class DrawingOr : public DrawingLogic
 {
 private:
 
 public:
-  Drawing_Src(logic::Src* const elem_, const string& name_, bool inverted_,
-              int x_, int y_)
-      : Drawing_Element(elem_, name_, inverted_, x_, y_)
+  DrawingOr(logic::Or* const elem_, const string& name_, bool inverted_,
+            int x_, int y_)
+      : DrawingLogic(elem_, name_, inverted_, x_, y_)
+  {
+  }
+};
+
+class DrawingSrc : public DrawingElement
+{
+private:
+
+public:
+  DrawingSrc(logic::Src* const elem_, const string& name_, bool inverted_,
+             int x_, int y_)
+      : DrawingElement(elem_, name_, inverted_, x_, y_)
   {
   }
 

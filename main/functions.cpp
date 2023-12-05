@@ -1,8 +1,8 @@
 #include "drawing_elems.h"
 
-vector<Drawing_Element*> sheme;
+vector<DrawingElement*> sheme;
 
-enum class Type_Element
+enum class TypeElement
 {
   SRC,
   OR,
@@ -29,13 +29,13 @@ try
   {
     if (str == "and" || str == "src" || str == "or")
     {
-      Type_Element what_el;
+      TypeElement what_el;
       if (str == "src")
-        what_el = Type_Element::SRC;
+        what_el = TypeElement::SRC;
       else if (str == "or")
-        what_el = Type_Element::OR;
+        what_el = TypeElement::OR;
       else if (str == "and")
-        what_el = Type_Element::AND;
+        what_el = TypeElement::AND;
       f >> str;
       string name = str;
       f >> str;
@@ -44,13 +44,13 @@ try
       int xx = stoi(str);
       f >> str;
       int yy = stoi(str);
-      Drawing_Element* temp;
-      if (what_el == Type_Element::SRC)
-        temp = new Drawing_Src{new logic::Src, name, inverted, xx, yy};
-      else if (what_el == Type_Element::OR)
-        temp = new Drawing_Or{new logic::Or, name, inverted, xx, yy};
-      else if (what_el == Type_Element::AND)
-        temp = new Drawing_And{new logic::And, name, inverted, xx, yy};
+      DrawingElement* temp;
+      if (what_el == TypeElement::SRC)
+        temp = new DrawingSrc{new logic::Src, name, inverted, xx, yy};
+      else if (what_el == TypeElement::OR)
+        temp = new DrawingOr{new logic::Or, name, inverted, xx, yy};
+      else if (what_el == TypeElement::AND)
+        temp = new DrawingAnd{new logic::And, name, inverted, xx, yy};
       sheme.push_back(temp);
     }
     f >> str;
@@ -102,10 +102,8 @@ void write_file (const string& file_name)
       f << "or" << ' ';
     else
       f << "and" << ' ';
-    f << sheme[i]->get_name() << ' ';
-    f << sheme[i]->is_inverted() << ' ';
-    f << sheme[i]->get_x() << ' ';
-    f << sheme[i]->get_y() << '\n';
+    f << sheme[i]->get_name() << ' ' << sheme[i]->is_inverted() << ' '
+      << sheme[i]->get_x() << ' ' << sheme[i]->get_y() << '\n';
   }
   f << ';' << '\n';
   for (size_t i = 0; i < sheme.size(); ++i)
@@ -141,7 +139,7 @@ void write_file (const string& file_name)
   f.close();
 }
 
-// void Drawing_Or::push(Drawing_Element* el)
+// void Drawing_Or::push(DrawingElement* el)
 // {
 //   vec_input_elements.push_back(el);
 // }
