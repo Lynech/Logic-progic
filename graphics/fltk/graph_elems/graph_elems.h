@@ -98,8 +98,12 @@ public:
 class graph::Element : public Fl_Widget
 {
 private:
+  // logic::Element;
+
+protected:
   std::vector<Link*> input_links;
   std::vector<Link*> output_links;
+  LinkCircle *input_port, *output_port;
 
 public:
   Element(int x = 0, int y = 0, int s = 50, int h = 0, const char* l = 0)
@@ -124,7 +128,6 @@ private:
   int size = 50;
   bool is_entered = false;
   Point p1, p2, p3, p4, p_center, p_frame, p_input_link, p_output_link;
-  LinkCircle *input_link, *output_link;
   logic::And* logic_and;
   // std::vector<Link*> input_links;
   // std::vector<Link*> output_links;
@@ -138,13 +141,12 @@ public:
 };
 
 // класс для элемента НЕ
-class graph::Buff : public Fl_Widget
+class graph::Buff : public Element
 {
 private:
   int size = 50;
   Point p1, p2, p3, p_frame, p_input_link, p_output_link;
   bool is_entered = false;
-  LinkCircle *input_link, *output_link;
   logic::Buff* logic_buff;
 
 public:
@@ -158,13 +160,12 @@ public:
 };
 
 // класс для элемента ИЛИ
-class graph::Or : public Fl_Widget
+class graph::Or : public Element
 {
 private:
   int size = 50;
   bool is_entered = false;
   Point p_ellipse, p_circle, p_frame, p_input_link, p_output_link;
-  LinkCircle *input_link, *output_link;
   logic::Or* logic_or;
 
 public:

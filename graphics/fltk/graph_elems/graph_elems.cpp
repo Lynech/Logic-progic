@@ -54,7 +54,7 @@ int LinkCircle::handle(int event)
     is_entered =
         true;  //////////////////////////////// рисование новой линии
     redraw();
-    return 1;
+    return parent()->handle(event);
   case FL_RELEASE:
   {
     MapGroup* par = (MapGroup*)this->parent();
@@ -66,9 +66,8 @@ int LinkCircle::handle(int event)
     {
       baby = dynamic_cast<LinkCircle*>(par->child(i));
       // лежит ли ребенок под мышью и правильно ли соединяем
-      if (((baby != nullptr) &&
-           ((x >= baby->x() && x <= baby->x() + baby->w()) &&
-            (y >= baby->y() && y <= baby->y() + baby->w()))) &&
+      if ((baby && ((x >= baby->x() && x <= baby->x() + baby->w()) &&
+                    (y >= baby->y() && y <= baby->y() + baby->w()))) &&
           (baby->type != this->type))
         break;
     }
@@ -79,12 +78,12 @@ int LinkCircle::handle(int event)
     Element* output_el;
     if (baby->type == link_circle_types::input)
     {
-      input_el = baby->parent_elem;
+      input_el = baby->get_parent_elem();
       output_el = this->parent_elem;
     }
     else
     {
-      output_el = baby->parent_elem;
+      output_el = baby->get_parent_elem();
       input_el = this->parent_elem;
     }
     Link* l = new Link{baby->x(), baby->y(), this->x(), this->y()};
@@ -112,7 +111,7 @@ Link::Link(int x1, int y1, int x2, int y2, const char* l)
 void Link::draw()
 {
   fl_line_style(0, 4);
-  fl_color(16);
+  fl_color(FL_BLACK);
   fl_line(p_start.x(), p_start.y(), p_end.x(), p_end.y());
 }
 
@@ -160,12 +159,12 @@ And::And(int x, int y, int s, int h, const char* l)
   int y_output_link = p_frame.y() + size / 2;
   p_output_link = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y(),
+  input_port = new LinkCircle{p_input_link.x(), p_input_link.y(),
                               link_circle_types::input};
-  input_link->set_parent_elem(this);
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y(),
+  input_port->set_parent_elem(this);
+  output_port = new LinkCircle{p_output_link.x(), p_output_link.y(),
                                link_circle_types::output};
-  output_link->set_parent_elem(this);
+  output_port->set_parent_elem(this);
 }
 
 // рисование объекта класса И
@@ -235,14 +234,19 @@ int And::handle(int x)
     is_entered = false;
     redraw();
     return 1;
+  case FL_FOCUS:
+  case FL_UNFOCUS:
+    redraw();
+    return parent()->handle(x);
   default:
+    // redraw();
     return Fl_Widget::handle(x);
   }
 }
 
 // конструктор класса НЕ
 Buff::Buff(int x, int y, int fr_size, int h, const char* l)
-    : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
+    : Element{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
   logic_buff = new logic::Buff;
 
@@ -270,8 +274,8 @@ Buff::Buff(int x, int y, int fr_size, int h, const char* l)
   int y_output_link = p_frame.y() + size / 2;
   p_output_link = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y()};
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y()};
+  input_port = new LinkCircle{p_input_link.x(), p_input_link.y()};
+  output_port = new LinkCircle{p_output_link.x(), p_output_link.y()};
 }
 
 // рисование объекта класса НЕ
@@ -330,13 +334,14 @@ int Buff::handle(int x)
     redraw();
     return 1;
   default:
+    // redraw();
     return Fl_Widget::handle(x);
   }
 }
 
 // конструктор класса ИЛИ
 Or::Or(int x, int y, int fr_size, int h, const char* l)
-    : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
+    : Element{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
   logic_or = new logic::Or;
 
@@ -354,8 +359,8 @@ Or::Or(int x, int y, int fr_size, int h, const char* l)
   int y_output_link = p_frame.y() + size / 2;
   p_output_link = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y()};
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y()};
+  input_port = new LinkCircle{p_input_link.x(), p_input_link.y()};
+  output_port = new LinkCircle{p_output_link.x(), p_output_link.y()};
 }
 
 // рисование объекта класса ИЛИ
@@ -428,6 +433,7 @@ int Or::handle(int x)
     redraw();
     return 1;
   default:
+    // redraw();
     return Fl_Widget::handle(x);
   }
 }

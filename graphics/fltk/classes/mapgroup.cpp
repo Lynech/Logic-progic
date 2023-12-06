@@ -27,6 +27,7 @@ int MapGroup::handle(int event)
       mama->scroll_to(choise(x_min, x_ - Fl::event_x(), x_max),
                       choise(y_min, y_ - Fl::event_y(), y_max));
 
+      draw_children();
       return 1;
     }
     else if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
