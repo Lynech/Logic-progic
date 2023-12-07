@@ -1,5 +1,7 @@
 #include "graph_elems.h"
 #include <algorithm>
+#include <cmath>
+
 #include <iostream>
 #include <vector>
 
@@ -79,15 +81,20 @@ int LinkCircle::handle(int event)
     Element* output_el;
     if (baby->type == link_circle_types::input)
     {
-      input_el = baby->parent_elem;
+      input_el = baby->get_parent_elem();
       output_el = this->parent_elem;
     }
     else
     {
-      output_el = baby->parent_elem;
+      output_el = baby->get_parent_elem();
       input_el = this->parent_elem;
     }
     Link* l = new Link{baby->x(), baby->y(), this->x(), this->y()};
+
+    // par->add(*l);
+    l->redraw();
+    // par->end();
+
     input_el->add_input_link(l);
     output_el->add_output_link(l);
 
@@ -102,18 +109,23 @@ int LinkCircle::handle(int event)
 
 // конструктор класса Link
 Link::Link(int x1, int y1, int x2, int y2, const char* l)
-    : Fl_Widget{0, 0, 0, 0, l}
+    : Fl_Widget{std::min(x1, x2), std::min(y1, y2),
+                abs(x1 - x2) + link_circle_radius + 5,
+                abs(y1 - y2) + link_circle_radius + 5, l}
 {
-  p_start = Point{x1, y1};
-  p_end = Point{x2, y2};
+  p_start = Point{x1 + link_circle_radius + 5, y1 + link_circle_radius + 5};
+  p_end = Point{x2 + link_circle_radius + 5, y2 + link_circle_radius + 5};
 }
 
 // отрисовка объектов класса Link
 void Link::draw()
 {
+  // fl_push_clip(0, 0, 1000, 1000);
+
   fl_line_style(0, 4);
-  fl_color(16);
+  fl_color(FL_BLACK);
   fl_line(p_start.x(), p_start.y(), p_end.x(), p_end.y());
+  // fl_pop_clip();
 }
 
 // конструктор абстрактного класса Element
@@ -154,18 +166,21 @@ And::And(int x, int y, int s, int h, const char* l)
 
   int x_input_link = p_frame.x() - elem_link_lenth;
   int y_input_link = p_frame.y() + size / 2;
-  p_input_link = Point{x_input_link, y_input_link};
+  p_input_port = Point{x_input_link, y_input_link};
 
   int x_output_link = p_frame.x() + size + elem_link_lenth;
   int y_output_link = p_frame.y() + size / 2;
-  p_output_link = Point{x_output_link, y_output_link};
+  p_output_port = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y(),
+  input_port = new LinkCircle{p_input_port.x(), p_input_port.y(),
                               link_circle_types::input};
-  input_link->set_parent_elem(this);
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y(),
+  input_port->set_parent_elem(this);
+  parent()->add(*input_port);
+
+  output_port = new LinkCircle{p_output_port.x(), p_output_port.y(),
                                link_circle_types::output};
-  output_link->set_parent_elem(this);
+  output_port->set_parent_elem(this);
+  parent()->add(*output_port);
 }
 
 // рисование объекта класса И
@@ -214,12 +229,12 @@ void And::draw()
   fl_color(16);
   fl_line_style(0, 4);
 
-  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_link.x(),
-          p_output_link.y());
+  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_port.x(),
+          p_output_port.y());
 
   // input link
-  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_link.x(),
-          p_input_link.y());
+  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_port.x(),
+          p_input_port.y());
 }
 
 // обработка взаимодействия с объектом класса И
@@ -242,7 +257,7 @@ int And::handle(int x)
 
 // конструктор класса НЕ
 Buff::Buff(int x, int y, int fr_size, int h, const char* l)
-    : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
+    : Element{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
   logic_buff = new logic::Buff;
 
@@ -264,14 +279,14 @@ Buff::Buff(int x, int y, int fr_size, int h, const char* l)
 
   int x_input_link = p_frame.x() - elem_link_lenth;
   int y_input_link = p_frame.y() + size / 2;
-  p_input_link = Point{x_input_link, y_input_link};
+  p_input_port = Point{x_input_link, y_input_link};
 
   int x_output_link = p_frame.x() + size + elem_link_lenth;
   int y_output_link = p_frame.y() + size / 2;
-  p_output_link = Point{x_output_link, y_output_link};
+  p_output_port = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y()};
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y()};
+  input_port = new LinkCircle{p_input_port.x(), p_input_port.y()};
+  output_port = new LinkCircle{p_output_port.x(), p_output_port.y()};
 }
 
 // рисование объекта класса НЕ
@@ -308,12 +323,12 @@ void Buff::draw()
   fl_color(16);
   fl_line_style(0, 4);
 
-  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_link.x(),
-          p_output_link.y());
+  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_port.x(),
+          p_output_port.y());
 
   // input link
-  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_link.x(),
-          p_input_link.y());
+  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_port.x(),
+          p_input_port.y());
 }
 
 // обработка взаимодействия с объектом класса НЕ
@@ -336,7 +351,7 @@ int Buff::handle(int x)
 
 // конструктор класса ИЛИ
 Or::Or(int x, int y, int fr_size, int h, const char* l)
-    : Fl_Widget{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
+    : Element{x - 5, y - 5, fr_size + 10, fr_size + 10, l}
 {
   logic_or = new logic::Or;
 
@@ -348,14 +363,14 @@ Or::Or(int x, int y, int fr_size, int h, const char* l)
 
   int x_input_link = p_frame.x() - elem_link_lenth;
   int y_input_link = p_frame.y() + size / 2;
-  p_input_link = Point{x_input_link, y_input_link};
+  p_input_port = Point{x_input_link, y_input_link};
 
   int x_output_link = p_frame.x() + size + elem_link_lenth;
   int y_output_link = p_frame.y() + size / 2;
-  p_output_link = Point{x_output_link, y_output_link};
+  p_output_port = Point{x_output_link, y_output_link};
 
-  input_link = new LinkCircle{p_input_link.x(), p_input_link.y()};
-  output_link = new LinkCircle{p_output_link.x(), p_output_link.y()};
+  input_port = new LinkCircle{p_input_port.x(), p_input_port.y()};
+  output_port = new LinkCircle{p_output_port.x(), p_output_port.y()};
 }
 
 // рисование объекта класса ИЛИ
@@ -406,12 +421,12 @@ void Or::draw()
   fl_color(16);
   fl_line_style(0, 4);
 
-  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_link.x(),
-          p_output_link.y());
+  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_port.x(),
+          p_output_port.y());
 
   // input link
-  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_link.x(),
-          p_input_link.y());
+  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_port.x(),
+          p_input_port.y());
 }
 
 // обработка взаимодействия с объектом класса ИЛИ
