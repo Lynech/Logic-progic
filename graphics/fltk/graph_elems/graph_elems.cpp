@@ -122,103 +122,207 @@ void Link::draw()
 // }
 
 //  конструктор класса И
-And::And(int x, int y, int s, int h, const char* l)
-    : Element{x - 5, y - 5, s + 10, s + 10, l}
+And::And(int x_, int y_, int s, int, const char* l)
+    : Element{x_, y_, s, s, l}
 {
   logic_and = new logic::And;
 
-  size = s;
+  // size = s;
 
-  p_frame = Point{x, y};
+  // p_frame = Point{x, y};
 
-  int x1 = x + s / 3;
-  int y1 = y + s / 3;
-  p1 = Point{x1, y1};
+  // int x1 = x + s / 3;
+  // int y1 = y + s / 3;
+  // p1 = Point{x1, y1};
 
-  int x2 = x + s / 2;
-  int y2 = y + s / 3;
-  p2 = Point{x2, y2};
+  // int x2 = x + s / 2;
+  // int y2 = y + s / 3;
+  // p2 = Point{x2, y2};
 
-  int x3 = x + s / 3;
-  int y3 = y + 2 * s / 3;
-  p3 = Point{x3, y3};
+  // int x3 = x + s / 3;
+  // int y3 = y + 2 * s / 3;
+  // p3 = Point{x3, y3};
 
-  int x4 = x + s / 2;
-  int y4 = y + 2 * s / 3;
-  p4 = Point{x4, y4};
+  // int x4 = x + s / 2;
+  // int y4 = y + 2 * s / 3;
+  // p4 = Point{x4, y4};
 
-  int x_center = x + s / 2;
-  int y_center = y + s / 2;
-  p_center = Point{x_center, y_center};
+  // int x_center = x + s / 2;
+  // int y_center = y + s / 2;
+  // p_center = Point{x_center, y_center};
 
-  int x_input_link = p_frame.x() - elem_link_lenth;
-  int y_input_link = p_frame.y() + size / 2;
-  p_input_link = Point{x_input_link, y_input_link};
+  int frame_thicness = 0;
+  int& f_t = frame_thicness;
 
-  int x_output_link = p_frame.x() + size + elem_link_lenth;
-  int y_output_link = p_frame.y() + size / 2;
-  p_output_link = Point{x_output_link, y_output_link};
+  int x_input_link = x() + f_t - elem_link_lenth;
+  int y_input_link = y() + f_t + (h() - f_t * 2) / 2;
+  // p_input_link = Point{x_input_link, y_input_link};
 
-  input_port = new LinkCircle{p_input_link.x(), p_input_link.y(),
-                              link_circle_types::input};
+  int x_output_link = x() + f_t + (w() - f_t * 2) + elem_link_lenth;
+  int y_output_link = y() + f_t + (h() - f_t * 2) / 2;
+  // p_output_link = Point{x_output_link, y_output_link};
+
+  input_port =
+      new LinkCircle{x_input_link, y_input_link, link_circle_types::input};
   input_port->set_parent_elem(this);
-  output_port = new LinkCircle{p_output_link.x(), p_output_link.y(),
+  output_port = new LinkCircle{x_output_link, y_output_link,
                                link_circle_types::output};
   output_port->set_parent_elem(this);
 }
 
+// extern const uchar* fl_gray_ramp ();
+
 // рисование объекта класса И
 void And::draw()
 {
+  // draw_box();
+
+  // w(w() & -2l);
+  // h(h() & -2l);
+  // int x1 = x() + w() / 2;
+  // int y1 = y() + h() / 2;
+  // // const uchar* g = fl_gray_ramp();
+  // // fl_color(g[(int)'P']);
+  // // fl_line(x() + 0, y1, x1, y() + 0, x() + w() - 0, y1);
+  // // fl_color(g[(int)'N']);
+  // // fl_line(x() + 1, y1, x1, y() + 1, x() + w() - 1, y1);
+  // // fl_color(g[(int)'H']);
+  // // fl_line(x() + 2, y1, x1, y() + 2, x() + w() - 2, y1);
+  // // fl_color(g[(int)'W']);
+  // // fl_line(x() + 2, y1, x1, y() + h() - 2, x() + w() - 2, y1);
+  // // fl_color(g[(int)'U']);
+  // // fl_line(x() + 1, y1, x1, y() + h() - 1, x() + w() - 1, y1);
+  // // fl_color(g[(int)'S']);
+  // // fl_line(x() + 0, y1, x1, y() + h() - 0, x() + w() - 0, y1);
+  // Fl::set_box_color(FL_GRAY);
+
+  // // fl_pop_clip();
+  // fl_line_style(FL_DOT, 1);
+  // if (is_entered)
+  // {
+  //   fl_color(FL_BLACK);
+  //   // Fl::set_box_color(FL_BLACK);
+  // }
+  // else
+  // {
+  //   fl_color(FL_GRAY);
+  //   // Fl::set_box_color(FL_GRAY);
+  // }
+  // fl_polygon(x(), y(), x() + w(), y(), x() + w(), y() + h(), x(),
+  //            y() + h());
+  // fl_color(FL_MAGENTA);
+  // fl_loop(x(), y(), x() + w(), y(), x() + w(), y() + h(), x(), y() +
+  // h());
+
+  // fl_push_clip(parent()->x(), parent()->y(), parent()->w(),
+  // parent()->h());fl_color(16);
+
+  // p_frame = Point{x, y};
+  int frame_thicness = 0;
+  int& f_t = frame_thicness;
+
+  int x1 = x() + f_t + (w() - f_t * 2) / 3;
+  int y1 = y() + f_t + (h() - f_t * 2) / 3;
+  // p1 = Point{x1, y1};
+
+  int x2 = x() + f_t + (w() - f_t * 2) / 2;
+  int y2 = y() + f_t + (h() - f_t * 2) / 3;
+  // p2 = Point{x2, y2};
+
+  int x3 = x() + f_t + (w() - f_t * 2) / 3;
+  int y3 = y() + f_t + 2 * (h() - f_t * 2) / 3;
+  // p3 = Point{x3, y3};
+
+  int x4 = x() + f_t + (w() - f_t * 2) / 2;
+  int y4 = y() + f_t + 2 * (h() - f_t * 2) / 3;
+  // p4 = Point{x4, y4};
+
+  int x_center = x() + f_t + (w() - f_t * 2) / 2;
+  int y_center = y() + f_t + (h() - f_t * 2) / 2;
+  // p_center = Point{x_center, y_center};
+
+  int x_input_link = x() + f_t - elem_link_lenth;
+  int y_input_link = y() + f_t + (h() - f_t * 2) / 2;
+  // p_input_link = Point{x_input_link, y_input_link};
+
+  int x_output_link = x() + f_t + (w() - f_t * 2) + elem_link_lenth;
+  int y_output_link = y() + f_t + (h() - f_t * 2) / 2;
+  // p_output_link = Point{x_output_link, y_output_link};
+
+  fl_push_clip(x() - 10 - x_output_link, y() - 10,
+               w() + 20 + 2 * x_output_link, h() + 20);
+  fl_push_matrix();
   // обрамление
   fl_color(16);
-  fl_rectf(p_frame.x(), p_frame.y(), size, size);
+  fl_rectf(x() + f_t, y() + f_t, w() - f_t * 2, h() - f_t * 2);
   // левая часть (прямоугольник) заливка
   fl_color(FL_RED);
-  fl_polygon(p4.x(), p4.y(), p3.x(), p3.y(), p1.x(), p1.y(), p2.x(),
-             p2.y());
+  fl_polygon(x4, y4, x3, y3, x1, y1, x2, y2);
 
   // правая часть (окружность) заливка
   fl_color(FL_RED);
   fl_begin_polygon();
-  fl_arc(p_center.x(), p_center.y(), size / 6, 90, -90);
+
+  fl_pie(x_center, y_center, (w() - f_t * 2) / 3 - 1,
+         (h() - f_t * 2) / 3 - 1, -90.0, 90.0);  // полный оборот
+  // fl_vertex(x_center, y_center);
+  // fl_vertex(x_center + f_t, y_center + f_t);
+  // fl_vertex(x_center + (w() - f_t * 2) / 3 - f_t, y_center + f_t);
+  // fl_vertex(x_center + (w() - f_t * 2) / 3 - f_t,
+  //           y_center + (h() - f_t * 2) / 3 - f_t);
+  // fl_vertex(x_center + f_t, y_center + f_t);
+  // fl_vertex(x_center, y_center);
+  // fl_vertex(x_center + (w() - f_t * 2) / 3, y_center);
+  // fl_vertex(x_center + (w() - f_t * 2) / 3, y_center + (h() - f_t * 2) /
+  // 3);
   fl_end_polygon();
 
   // левая часть обрамление
   fl_color(FL_BLACK);
-  fl_begin_loop();
-  fl_line(p1.x(), p1.y(), p2.x(), p2.y());
-  fl_line(p1.x(), p1.y(), p3.x(), p3.y());
-  fl_line(p3.x(), p3.y(), p4.x(), p4.y());
-  fl_end_loop();
+  // fl_begin_loop();
+  fl_line(x1, y1, x2, y2);
+  fl_line(x1, y1, x3, y3);
+  fl_line(x3, y3, x4, y4);
+  // fl_end_loop();
 
   // правая часть обрамление
   fl_color(FL_BLACK);
-  fl_begin_line();
-  fl_arc(p_center.x(), p_center.y(), size / 6, 90.0, -90.0);
-  fl_end_line();
+  // fl_begin_line();
+  fl_arc(x_center, y_center, (w() - f_t * 2) / 3, (h() - f_t * 2) / 3,
+         -90.0, 90.0);
+  // fl_end_line();
 
+  fl_line_style(0, 4);
   if (is_entered)
   {
     fl_color(FL_BLACK);
+    // fl_line(x() + f_t, y() + f_t, x() + f_t, y() + f_t + h() - f_t * 2);
+    // fl_line(x() + f_t + w() - f_t * 2, y() + f_t, x() + f_t + w() - f_t *
+    // 2,
+    //         y() + f_t + h() - f_t * 2);
+    // fl_line(x() + f_t, y() + f_t, x() + f_t + w() - f_t * 2, y() + f_t);
+    // fl_line(x() + f_t, y() + f_t + h() - f_t * 2, x() + f_t + w() - f_t *
+    // 2,
+    //         y() + f_t + h() - f_t * 2);
   }
   else
   {
     fl_color(16);
   }
-  fl_line_style(0, 4);
-  fl_rect(p_frame.x(), p_frame.y(), size, size);
+  fl_rect(x() + f_t, y() + f_t, w() - f_t * 2, h() - f_t * 2);
 
   // output link
   fl_color(16);
   fl_line_style(0, 4);
 
-  fl_line(p_frame.x() + size, p_frame.y() + size / 2, p_output_link.x(),
-          p_output_link.y());
+  fl_line(x() + f_t + w() - f_t * 2, y() + f_t + (h() - f_t * 2) / 2,
+          x_output_link, y_output_link);
 
   // input link
-  fl_line(p_frame.x(), p_frame.y() + size / 2, p_input_link.x(),
-          p_input_link.y());
+  fl_line(x() + f_t, y() + f_t + (h() - f_t * 2) / 2, x_input_link,
+          y_input_link);
+  fl_pop_matrix();
+  fl_pop_clip();
 }
 
 // обработка взаимодействия с объектом класса И
@@ -234,13 +338,14 @@ int And::handle(int x)
     is_entered = false;
     redraw();
     return 1;
-  case FL_FOCUS:
-  case FL_UNFOCUS:
-    redraw();
-    return parent()->handle(x);
+  // case FL_FOCUS:
+  // case FL_UNFOCUS:
+  // //   redraw();
+  //   return parent()->handle(x);
   default:
     // redraw();
-    return Fl_Widget::handle(x);
+    // return Fl_Button::handle(x);
+    return 1;
   }
 }
 

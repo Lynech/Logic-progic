@@ -125,9 +125,9 @@ class graph::And : public graph::Element
 
 {
 private:
-  int size = 50;
+  // int size = 50;
   bool is_entered = false;
-  Point p1, p2, p3, p4, p_center, p_frame, p_input_link, p_output_link;
+  // Point p1, p2, p3, p4, p_center, p_frame, p_input_link, p_output_link;
   logic::And* logic_and;
   // std::vector<Link*> input_links;
   // std::vector<Link*> output_links;
