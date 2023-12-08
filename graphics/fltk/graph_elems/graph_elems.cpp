@@ -1,5 +1,7 @@
 #include "graph_elems.h"
 #include <algorithm>
+#include <cmath>
+
 #include <iostream>
 #include <vector>
 
@@ -50,11 +52,11 @@ int LinkCircle::handle(int event)
     is_entered = false;
     redraw();
     return 1;
-  case FL_DRAG:
-    is_entered =
-        true;  //////////////////////////////// рисование новой линии
-    redraw();
-    return parent()->handle(event);
+  //case FL_DRAG:
+  //  is_entered =
+  //      true;  //////////////////////////////// рисование новой линии
+  //  redraw();
+  //  return 1;
   case FL_RELEASE:
   {
     MapGroup* par = (MapGroup*)this->parent();
@@ -62,16 +64,18 @@ int LinkCircle::handle(int event)
     int x = Fl::event_x();
     int y = Fl::event_y();
     LinkCircle* baby;
-    for (int i = 0; i < n; i++)
+    bool needed_found = false;
+    for (int i = 0; i < n && !needed_found; i++)
     {
       baby = dynamic_cast<LinkCircle*>(par->child(i));
       // лежит ли ребенок под мышью и правильно ли соединяем
-      if ((baby && ((x >= baby->x() && x <= baby->x() + baby->w()) &&
-                    (y >= baby->y() && y <= baby->y() + baby->w()))) &&
-          (baby->type != this->type))
-        break;
+      if (baby != nullptr &&
+           Fl::event_inside(baby) &&
+          baby->type != this->type)
+        needed_found = true;
+      
     }
-    if (!baby)
+    if (!needed_found)
       return 1;
     // определяем, из какого выходит связь и в какой входит
     Element* input_el;
@@ -87,6 +91,11 @@ int LinkCircle::handle(int event)
       input_el = this->parent_elem;
     }
     Link* l = new Link{baby->x(), baby->y(), this->x(), this->y()};
+
+    // par->add(*l);
+    l->redraw();
+    // par->end();
+
     input_el->add_input_link(l);
     output_el->add_output_link(l);
 
@@ -100,14 +109,18 @@ int LinkCircle::handle(int event)
 }
 
 // конструктор класса Link
-Link::Link(int x, int y, int w, int h, const char* l)
-    : Fl_Widget{x, y, w, h, l}
+Link::Link(int x1, int y1, int x2, int y2, const char* l)
+    : Fl_Widget{std::min(x1, x2), std::min(y1, y2),
+                abs(x1 - x2) + link_circle_radius + 5,
+                abs(y1 - y2) + link_circle_radius + 5, l}
 {
 }
 
 // отрисовка объектов класса Link
 void Link::draw()
 {
+  // fl_push_clip(0, 0, 1000, 1000);
+
   fl_line_style(0, 4);
   fl_color(FL_BLACK);
   fl_line(start_circle->x() + start_circle->link_circle_radius,
@@ -133,6 +146,55 @@ Element::Element(int x, int y, int w, int h, const char* l)
   input_port->set_parent_elem(this);
   output_port = new LinkCircle{x_output_link, y_output_link,
                                link_circle_types::output};
+  output_port->set_parent_elem(this);
+  p_frame = Point{x, y};
+
+  int x1 = x + s / 3;
+  int y1 = y + s / 3;
+  p1 = Point{x1, y1};
+
+  int x2 = x + s / 2;
+  int y2 = y + s / 3;
+  p2 = Point{x2, y2};
+
+  int x3 = x + s / 3;
+  int y3 = y + 2 * s / 3;
+  p3 = Point{x3, y3};
+
+  int x4 = x + s / 2;
+  int y4 = y + 2 * s / 3;
+  p4 = Point{x4, y4};
+
+  int x_center = x + s / 2;
+  int y_center = y + s / 2;
+  p_center = Point{x_center, y_center};
+
+  int x_input_link = p_frame.x() - elem_link_lenth;
+  int y_input_link = p_frame.y() + size / 2;
+  p_input_port = Point{x_input_link, y_input_link};
+
+  int x_output_link = p_frame.x() + size + elem_link_lenth;
+  int y_output_link = p_frame.y() + size / 2;
+  p_output_port = Point{x_output_link, y_output_link};
+
+  input_port = new LinkCircle{p_input_port.x(), p_input_port.y(),
+                              link_circle_types::input};
+  input_port->set_parent_elem(this);
+  parent()->add(*input_port);
+
+  output_port = new LinkCircle{p_output_port.x(), p_output_port.y(),
+                               link_circle_types::output};
+  output_port->set_parent_elem(this);
+  parent()->add(*output_port);
+
+  menu = new Fl_Menu_Item[2];
+  menu[0] = Fl_Menu_Item{"invert", 0, invert_and, this};
+  // menu[1] = Fl_Menu_Item{"and", 0, add_elem<graph::And>, this};
+  // menu[2] = Fl_Menu_Item{"or", 0, add_elem<graph::Or>, this};
+  // menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Buff>, this};
+  // menu[4] = Fl_Menu_Item{0};
+  // menu[5] = Fl_Menu_Item{"00", 0, add_elem<graph::And>, this};
+  menu[1] = Fl_Menu_Item{0};
   output_port->set_parent_elem(this);
 }
 
