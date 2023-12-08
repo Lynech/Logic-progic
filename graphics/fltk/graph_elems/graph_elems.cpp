@@ -297,12 +297,11 @@ void draw_or (int x, int y, int w, int h, logic::Value value)
   fl_line_style(0, 2);
   fl_push_matrix();
   fl_begin_complex_polygon();
-  fl_translate(-x, 0);
+  fl_translate(x, 0);
   fl_scale(2 * w / (double)h, 1.);
-  fl_arc(x, y + h / 2, h / 2, -90, 90);
+  fl_arc(0, y + h / 2, h / 2, -90, 90);
   fl_scale(1 / 4., 1.);
-  fl_translate(3. * h * x / w, 0);
-  fl_arc(x, y + h / 2, h / 2, 90, -90);
+  fl_arc(0, y + h / 2, h / 2, 90, -90);
   fl_end_complex_polygon();
   fl_pop_matrix();
 
@@ -310,12 +309,11 @@ void draw_or (int x, int y, int w, int h, logic::Value value)
   fl_line_style(0, 2);
   fl_push_matrix();
   fl_begin_loop();
-  fl_translate(-x, 0);
+  fl_translate(x, 0);
   fl_scale(2 * w / (double)h, 1.);
-  fl_arc(x, y + h / 2, h / 2, -90, 90);
+  fl_arc(0, y + h / 2, h / 2, -90, 90);
   fl_scale(1 / 4., 1.);
-  fl_translate(3. * h * x / w, 0);
-  fl_arc(x, y + h / 2, h / 2, 90, -90);
+  fl_arc(0, y + h / 2, h / 2, 90, -90);
   fl_end_loop();
   fl_pop_matrix();
 }
