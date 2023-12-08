@@ -118,7 +118,8 @@ void Link::draw()
 
 // конструктор абстрактного класса Element
 Element::Element(int x, int y, int w, int h, const char* l)
-    : Fl_Widget{x, y, w, h, l}
+    : Fl_Widget{x - w * 2 / 5, y, w * 9 / 5, h, l},
+      elem_link_lenth{w * 2 / 5}, line_thikness{w / 25}
 {
   draw_elem = draw_Element;
   int x_input_link = x - elem_link_lenth;
@@ -145,45 +146,65 @@ And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 }
 
 // обработка взаимодействия с объектом класса Elem
-int Element::handle(int x)
+int Element::handle(int event)
 {
-  switch (x)
+  if (Fl::event_inside(x() + elem_link_lenth, y(),
+                       w() - 2 * elem_link_lenth, h()))
   {
-  case FL_ENTER:
-    is_entered = true;
-    redraw();
-    return 1;
-  case FL_LEAVE:
+    if (!is_entered)
+    {
+      is_entered = true;
+      redraw();
+    }
+    switch (event)
+    {
+    case FL_ENTER:
+      is_entered = true;
+      redraw();
+      return 1;
+    case FL_LEAVE:
+      is_entered = false;
+      redraw();
+      return 1;
+    default:
+      return Fl_Widget::handle(event);
+    }
+  }
+
+  if (is_entered)
+  {
     is_entered = false;
     redraw();
-    return 1;
-  default:
-    return Fl_Widget::handle(x);
   }
+  return Fl_Widget::handle(event);
 }
 
 void Element::draw()
 {
-  int x_input_link = x() - elem_link_lenth;
-  int y_input_link = y() + h() / 2;
+  int x_ = x() + elem_link_lenth;
+  int w_ = w() - 2 * elem_link_lenth;
+  int y_ = y();
+  int h_ = h();
+  int x_input_link = x_ - elem_link_lenth;
+  int y_input_link = y_ + h_ / 2;
 
-  int x_output_link = x() + w() + elem_link_lenth;
-  int y_output_link = y() + h() / 2;
+  int x_output_link = x_ + w_ + elem_link_lenth;
+  int y_output_link = y_ + h_ / 2;
 
-  fl_push_clip(x() - 10 - x_output_link, y() - 10,
-               w() + 20 + 2 * x_output_link, h() + 20);
+  fl_push_clip(x_ - 10 - x_output_link, y_ - 10,
+               w_ + 20 + 2 * x_output_link, h_ + 20);
   // обрамление
   fl_color(16);
   fl_line_style(0, 2);
-  fl_rectf(x(), y(), w(), h());
+  fl_rectf(x_, y_, w_, h_);
   // левая часть (прямоугольник) заливка
 
   // output link
   fl_color(16);
   fl_line_style(0, 4);
-  fl_line(x() + w(), y() + h() / 2, x_output_link, y_output_link);
+  fl_line(x_ + w_, y_ + h_ / 2, x_output_link, y_output_link);
   // input link
-  fl_line(x(), y() + h() / 2, x_input_link, y_input_link);
+  fl_line(x_, y_ + h_ / 2, x_input_link, y_input_link);
 
   if (is_entered)
     fl_color(FL_BLACK);
@@ -191,18 +212,18 @@ void Element::draw()
     fl_color(16);
 
   fl_line_style(0, 2);
-  fl_rect(x() + 1, y() + 1, w() - 2, h() - 2);
+  fl_rect(x_ + 1, y_ + 1, w_ - 2, h_ - 2);
 
-  int x_elem = x() + w() / 6;
-  int y_elem = y() + h() / 6;
-  int w_elem = 2 * w() / 3;
-  int h_elem = 2 * h() / 3;
+  int x_elem = x_ + w_ / 6;
+  int y_elem = y_ + h_ / 6;
+  int w_elem = 2 * w_ / 3;
+  int h_elem = 2 * h_ / 3;
   draw_elem(x_elem, y_elem, w_elem, h_elem, get_value());
   if (inverted)
   {
     fl_color(FL_BLACK);
     fl_line_style(0, 2);
-    fl_arc(x() + w() / 2 - 6, y() + h() / 2, 6, 0, 360);
+    fl_arc(x_ + w_ / 2 - 6, y_ + h_ / 2, 6, 0, 360);
   }
 
   fl_pop_clip();

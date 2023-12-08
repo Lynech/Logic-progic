@@ -81,10 +81,11 @@ private:
 
   static void draw_Element (int, int, int, int, logic::Value) {}
 
+  int elem_link_lenth{20};
+  int line_thikness{2};
+
 protected:
   logic::Element* elem;
-  const int elem_link_lenth = 20;
-  // static void (*draw_elem)(int, int, int, int, logic::Value);
   std::function<void(int, int, int, int, logic::Value)> draw_elem;
   std::vector<Link*> input_links{0};
   std::vector<Link*> output_links{0};
@@ -95,7 +96,8 @@ protected:
 public:
   Element(int x = 50, int y = 50, int w = 50, int h = 50,
           const char* l = 0);
-  Element(Element&) = delete;
+
+  // Element(Element&) = delete;
 
   void add_input_link (Link* link) { input_links.push_back(link); }
 
