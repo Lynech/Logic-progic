@@ -1,5 +1,19 @@
 #include "mapgroup.h"
 
+namespace graph {
+namespace menu {
+uchar noflag = 0;
+uchar labeltype = FL_NORMAL_LABEL;
+uchar labelfont = FL_HELVETICA;
+uchar labelsize = FL_NORMAL_SIZE;
+uchar labelcolor = FL_BLACK;
+uchar noshortcut = FL_BLACK;
+const char* endmenu = 0;
+Fl_Callback* nocallback = nullptr;
+void* nouserdata = nullptr;
+};  // namespace menu
+};  // namespace graph
+
 int MapGroup::handle(int event)
 {
   if ((void*)this == (void*)(Fl::belowmouse()))
