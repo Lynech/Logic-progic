@@ -124,6 +124,7 @@ class graph::And : public graph::Element
 
 {
 private:
+  Fl_Menu_Item* menu;
   int size = 50;
   bool is_entered = false;
   Point p1, p2, p3, p4, p_center, p_frame, p_input_port, p_output_port;
@@ -137,6 +138,8 @@ public:
   void draw () override;
 
   int handle (int x) override;
+
+  logic::And* get_logic_and () { return logic_and; }
 };
 
 // класс для элемента НЕ

@@ -62,6 +62,20 @@ public:
   void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
+
+  void invert_and ()
+  {
+    inverse_input = !inverse_input;
+    if (value == Value::False)
+    {
+      value = Value::True;
+    }
+    else if (value == Value::True)
+    {
+      value = Value::False;
+    }
+    std::cout << value << std::endl << inverse_input << std::endl;
+    }
 };
 
 class logic::And : public logic::Logic

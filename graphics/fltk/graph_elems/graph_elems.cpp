@@ -64,6 +64,7 @@ int LinkCircle::handle(int event)
     int x = Fl::event_x();
     int y = Fl::event_y();
     LinkCircle* baby;
+    bool needed_found = false;
     for (int i = 0; i < n; i++)
     {
       baby = dynamic_cast<LinkCircle*>(par->child(i));
@@ -72,9 +73,12 @@ int LinkCircle::handle(int event)
            ((x >= baby->x() && x <= baby->x() + baby->w()) &&
             (y >= baby->y() && y <= baby->y() + baby->w()))) &&
           (baby->type != this->type))
+      {
+        needed_found = true;
         break;
+      }
     }
-    if (!baby)
+    if (!needed_found)
       return 1;
     // определяем, из какого выходит связь и в какой входит
     Element* input_el;
@@ -134,6 +138,14 @@ void Link::draw()
 // {
 // }
 
+void invert_and (Fl_Widget*, void* userdata)
+{
+  And* el = (And*)userdata;
+  logic::And* log_el = el->get_logic_and();
+
+  log_el->invert_and();
+}
+
 //  конструктор класса И
 And::And(int x, int y, int s, int h, const char* l)
     : Element{x - 5, y - 5, s + 10, s + 10, l}
@@ -181,6 +193,15 @@ And::And(int x, int y, int s, int h, const char* l)
                                link_circle_types::output};
   output_port->set_parent_elem(this);
   parent()->add(*output_port);
+
+  menu = new Fl_Menu_Item[2];
+  menu[0] = Fl_Menu_Item{"invert", 0, invert_and, this};
+  // menu[1] = Fl_Menu_Item{"and", 0, add_elem<graph::And>, this};
+  // menu[2] = Fl_Menu_Item{"or", 0, add_elem<graph::Or>, this};
+  // menu[3] = Fl_Menu_Item{"not", 0, add_elem<graph::Buff>, this};
+  // menu[4] = Fl_Menu_Item{0};
+  // menu[5] = Fl_Menu_Item{"00", 0, add_elem<graph::And>, this};
+  menu[1] = Fl_Menu_Item{0};
 }
 
 // рисование объекта класса И
@@ -238,20 +259,31 @@ void And::draw()
 }
 
 // обработка взаимодействия с объектом класса И
-int And::handle(int x)
+int And::handle(int event)
 {
-  switch (x)
+
+  if (event == FL_ENTER)
   {
-  case FL_ENTER:
     is_entered = true;
     redraw();
     return 1;
-  case FL_LEAVE:
+  }
+  else if (event == FL_LEAVE)
+  {
     is_entered = false;
     redraw();
     return 1;
-  default:
-    return Fl_Widget::handle(x);
+  }
+  else if (event == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
+  {
+    auto temp = menu->popup(Fl::event_x(), Fl::event_y(), "change elem");
+    if (temp && temp->callback())
+      temp->do_callback(nullptr);
+    return 1;
+  }
+  else
+  {
+    return Fl_Widget::handle(event);
   }
 }
 
