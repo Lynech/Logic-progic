@@ -27,8 +27,6 @@ void add_butt2 (Fl_Widget*, void* v)
   t->redraw();
 }
 
-
-
 // LogicMap::LogicMap(int x, int y, int w, int h, const char* l)
 //     : Fl_Scroll{x, y, w, h, l}
 // {

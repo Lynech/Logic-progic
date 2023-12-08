@@ -6,9 +6,8 @@
 using namespace graph;
 
 // конструктор класса LinkCircle
-LinkCircle::LinkCircle(int xx, int yy, link_circle_types t, int h,
-                       const char* l)
-    : Fl_Widget{xx - link_circle_radius - 5, yy - link_circle_radius - 5,
+LinkCircle::LinkCircle(int x, int y, link_circle_types t, const char* l)
+    : Fl_Widget{x - link_circle_radius - 5, y - link_circle_radius - 5,
                 link_circle_radius * 2 + 10, link_circle_radius * 2 + 10, l}
 {
   type = t;
@@ -101,8 +100,8 @@ int LinkCircle::handle(int event)
 }
 
 // конструктор класса Link
-Link::Link(int x1, int y1, int x2, int y2, const char* l)
-    : Fl_Widget{0, 0, 0, 0, l}
+Link::Link(int x, int y, int w, int h, const char* l)
+    : Fl_Widget{x, y, w, h, l}
 {
 }
 

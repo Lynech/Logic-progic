@@ -42,9 +42,9 @@ private:
   graph::Element* parent_elem;
 
 public:
-  const int link_circle_radius = 5;
-  LinkCircle(int xx = 0, int yy = 0,
-             link_circle_types t = link_circle_types::input, int h = 0,
+  static const int link_circle_radius{5};
+  LinkCircle(int x = 0, int y = 0,
+             link_circle_types t = link_circle_types::input,
              const char* l = 0);
 
   void draw () override;
@@ -64,7 +64,7 @@ private:
   LinkCircle *start_circle, *end_circle;
 
 public:
-  Link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0, const char* l = 0);
+  Link(int x = 0, int y = 0, int w = 0, int h = 0, const char* l = 0);
 
   void draw () override;
 };
