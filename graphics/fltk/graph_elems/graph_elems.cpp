@@ -5,8 +5,6 @@
 
 using namespace graph;
 
-// extern link_circle_radius = 5;
-
 // конструктор класса LinkCircle
 LinkCircle::LinkCircle(int x, int y, int w, int h, link_circle_types t,
                        const char* l)
@@ -20,15 +18,44 @@ void LinkCircle::draw()
 {
   fl_color(16);
   fl_line_style(0, 4);
-  fl_begin_complex_polygon();
-  fl_circle(x() + link_circle_radius, y() + link_circle_radius,
-            link_circle_radius);
-  fl_end_complex_polygon();
+  fl_pie(x(), y(), w(), h(), 0., 360.);
+  if (is_entered)
+  {
+    fl_color(FL_BLACK);
+    fl_line_style(0, 2);
+    fl_arc(x(), y(), w(), h(), 0., 360.);
+  }
+}
+
+int Label::handle(int event)
+{
+  if (event == FL_ENTER)
+  {
+    std::cout << "+__________Label_enter__________+\n";
+    is_entered = true;
+    redraw();
+    return 1;
+  }
+  if (event == FL_LEAVE)
+  {
+    std::cout << "+__________Label_leave__________+\n";
+    is_entered = false;
+    redraw();
+    return 1;
+  }
+  if (event == FL_PUSH)
+  {
+    std::cout << "+__Label push handled -- here should be menu__+\n";
+    return 1;
+  }
+  return 0;
 }
 
 // обработка взаимодействий с объектом класса LinkCircle
 int LinkCircle::handle(int event)
 {
+
+  int x_ = x(), y_ = y(), w_ = w(), h_ = h();
 
   // std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << event << " "
   //           << FL_ENTER << std::endl;
@@ -37,19 +64,20 @@ int LinkCircle::handle(int event)
   case FL_PUSH:
     // if(event_button == fl_left) ... что-то тут
     //
-    std::cout << "LinkCircle push handled -- here should be menu "
-              << std::endl;
+    std::cout << "__LinkCircle push handled -- here should be menu__\n";
     //
     return 1;
+  // case FL_MOVE:
   case FL_ENTER:
-    std::cout << "______entered_circle________" << std::endl;
-    fl_color(FL_BLACK);
-    fl_line_style(0, 4);
-    fl_arc(x(), y(), w() - 2, h() - 2, 0, 360);
+    std::cout << "______entered_circle________\n";
+    // draw_focus(FL_FRAME_BOX, x(), y(), w(), h());
+    is_entered = true;
+    redraw();
     return 1;
 
   case FL_LEAVE:
-    std::cout << "______leave_circle________" << std::endl;
+    std::cout << "______leave_circle________\n";
+    is_entered = false;
     redraw();
     return 1;
   case FL_DRAG:
@@ -109,8 +137,8 @@ int LinkCircle::handle(int event)
 // конструктор класса Link
 Link::Link(LinkCircle* c1, LinkCircle* c2)
     : Fl_Widget{std::min(c1->x(), c2->x()), std::min(c1->y(), c2->y()),
-                abs(c1->x() - c2->x()) + 2 * c1->link_circle_radius,
-                abs(c1->y() - c2->y()) + 2 * c1->link_circle_radius}
+                abs(c1->x() - c2->x()) + c1->w(),
+                abs(c1->y() - c2->y()) + c1->w()}
 {
 }
 
@@ -143,42 +171,20 @@ And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 {
   inputs_n = 1;
   outputs_n = 1;
-  elem = new logic::And{};
+  draw_elem->elem = new logic::And{};
   set_lable(draw_and);
 }
 
 // обработка взаимодействия с объектом класса Elem
 int Element::handle(int event)
 {
-  // if (event == FL_PUSH && Fl::event_inside(draw_elem))
-  // {
-  //   // меню сюда
-  //   // жобавлять лучше в конструкторе////////////////////////
-  //   return 1;
-  // }
-  // несовсем правильно работает
-  // int n = children();
-  // for (int i = 0; i < n; i++)
-  // {
-
-  //   int x_ = child(i)->x() - 2;
-  //   int y_ = child(i)->y() - 2;
-  //   int w_ = child(i)->w() + 4;
-  //   int h_ = child(i)->h() + 4;
-  //   if (Fl::event_inside(x_, y_, w_, h_))
-  //     return Fl_Group::handle(event);
-  // }
-
   if (Fl_Group::handle(event))
     return 1;
-  // return Fl_Group::handle(event);
   return 0;
-  // return Fl_Widget::handle(event);
 }
 
 void Label::draw()
 {
-
   draw_box(FL_FLAT_BOX, 16);
   if (Label_draw_)
   {
@@ -188,28 +194,12 @@ void Label::draw()
     int h_elem = 2 * h() / 3;
     Label_draw_(x_elem, y_elem, w_elem, h_elem, value);
   }
-}
-
-int Label::handle(int event)
-{
-  if (event == FL_ENTER)
+  if (is_entered)
   {
     fl_color(FL_BLACK);
-    fl_line_style(FL_DASH, 4);
-    draw_focus(FL_BORDER_FRAME, x() + 2, y() + 2, w() - 4, h() - 4);
-    return 1;
+    fl_line_style(0, 2);
+    fl_rect(x() + 4, y() + 4, w() - 8, h() - 8);
   }
-  if (event == FL_LEAVE)
-  {
-    redraw();
-    return 1;
-  }
-  if (event == FL_PUSH)
-  {
-    std::cout << "Label push handled -- here should be menu" << std::endl;
-    return 1;
-  }
-  return 0;
 }
 
 void Element::draw()
@@ -223,26 +213,19 @@ void Element::draw()
 
   int x_output_link = x_ + w_ + elem_link_lenth;
   int y_output_link = y_ + h_ / 2;
-
-  // output link
+  // добавить цикл для отрисовки всех входов и выходов
+  //  output link
   fl_color(16);
   fl_line_style(0, 4);
   fl_line(x_ + w_, y_ + h_ / 2, x_output_link, y_output_link);
   // input link
   fl_line(x_, y_ + h_ / 2, x_input_link, y_input_link);
-
-  if (inverted)
-  {
-    fl_color(FL_BLACK);
-    fl_line_style(0, 2);
-    fl_arc(x_ + w_ / 2 - 6, y_ + h_ / 2, 6, 0, 360);
-  }
   Fl_Group::draw();
 }
 
 void Element::invert()
 {
-  inverted = !inverted;
+  output_port->inverted = !(output_port->inverted);
   redraw();
 }
 
@@ -252,7 +235,7 @@ Buff::Buff(int x, int y, int w, int h, const char* l)
 {
   inputs_n = 1;
   outputs_n = 1;
-  elem = new logic::And{};
+  draw_elem->elem = new logic::And{};
   set_lable(draw_buff);
 }
 
@@ -261,7 +244,7 @@ Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
 {
   inputs_n = 1;
   outputs_n = 1;
-  elem = new logic::Or{};
+  draw_elem->elem = new logic::Or{};
   set_lable(draw_or);
 }
 

@@ -33,34 +33,27 @@ enum class link_circle_types
   output = 1
 };
 
-// int link_circle_radius;
-
 // класс кружочков связи
 class LinkCircle : public Fl_Widget
 {
 private:
   link_circle_types type;
   bool is_entered = false;
-  // graph::Element* parent_elem;
+  Fl_Menu_Item* menu;  /// дописать в конструкторе
 
 public:
-  int link_circle_radius{5};  /////////не удалять пока
-  // LinkCircle(int x = 0, int y = 0,
-  //            link_circle_types t = link_circle_types::input,
-  //            const char* l = 0);
   LinkCircle(int x, int y, int w, int h, link_circle_types t,
              const char* l = 0);
 
   void draw () override;
   int handle (int event) override;
-
-  // void set_parent_elem (graph::Element* e) { parent_elem = e; }
-
-  // graph::Element* get_parent_elem () { return parent_elem; }
+  // добавить метод change inverted
+  bool inverted = false;  /// добавить изменения в draw() у Elem
 
   link_circle_types get_type () { return type; }
 };
 
+// доделать
 // класс связи
 class Link : public Fl_Widget
 {
@@ -76,10 +69,12 @@ public:
 class Label : public Fl_Widget
 {
 protected:
-  // bool inverted{0};
   logic::Value value{logic::Value::Undef};
+  bool is_entered = false;
 
 public:
+  logic::Element* elem;
+
   Label(
       int x, int y, int w, int h, const char* l = 0,
       std::function<void(int, int, int, int, logic::Value)> Label_draw = 0)
@@ -104,18 +99,18 @@ private:
 
   logic::Value get_value () { return logic::Value::Undef; }
 
-  bool is_entered = false;
+  void set_value (logic::Value val) { draw_elem->set_value(val); }
 
   int elem_link_lenth{20};
   int line_thikness{2};
 
 protected:
-  logic::Element* elem;
+  // переделать input_port и output_port на векторы
+  // убрать input_links output_links
   std::vector<Link*> input_links{0};
   std::vector<Link*> output_links{0};
   LinkCircle *input_port, *output_port;
   Label* draw_elem;
-  bool inverted{0};
   int inputs_n{0}, outputs_n{0};
   Fl_Menu_Item* menu{nullptr};
 
