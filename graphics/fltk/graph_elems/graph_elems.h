@@ -41,20 +41,22 @@ class LinkCircle : public Fl_Widget
 private:
   link_circle_types type;
   bool is_entered = false;
-  graph::Element* parent_elem;
+  // graph::Element* parent_elem;
 
 public:
   int link_circle_radius{5};  /////////не удалять пока
-  LinkCircle(int x = 0, int y = 0,
-             link_circle_types t = link_circle_types::input,
+  // LinkCircle(int x = 0, int y = 0,
+  //            link_circle_types t = link_circle_types::input,
+  //            const char* l = 0);
+  LinkCircle(int x, int y, int w, int h, link_circle_types t,
              const char* l = 0);
 
   void draw () override;
   int handle (int event) override;
 
-  void set_parent_elem (graph::Element* e) { parent_elem = e; }
+  // void set_parent_elem (graph::Element* e) { parent_elem = e; }
 
-  graph::Element* get_parent_elem () { return parent_elem; }
+  // graph::Element* get_parent_elem () { return parent_elem; }
 
   link_circle_types get_type () { return type; }
 };

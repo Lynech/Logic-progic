@@ -8,9 +8,9 @@ using namespace graph;
 // extern link_circle_radius = 5;
 
 // конструктор класса LinkCircle
-LinkCircle::LinkCircle(int x, int y, link_circle_types t, const char* l)
-    : Fl_Widget{x - link_circle_radius, y - link_circle_radius,
-                link_circle_radius * 2, link_circle_radius * 2, l}
+LinkCircle::LinkCircle(int x, int y, int w, int h, link_circle_types t,
+                       const char* l)
+    : Fl_Widget{x, y, w, h, l}
 {
   type = t;
 }
@@ -19,45 +19,36 @@ LinkCircle::LinkCircle(int x, int y, link_circle_types t, const char* l)
 void LinkCircle::draw()
 {
   fl_color(16);
+  fl_line_style(0, 4);
   fl_begin_complex_polygon();
   fl_circle(x() + link_circle_radius, y() + link_circle_radius,
             link_circle_radius);
   fl_end_complex_polygon();
-
-  // if (is_entered == true)
-  // {
-  //   fl_color(FL_BLACK);
-  // }
-  // else
-  // {
-  //   fl_color(16);
-  // }
-  // fl_line_style(0, 4);
-  // fl_begin_loop();
-  // fl_circle(x() + link_circle_radius, y() + link_circle_radius,
-  //           link_circle_radius);
-  // fl_end_loop();
 }
 
 // обработка взаимодействий с объектом класса LinkCircle
 int LinkCircle::handle(int event)
 {
-  std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
+
+  std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << event << " "
+            << FL_ENTER << std::endl;
   switch (event)
   {
   case FL_ENTER:
-    is_entered = true;
-    redraw();
+    std::cout << "______yes________" << std::endl;
+    fl_color(FL_BLACK);
+    fl_line_style(0, 4);
+    fl_arc(x(), y(), w() - 2, h() - 2, 0, 360);
     return 1;
+
   case FL_LEAVE:
-    is_entered = false;
     redraw();
     return 1;
-  // case FL_DRAG:
-  //   is_entered =
-  //       true;  //////////////////////////////// рисование новой линии
-  //   redraw();
-  //   return 1;
+  case FL_DRAG:
+    // is_entered =
+    //     true;  //////////////////////////////// рисование новой линии
+    // redraw();
+    return 1;
   case FL_RELEASE:
   {
     MapGroup* par = (MapGroup*)this->parent();
@@ -81,13 +72,13 @@ int LinkCircle::handle(int event)
     Element* output_el;
     if (baby->type == link_circle_types::input)
     {
-      input_el = baby->get_parent_elem();
-      output_el = this->parent_elem;
+      input_el = (graph::Element*)baby->parent();
+      output_el = (graph::Element*)this->parent();
     }
     else
     {
-      output_el = baby->get_parent_elem();
-      input_el = this->parent_elem;
+      output_el = (graph::Element*)baby->parent();
+      input_el = (graph::Element*)this->parent();
     }
     Link* l = new Link{baby, this};
 
@@ -129,30 +120,14 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
     : Fl_Group{x_ - w_ * 2 / 5, y_, w_ * 9 / 5, h_, l},
       elem_link_lenth{w_ * 2 / 5}, line_thikness{w_ / 25}
 {
-  // link_circle_radius = elem_link_lenth / 5;
   draw_elem = new Label{x_, y_, w_, h_};
   add(draw_elem);
-  int x_input_link = x();
-  int y_input_link = y() + h() / 2 - 5;
-
-  int x_output_link = x() + w() - 10;
-  int y_output_link = y() + h() / 2 - 5;
-
-  input_port =
-      new LinkCircle{x_input_link, y_input_link, link_circle_types::input};
-  input_port->set_parent_elem(this);
-  add((Fl_Widget*)input_port);
-  // input_port->show();
-  // update_child(*(Fl_Widget*)input_port);
-
-  output_port = new LinkCircle{x_output_link, y_output_link,
-                               link_circle_types::output};
-  output_port->set_parent_elem(this);
-  add((Fl_Widget*)output_port);
-  // output_port->show();
-  // update_child(*(Fl_Widget*)output_port);
-  // parent()->add(output_port);
-  // clip_children(1);
+  input_port = new LinkCircle{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
+                              w_ / 5, w_ / 5, link_circle_types::input};
+  add(input_port);
+  output_port = new LinkCircle{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10,
+                               w_ / 5, w_ / 5, link_circle_types::output};
+  add(output_port);
 }
 
 //  конструктор класса И
@@ -167,29 +142,32 @@ And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 // обработка взаимодействия с объектом класса Elem
 int Element::handle(int event)
 {
+  // if (event == FL_PUSH && Fl::event_inside(draw_elem))
+  // {
+  //   // меню сюда
+  //   // жобавлять лучше в конструкторе////////////////////////
+  //   return 1;
+  // }
+  // несовсем правильно работает
   int n = children();
   for (int i = 0; i < n; i++)
-    printf("%d %p\n", i, child(i));
-  if (event == FL_PUSH && Fl::event_inside(draw_elem))
   {
-    // меню сюда
-    // жобавлять лучше в конструкторе
+
+    int x_ = child(i)->x() - 2;
+    int y_ = child(i)->y() - 2;
+    int w_ = child(i)->w() + 4;
+    int h_ = child(i)->h() + 4;
+    if (Fl::event_inside(x_, y_, w_, h_))
+      return Fl_Group::handle(event);
   }
-  else if (Fl::event_inside(input_port))
-  {
-    std::cout << "iiiiiiiiiiiiiiii\n";
-    return input_port->handle(event);
-  }
-  else if (Fl::event_inside(output_port))
-  {
-    std::cout << "oooooooooooooooo\n";
-    return output_port->handle(event);
-  }
-  return Fl_Widget::handle(event);
+  // return Fl_Group::handle(event);
+  return 0;
+  // return Fl_Widget::handle(event);
 }
 
 void Label::draw()
 {
+
   draw_box(FL_FLAT_BOX, 16);
   if (Label_draw_)
   {
@@ -245,10 +223,7 @@ void Element::draw()
     fl_line_style(0, 2);
     fl_arc(x_ + w_ / 2 - 6, y_ + h_ / 2, 6, 0, 360);
   }
-
-  // fl_pop_clip();
-
-  draw_children();
+  Fl_Group::draw();
 }
 
 void Element::invert()
@@ -278,6 +253,7 @@ Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
 
 void draw_and (int x, int y, int w, int h, logic::Value value)
 {
+  // выбор цвета в зависимости от значения
   auto draw_color = FL_BLUE;
   if (value == logic::Value::False)
     draw_color = FL_RED;
@@ -294,7 +270,6 @@ void draw_and (int x, int y, int w, int h, logic::Value value)
   // левая часть обрамление
   fl_color(FL_BLACK);
   fl_line_style(0, 2);
-
   fl_line(x, y, x, y + h);
   fl_line(x, y, x + w / 2, y);
   fl_line(x, y + h, x + w / 2, y + h);
