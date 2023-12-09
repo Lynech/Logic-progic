@@ -30,18 +30,26 @@ void LinkCircle::draw()
 int LinkCircle::handle(int event)
 {
 
-  std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << event << " "
-            << FL_ENTER << std::endl;
+  // std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << event << " "
+  //           << FL_ENTER << std::endl;
   switch (event)
   {
+  case FL_PUSH:
+    // if(event_button == fl_left) ... что-то тут
+    //
+    std::cout << "LinkCircle push handled -- here should be menu "
+              << std::endl;
+    //
+    return 1;
   case FL_ENTER:
-    std::cout << "______yes________" << std::endl;
+    std::cout << "______entered_circle________" << std::endl;
     fl_color(FL_BLACK);
     fl_line_style(0, 4);
     fl_arc(x(), y(), w() - 2, h() - 2, 0, 360);
     return 1;
 
   case FL_LEAVE:
+    std::cout << "______leave_circle________" << std::endl;
     redraw();
     return 1;
   case FL_DRAG:
@@ -149,17 +157,20 @@ int Element::handle(int event)
   //   return 1;
   // }
   // несовсем правильно работает
-  int n = children();
-  for (int i = 0; i < n; i++)
-  {
+  // int n = children();
+  // for (int i = 0; i < n; i++)
+  // {
 
-    int x_ = child(i)->x() - 2;
-    int y_ = child(i)->y() - 2;
-    int w_ = child(i)->w() + 4;
-    int h_ = child(i)->h() + 4;
-    if (Fl::event_inside(x_, y_, w_, h_))
-      return Fl_Group::handle(event);
-  }
+  //   int x_ = child(i)->x() - 2;
+  //   int y_ = child(i)->y() - 2;
+  //   int w_ = child(i)->w() + 4;
+  //   int h_ = child(i)->h() + 4;
+  //   if (Fl::event_inside(x_, y_, w_, h_))
+  //     return Fl_Group::handle(event);
+  // }
+
+  if (Fl_Group::handle(event))
+    return 1;
   // return Fl_Group::handle(event);
   return 0;
   // return Fl_Widget::handle(event);
@@ -194,7 +205,10 @@ int Label::handle(int event)
     return 1;
   }
   if (event == FL_PUSH)
-    return Fl_Widget::handle(event);
+  {
+    std::cout << "Label push handled -- here should be menu" << std::endl;
+    return 1;
+  }
   return 0;
 }
 
