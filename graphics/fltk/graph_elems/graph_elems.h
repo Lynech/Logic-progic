@@ -33,6 +33,8 @@ enum class link_circle_types
   output = 1
 };
 
+// int link_circle_radius;
+
 // класс кружочков связи
 class LinkCircle : public Fl_Widget
 {
@@ -42,7 +44,7 @@ private:
   graph::Element* parent_elem;
 
 public:
-  static const int link_circle_radius{5};
+  int link_circle_radius{5};  /////////не удалять пока
   LinkCircle(int x = 0, int y = 0,
              link_circle_types t = link_circle_types::input,
              const char* l = 0);
@@ -64,13 +66,36 @@ private:
   LinkCircle *start_circle, *end_circle;
 
 public:
-  Link(int x = 0, int y = 0, int w = 0, int h = 0, const char* l = 0);
+  Link(LinkCircle* c1, LinkCircle* c2);
 
   void draw () override;
 };
 
+class Label : public Fl_Widget
+{
+protected:
+  // bool inverted{0};
+  logic::Value value{logic::Value::Undef};
+
+public:
+  Label(
+      int x, int y, int w, int h, const char* l = 0,
+      std::function<void(int, int, int, int, logic::Value)> Label_draw = 0)
+      : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
+  {
+  }
+
+  std::function<void(int, int, int, int, logic::Value)> Label_draw_;
+
+  void draw () override;
+
+  void set_value (logic::Value value_) { value = value_; }
+
+  int handle (int event) override;
+};
+
 // абстрактный класс для всех элементов
-class graph::Element : public Fl_Widget
+class graph::Element : public Fl_Group
 {
 private:
   // logic::Value get_value () { return elem->get_value(); }
@@ -79,21 +104,26 @@ private:
 
   bool is_entered = false;
 
-  static void draw_Element (int, int, int, int, logic::Value) {}
-
   int elem_link_lenth{20};
   int line_thikness{2};
 
 protected:
   logic::Element* elem;
-  std::function<void(int, int, int, int, logic::Value)> draw_elem;
   std::vector<Link*> input_links{0};
   std::vector<Link*> output_links{0};
   LinkCircle *input_port, *output_port;
+  Label* draw_elem;
   bool inverted{0};
   int inputs_n{0}, outputs_n{0};
+  Fl_Menu_Item* menu{nullptr};
 
 public:
+  void set_lable (
+      std::function<void(int, int, int, int, logic::Value)> label_draw)
+  {
+    draw_elem->Label_draw_ = label_draw;
+  }
+
   Element(int x = 50, int y = 50, int w = 50, int h = 50,
           const char* l = 0);
 

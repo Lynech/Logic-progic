@@ -14,8 +14,10 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
        Fl::event_y() <
            (mamamap->y() + mamamap->h() - mamamap->hscrollbar.h())))
   {
-    T* temp = new T{Fl::event_x(), Fl::event_y(), 50, 50};
+    // map->begin();
+    auto temp = new T{Fl::event_x(), Fl::event_y(), 50, 50};
     map->add(temp);
+    // map->end();
     map->redraw();
   }
 }
