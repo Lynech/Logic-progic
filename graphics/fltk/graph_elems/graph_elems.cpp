@@ -187,12 +187,12 @@ And::And(int x, int y, int s, int h, const char* l)
   input_port = new LinkCircle{p_input_port.x(), p_input_port.y(),
                               link_circle_types::input};
   input_port->set_parent_elem(this);
-  parent()->add(*input_port);
+  parent()->add(input_port);
 
   output_port = new LinkCircle{p_output_port.x(), p_output_port.y(),
                                link_circle_types::output};
   output_port->set_parent_elem(this);
-  parent()->add(*output_port);
+  parent()->add(output_port);
 
   menu = new Fl_Menu_Item[2];
   menu[0] = Fl_Menu_Item{"invert", 0, invert_and, this};
