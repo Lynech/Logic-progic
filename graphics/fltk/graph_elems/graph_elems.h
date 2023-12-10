@@ -15,6 +15,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -26,155 +27,144 @@ class Buff;
 class Element;
 };  // namespace graph
 
-const int link_circle_radius = 5;
-const int elem_link_lenth = 20;
 enum class link_circle_types
 {
   input = 0,
   output = 1
 };
 
-// класс для точки
-class Point
-{
-private:
-  int xx;
-  int yy;
-
-public:
-  Point(int xxx = 0, int yyy = 0)
-  {
-    xx = xxx;
-    yy = yyy;
-  }
-
-  int x () { return xx; }
-
-  int y () { return yy; }
-
-  void set_x (int xxx) { xx = xxx; }
-
-  void set_y (int yyy) { yy = yyy; }
-};
-
 // класс кружочков связи
 class LinkCircle : public Fl_Widget
 {
 private:
-  Point p_center;
   link_circle_types type;
   bool is_entered = false;
-  graph::Element* parent_elem;
+  Fl_Menu_Item* menu;  /// дописать в конструкторе
 
 public:
-  LinkCircle(int xx = 0, int yy = 0,
-             link_circle_types t = link_circle_types::input, int h = 0,
+  LinkCircle(int x, int y, int w, int h, link_circle_types t,
              const char* l = 0);
 
   void draw () override;
   int handle (int event) override;
-
-  void set_parent_elem (graph::Element* e) { parent_elem = e; }
-
-  graph::Element* get_parent_elem () { return parent_elem; }
+  // добавить метод change inverted
+  bool inverted = false;  /// добавить изменения в draw() у Elem
 
   link_circle_types get_type () { return type; }
 };
 
+// доделать
 // класс связи
 class Link : public Fl_Widget
 {
 private:
-  Point p_start, p_end;
   LinkCircle *start_circle, *end_circle;
 
 public:
-  Link(int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0, const char* l = 0);
+  Link(LinkCircle* c1, LinkCircle* c2);
 
   void draw () override;
 };
 
-// абстрактный класс для всех элементов
-class graph::Element : public Fl_Widget
+class Label : public Fl_Widget
 {
-private:
-  std::vector<Link*> input_links{0};
-  std::vector<Link*> output_links{0};
-
 protected:
-  LinkCircle *input_port, *output_port;
+  logic::Value value{logic::Value::Undef};
+  bool is_entered = false;
 
 public:
-  Element(int x = 0, int y = 0, int s = 50, int h = 0, const char* l = 0)
-      : Fl_Widget{x - 5, y - 5, s + 10, s + 10, l}
+  logic::Element* elem;
+
+  Label(
+      int x, int y, int w, int h, const char* l = 0,
+      std::function<void(int, int, int, int, logic::Value)> Label_draw = 0)
+      : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
   {
-    // input_links = {0};
-    // output_links = {0};
   }
 
-  // virtual void print () = 0;
+  std::function<void(int, int, int, int, logic::Value)> Label_draw_;
+
+  void draw () override;
+
+  void set_value (logic::Value value_) { value = value_; }
+
+  int handle (int event) override;
+};
+
+// абстрактный класс для всех элементов
+class graph::Element : public Fl_Group
+{
+private:
+  // logic::Value get_value () { return elem->get_value(); }
+
+  logic::Value get_value () { return logic::Value::Undef; }
+
+  void set_value (logic::Value val) { draw_elem->set_value(val); }
+
+  int elem_link_lenth{20};
+  int line_thikness{2};
+
+protected:
+  // переделать input_port и output_port на векторы
+  // убрать input_links output_links
+  std::vector<Link*> input_links{0};
+  std::vector<Link*> output_links{0};
+  LinkCircle *input_port, *output_port;
+  Label* draw_elem;
+  int inputs_n{0}, outputs_n{0};
+  Fl_Menu_Item* menu{nullptr};
+
+public:
+  void set_lable (
+      std::function<void(int, int, int, int, logic::Value)> label_draw)
+  {
+    draw_elem->Label_draw_ = label_draw;
+  }
+
+  Element(int x = 50, int y = 50, int w = 50, int h = 50,
+          const char* l = 0);
+
+  // Element(Element&) = delete;
 
   void add_input_link (Link* link) { input_links.push_back(link); }
 
   void add_output_link (Link* link) { output_links.push_back(link); }
+
+  int handle (int x) override;
+
+  void draw () override;
+
+  virtual void invert ();
 };
 
 // класс для элемента И
 class graph::And : public graph::Element
-
 {
-private:
-  Fl_Menu_Item* menu;
-  int size = 50;
-  bool is_entered = false;
-  Point p1, p2, p3, p4, p_center, p_frame, p_input_port, p_output_port;
-  logic::And* logic_and;
-  // std::vector<Link*> input_links;
-  // std::vector<Link*> output_links;
-
 public:
   And(int x, int y, int s = 50, int h = 0, const char* l = 0);
-
-  void draw () override;
-
-  int handle (int x) override;
-
-  logic::And* get_logic_and () { return logic_and; }
 };
 
 // класс для элемента НЕ
 class graph::Buff : public Element
 {
-private:
-  int size = 50;
-  Point p1, p2, p3, p_frame, p_input_port, p_output_port;
-  bool is_entered = false;
-  logic::Buff* logic_buff;
-
 public:
   Buff(int x, int y, int fr_size, int h = 0, const char* l = 0);
-
-  int get_size () { return size; }
-
-  void draw () override;
-
-  int handle (int x) override;
 };
 
 // класс для элемента ИЛИ
 class graph::Or : public Element
 {
-private:
-  int size = 50;
-  bool is_entered = false;
-  Point p_ellipse, p_circle, p_frame, p_input_port, p_output_port;
-  logic::Or* logic_or;
-
 public:
   Or(int x, int y, int fr_size = 50, int h = 0, const char* l = 0);
-
-  void draw () override;
-
-  int handle (int x) override;
 };
+
+void draw_and (int x, int y, int w, int h,
+               logic::Value = logic::Value::False);
+
+void draw_buff (int x, int y, int w, int h,
+                logic::Value = logic::Value::False);
+
+void draw_or (int x, int y, int w, int h,
+              logic::Value = logic::Value::False);
+
 #endif
