@@ -89,40 +89,55 @@ int LinkCircle::handle(int event)
     return 1;
   case FL_RELEASE:
   {
-    MapGroup* par = (MapGroup*)this->parent();
-    int n = par->children();
-    int x = Fl::event_x();
-    int y = Fl::event_y();
-    LinkCircle* baby;
+    // элемент (группа), которому принадлежит этот порт
+    Element* this_elem_group = (Element*)this->parent();
+    MapGroup* map = (MapGroup*)this_elem_group->parent();
+    int n = map ->children();
+
+    // int x = Fl::event_x();
+    // int y = Fl::event_y();
+    Element* elem_group;
+    LinkCircle* l_c;
+
     bool needed_found = false;
     for (int i = 0; i < n && !needed_found; i++)
     {
-      baby = dynamic_cast<LinkCircle*>(par->child(i));
-      // лежит ли ребенок под мышью и правильно ли соединяем
-      if ((baby != nullptr) && (Fl::event_inside(baby)) &&
-          (baby->type != this->type))
-        needed_found = true;
+      // взяли элемент (группа)
+      elem_group = dynamic_cast<Element*>(map->child(i));
+      // кол-во сущностей в элементе
+      if (elem_group != nullptr)
+      {
+        int n1 = elem_group->children();
+        for (int j = 0; j < n1 && !needed_found; j++)
+        {
+          // взяли сущность в надежде что она порт
+          l_c = dynamic_cast<LinkCircle*>(elem_group->child(j));
+          // проверяем, что это порт, он нужного типа и что наведение на него
+          if ((l_c != nullptr) && (l_c != this) && (Fl::event_inside(l_c)) &&
+              (l_c->type != this->type))
+            needed_found = true;
+        }
+      }
     }
     if (!needed_found)
       return 1;
     // определяем, из какого выходит связь и в какой входит
     Element* input_el;
     Element* output_el;
-    if (baby->type == link_circle_types::input)
+    if (this->type == link_circle_types::input)
     {
-      input_el = (graph::Element*)baby->parent();
+      input_el = (graph::Element*)l_c->parent();
       output_el = (graph::Element*)this->parent();
     }
     else
     {
-      output_el = (graph::Element*)baby->parent();
+      output_el = (graph::Element*)l_c->parent();
       input_el = (graph::Element*)this->parent();
     }
-    Link* l = new Link{baby, this};
+    Link* l = new Link{l_c, this};
+    map->add(l);
 
-    // par->add(*l);
     l->redraw();
-    // par->end();
 
     input_el->add_input_link(l);
     output_el->add_output_link(l);
@@ -142,15 +157,28 @@ Link::Link(LinkCircle* c1, LinkCircle* c2)
                 abs(c1->x() - c2->x()) + c1->w(),
                 abs(c1->y() - c2->y()) + c1->w()}
 {
+  start_circle = c1;
+  end_circle = c2;
 }
 
 // отрисовка объектов класса Link
 void Link::draw()
 {
-  fl_line_style(0, 4);
+  fl_line_style(0, 3);
   fl_color(FL_BLACK);
-  fl_line(start_circle->x(), start_circle->y(), end_circle->x(),
-          end_circle->y());
+  // fl_line(start_circle->x() + start_circle->w()/2, start_circle->y() + start_circle->h()/2, end_circle->x() + end_circle->w()/2,
+  //         end_circle->y()+ end_circle->h()/2) ;
+
+  if (start_circle->get_type() == link_circle_types::input)
+  {
+  fl_line(start_circle->x(), start_circle->y() + start_circle->h()/2, end_circle->x() + end_circle->w(),
+          end_circle->y()+ end_circle->h()/2) ;
+  }
+  else{
+        fl_line(start_circle->x() +start_circle->w()/2 , start_circle->y() + start_circle->h()/2, end_circle->x(),
+          end_circle->y()+ end_circle->h()/2) ;
+
+  }
 }
 
 // конструктор абстрактного класса Element
