@@ -12,6 +12,7 @@ LinkCircle::LinkCircle(int x, int y, int w, int h, link_circle_types t,
                        const char* l)
     : Fl_Widget{x, y, w, h, l}
 {
+  
   type = t;
 }
 
@@ -126,14 +127,18 @@ int LinkCircle::handle(int event)
     Element* output_el;
     if (this->type == link_circle_types::input)
     {
-      input_el = (graph::Element*)l_c->parent();
-      output_el = (graph::Element*)this->parent();
+      // ведем связь из this в l_c -> нужно добавить еще один вход в элемент порта
+      input_el = (graph::Element*)this->parent();
+      output_el = (graph::Element*)l_c->parent();
     }
     else
     {
-      output_el = (graph::Element*)l_c->parent();
-      input_el = (graph::Element*)this->parent();
+      // ведем связь из l_c в this -> нужно добавить в еще один вход в элемент порта
+      output_el = (graph::Element*)this->parent();
+      input_el = (graph::Element*)l_c->parent();
     }
+    input_el ->add_input_port();
+
     Link* l = new Link{l_c, this};
     map->add(l);
 
@@ -141,6 +146,9 @@ int LinkCircle::handle(int event)
 
     input_el->add_input_link(l);
     output_el->add_output_link(l);
+    
+    input_el ->redraw();
+    output_el ->redraw();
 
     is_entered = false;
     redraw();
@@ -166,8 +174,6 @@ void Link::draw()
 {
   fl_line_style(0, 3);
   fl_color(FL_BLACK);
-  // fl_line(start_circle->x() + start_circle->w()/2, start_circle->y() + start_circle->h()/2, end_circle->x() + end_circle->w()/2,
-  //         end_circle->y()+ end_circle->h()/2) ;
 
   if (start_circle->get_type() == link_circle_types::input)
   {
@@ -188,9 +194,15 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
 {
   draw_elem = new Label{x_, y_, w_, h_};
   add(draw_elem);
-  input_port = new LinkCircle{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
+
+  LinkCircle* first_input_port = new LinkCircle{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
                               w_ / 5, w_ / 5, link_circle_types::input};
-  add(input_port);
+  
+  add(first_input_port);
+
+  input_ports.push_back(first_input_port);
+
+  // Выходной порт
   output_port = new LinkCircle{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10,
                                w_ / 5, w_ / 5, link_circle_types::output};
   add(output_port);
@@ -211,6 +223,21 @@ int Element::handle(int event)
   if (Fl_Group::handle(event))
     return 1;
   return 0;
+}
+
+void Element::add_input_port()
+{
+  int n = this->input_ports.size(); // кол-во входов
+  Label* this_dr_el = this->get_draw_elem();
+  // this_dr_el->resize(this_dr_el->x(), this_dr_el->y(), this_dr_el->w(), (this_dr_el->h()) * (n+2)/(n+1));
+  
+  LinkCircle* last_l_s = input_ports[input_ports.size() - 1]; ////////////////// TODO: при удалении оставлять 1 связь
+
+  LinkCircle* new_l_s = new LinkCircle{last_l_s->x(), last_l_s->y() + (this_dr_el->h())/(n+1), last_l_s->w(), last_l_s->h(), link_circle_types::input};
+  this->input_ports.push_back(new_l_s);
+  this->add(new_l_s);
+  this->resize(x(), y(), w(), (h()) * (n+2)/(n+1));
+  redraw();
 }
 
 void Label::draw()
@@ -241,16 +268,28 @@ void Element::draw()
   int x_input_link = x_ - elem_link_lenth;
   int y_input_link = y_ + h_ / 2;
 
+////// если 0 портов - рисовать 1
+
+    // input link
+  int n = input_ports.size(); // кол-во входов 
+  for (int i = 0; i<n; i++)
+  {
+  fl_color(16);
+  fl_line_style(0, 4);
+  fl_line(x_, y_ + (h_ / (n+1)) * (i + 1), x_input_link, y_ +  (h_ / (n+1)) * (i + 1));
+  }
   int x_output_link = x_ + w_ + elem_link_lenth;
   int y_output_link = y_ + h_ / 2;
-  // добавить цикл для отрисовки всех входов и выходов
+
+
+  
   //  output link
   fl_color(16);
   fl_line_style(0, 4);
   fl_line(x_ + w_, y_ + h_ / 2, x_output_link, y_output_link);
-  // input link
-  fl_line(x_, y_ + h_ / 2, x_input_link, y_input_link);
+  
   Fl_Group::draw();
+
 }
 
 void Element::invert()
