@@ -116,7 +116,10 @@ int LinkCircle::handle(int event)
           // проверяем, что это порт, он нужного типа и что наведение на него
           if ((l_c != nullptr) && (l_c != this) && (Fl::event_inside(l_c)) &&
               (l_c->type != this->type))
-            needed_found = true;
+            {
+              needed_found = true;
+              break;
+            }
         }
       }
     }
@@ -138,7 +141,6 @@ int LinkCircle::handle(int event)
       input_el = (graph::Element*)l_c->parent();
     }
     input_el ->add_input_port();
-
     Link* l = new Link{l_c, this};
     map->add(l);
 
@@ -228,16 +230,28 @@ int Element::handle(int event)
 void Element::add_input_port()
 {
   int n = this->input_ports.size(); // кол-во входов
-  Label* this_dr_el = this->get_draw_elem();
-  // this_dr_el->resize(this_dr_el->x(), this_dr_el->y(), this_dr_el->w(), (this_dr_el->h()) * (n+2)/(n+1));
-  
-  LinkCircle* last_l_s = input_ports[input_ports.size() - 1]; ////////////////// TODO: при удалении оставлять 1 связь
+  std::cout<<x()<<std::endl<<y()<<std::endl<<w()<<std::endl<<h();
+  this->resize(x(), y(), w(), (h()) * (n+2)/(n+1)); // пропорционально увеличили всю группу
 
-  LinkCircle* new_l_s = new LinkCircle{last_l_s->x(), last_l_s->y() + (this_dr_el->h())/(n+1), last_l_s->w(), last_l_s->h(), link_circle_types::input};
+  int circle_w = this->w();
+  circle_w /=9;
+  LinkCircle* new_l_s = new LinkCircle{0, 0, circle_w, circle_w, link_circle_types::input};
   this->input_ports.push_back(new_l_s);
   this->add(new_l_s);
-  this->resize(x(), y(), w(), (h()) * (n+2)/(n+1));
+
+  n++;
+
+  for (int i = 0; i<n; i++)
+  {
+    LinkCircle* l_c = input_ports[i];
+    l_c->resize(x(), y() + h() / (n+1) * (i+1) - circle_w/2,
+                              circle_w, circle_w);
+  }
+
+  output_port->resize(x() + w() - circle_w, y() + h()/2 - circle_w/2,
+                              circle_w, circle_w);
   redraw();
+  window()->redraw();
 }
 
 void Label::draw()
