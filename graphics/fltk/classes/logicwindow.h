@@ -1,5 +1,6 @@
 #ifndef LOGICWINDOW_H
 #define LOGICWINDOW_H
+#include "drawing_elems.h"
 #include "elemlist.h"
 #include "fltk.h"
 #include "logicmap.h"

@@ -21,9 +21,114 @@ int get_pos (const std::string& el)
   return -1;
 }
 
-std::vector<DrawingElement*> read_file (const std::string& file_name)
+bool is_number (const std::string& num)
+{
+  for (size_t i = 0; i < num.size(); ++i)
+    if (!isdigit(num[i]))
+      return false;
+  return num.size() != 0 ? true : false;
+}
+
+bool is_valid_name (std::string name)
+{
+  if (name[0] != 'a' && name[0] != 'o' && name[0] != 's' &&
+      name[0] != 'r' && name[0] != 'b')
+    return false;
+  name.erase(0, 1);
+  return is_number(name);
+}
+
+std::string is_valid_logic_elem (std::string str)
+{
+  if (str[0] == 's')
+    return "src has no input elements";
+  if (!is_valid_name(str))
+    return "invalid logic element";
+  return "";
+}
+
+std::string is_valid_file (const std::string& file_name)
 try
 {
+  bool is_inicialization = true;
+  std::ifstream f(file_name, std::ios_base::in);
+  std::vector<std::string> names_of_elems;
+  std::string str;
+  f >> str;
+  while (!f.eof())
+  {
+    if (is_inicialization)
+    {
+      if (str == "and" || str == "src" || str == "or" || str == "buff" ||
+          str == "res")
+      {
+        f >> str;
+        if (!is_valid_name(str))
+          return "invalid name of element";
+        names_of_elems.push_back(str);
+        f >> str;
+        if (str != "0" && str != "1")
+          return "invalid value of inversion";
+        f >> str;
+        if (!is_number(str))
+          return "invalid x-position";
+        f >> str;
+        if (!is_number(str))
+          return "invalid y-position";
+        f >> str;
+        if (str == ";")
+        {
+          is_inicialization = false;
+          f >> str;
+        }
+      }
+      else
+        return "invalid element";
+    }
+    else
+    {
+      std::string what_error = is_valid_logic_elem(str);
+      if (what_error == "")
+      {
+        f >> str;
+        if (str != "<<")
+          return "invalid syntax";
+        while (true)
+        {
+          f >> str;
+          if (str == "~")
+            f >> str;
+          if (std::find(names_of_elems.begin(), names_of_elems.end(),
+                        str) == names_of_elems.end())
+            return "invalid input element";
+          f >> str;
+          if (str == ",")
+            continue;
+          else if (str == ".")
+          {
+            f >> str;
+            break;
+          }
+          else
+            return "invalid syntax";
+        }
+      }
+      else
+        return what_error;
+    }
+  }
+  return "";
+}
+catch (const std::exception& e)
+{
+  return "syntax error";
+}
+
+std::vector<DrawingElement*> read_file (const std::string& file_name)
+{
+  std::string what_err = is_valid_file(file_name);
+  if (what_err != "")
+    throw std::runtime_error(what_err);
   std::ifstream f(file_name, std::ios_base::in);
   std::string str;
   f >> str;
@@ -96,10 +201,6 @@ try
   f.close();
   return sheme;
 }
-catch (const std::exception& e)
-{
-  std::cerr << e.what() << '\n';
-}
 
 void write_file (const std::string& file_name)
 {
@@ -152,102 +253,3 @@ void write_file (const std::string& file_name)
   }
   f.close();
 }
-
-// void Drawing_Or::push(DrawingElement* el)
-// {
-//   vec_input_elements.push_back(el);
-// }
-
-// void Drawing_Or::get_input_elements() { return vec_input_elements; }
-
-// void new_red_file(const std::string& file_name)
-// {
-//   map<std::string, logic::Element&> sheme;
-//   map<std::string, pair<logic::Element&, pair<int, int>>> new_sheme;
-//   ifstream f(file_name, ios_base::in);
-//   std::string curr_str;
-//   while(curr_str != ";")
-//   {
-
-//   }
-// }
-
-// void read_file (const std::string& file_name)
-// try
-// {
-//   map<std::string, logic::Element&> sheme;
-//   ifstream f(file_name, ios_base::in);
-//   std::string str;
-//   while (f)
-//   {
-//     f >> str;
-//     if (str == "and")
-//     {
-//       f >> str;
-//       logic::Or* elem = new logic::Or;
-//       sheme.insert({str, elem});
-//     }
-//     else if (str == "or")
-//     {
-//       f >> str;
-//       logic::Or* elem = new logic::Or;
-//       sheme.insert({str, elem});
-//     }
-//     else if (str == "src")
-//     {
-//       f >> str;
-//       logic::Src* elem = new logic::Src;
-//       sheme.insert({str, elem});
-//     }
-//     else if (str == "out")
-//     {
-//       f >> str;
-//       cout << str << " " << sheme[str]->get_value() << "\n";
-//     }
-//     else if (str == "!")
-//     {
-//       f >> str;
-//       if (sheme.find(str) != sheme.end())
-//         !(*(sheme[str]));
-//     }
-//     else if (str == "out-")
-//       cout << "---------\n";
-//     else if (sheme.find(str) != sheme.end())
-//     {
-//       cout << '-' << endl;
-//       std::string name = str;
-//       f >> str;
-//       bool is_left = str == "<<" ? true : false;
-//       while (str != ".")
-//       {
-//         f >> str;
-//         if (str == "!")
-//         {
-//           f >> str;
-//           if (sheme.find(str) != sheme.end())
-//           {
-//             if (is_left)
-//               *(sheme[name]) << !*(sheme[str]);
-//             else
-//               *(sheme[name]) >> !*(sheme[str]);
-//           }
-//         }
-//         else
-//         {
-//           if (sheme.find(str) != sheme.end())
-//           {
-//             if (is_left)
-//               *(sheme[name]) << *(sheme[str]);
-//             else
-//               *(sheme[name]) >> *(sheme[str]);
-//           }
-//         }
-//       }
-//     }
-//   }
-//   f.close();
-// }
-// catch (const std::exception& e)
-// {
-//   std::cerr << e.what() << '\n';
-// }

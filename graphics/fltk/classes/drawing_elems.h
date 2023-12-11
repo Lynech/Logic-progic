@@ -2,12 +2,12 @@
 #define DRAWING_ELEMS_H
 
 #include "logic_elems/logic_elems.h"
+#include <FL/Fl_File_Chooser.H>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
-
-// using namespace std;
 
 class DrawingElement
 {
