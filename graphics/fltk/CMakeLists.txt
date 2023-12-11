@@ -60,5 +60,3 @@ target_link_libraries(
 
 
 target_link_libraries(my_lib fltk fltk_jpeg fltk_png fltk_z)
-
-

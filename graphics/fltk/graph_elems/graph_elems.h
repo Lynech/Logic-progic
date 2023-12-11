@@ -37,6 +37,7 @@ enum class link_circle_types
 class LinkCircle : public Fl_Widget
 {
 private:
+
   link_circle_types type;
   bool is_entered = false;
   Fl_Menu_Item* menu;  /// дописать в конструкторе
@@ -105,16 +106,23 @@ private:
   int line_thikness{2};
 
 protected:
-  // переделать input_port и output_port на векторы
   // убрать input_links output_links
   std::vector<Link*> input_links{0};
   std::vector<Link*> output_links{0};
-  LinkCircle *input_port, *output_port;
+
+  // единственный выход:
+  LinkCircle *output_port;
+  // мно-во входов
+  std::vector<LinkCircle *>input_ports;
+
+  // фигурка
   Label* draw_elem;
   int inputs_n{0}, outputs_n{0};
   Fl_Menu_Item* menu{nullptr};
 
 public:
+
+  Label* get_draw_elem() {return draw_elem;}
   void set_lable (
       std::function<void(int, int, int, int, logic::Value)> label_draw)
   {
@@ -130,9 +138,18 @@ public:
 
   void add_output_link (Link* link) { output_links.push_back(link); }
 
+  void add_input_port ();
+
   int handle (int x) override;
 
   void draw () override;
+
+  // void resize(int x, int y, int w, int h) override
+  // {
+    
+  //   draw_elem->resize(x+2*w/9, y, w/9*5, h);
+  //   redraw();
+  // }
 
   virtual void invert ();
 };
