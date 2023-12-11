@@ -105,6 +105,15 @@ void Logic ::reset_sorses()
   arg_vec.clear();
 }
 
+void Logic ::remove_sorse(Element* src)
+{
+  for (size_t i = 0; i < arg_vec.size(); i++)
+  {
+    arg_vec[i].remove(this);
+  }
+  arg_vec.clear();
+}
+
 // void Or ::reset_sorses() { arg_vec.clear(); }
 
 Src::Src(bool value_) { set_value(value_); }

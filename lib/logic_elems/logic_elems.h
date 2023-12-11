@@ -62,6 +62,7 @@ public:
   void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
+  void remove_sorse (Element* src);
 };
 
 class logic::And : public logic::Logic
