@@ -14,6 +14,7 @@ class And;
 class Or;
 class Src;
 class Buff;
+
 enum class Value
 {
   False = 0,
@@ -34,7 +35,7 @@ logic::Value operator!(logic::Value value);
 class logic::Element
 {
 protected:
-  Label* elem{nullptr};
+  Label* logic_elem{nullptr};
   bool inverted{0};
   Value value{Value::Undef};
   void add_dependings (logic::Logic& t);
@@ -46,6 +47,8 @@ public:
   Value get_value () const;
   void calculate_dependings ();
 
+  bool is_inverted () { return inverted; }
+
   // void remove_depending (logic::Logic* t);
   // virtual void calculate_value () { value = inverted ? !value : value; }
 
@@ -54,7 +57,7 @@ public:
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
 
-  Element(Label* elem) { this->elem = elem; }
+  Element(Label* logic_elem) { this->logic_elem = logic_elem; }
 };
 
 class logic::Logic : public logic::Element

@@ -25,6 +25,8 @@ class And;
 class Or;
 class Buff;
 class Element;
+class Src0;
+class Src1;
 };  // namespace graph
 
 #include "fltk.h"
@@ -48,6 +50,8 @@ private:
 
   bool is_entered = false;
 
+  bool inverted = false;
+
 public:
   Port(int x, int y, int w, int h, port_types t, const char* l = 0);
 
@@ -55,7 +59,6 @@ public:
   int handle (int event) override;
 
   // TODO добавить метод change inverted
-  bool inverted = false;
 
   // TODO ;  /// добавить изменения в draw() у Elem
 
@@ -65,11 +68,21 @@ public:
 
   void add_link (Link* l) { links.push_back(l); }
 
-  void delete_link (int i);
+  void delete_link_by_index (int i);
+
+  void invert () { inverted = !inverted; }
+
+  bool is_inverted () { return inverted; }
 };
 
+// ports callbacks
 void invert_port (Fl_Widget*, void* userdata);
 void delete_through_port (Fl_Widget*, void* userdata);
+
+// elems callbacks
+void invert_elem (Fl_Widget*, void* userdata);
+void delete_elem (Fl_Widget*, void* userdata);
+void delete_all_elem_links (Fl_Widget*, void* userdata);
 
 // доделать
 // класс связи
@@ -84,6 +97,10 @@ public:
 
   void draw () override;
   void delete_link ();
+
+  Port* get_input_port () { return input_port; }
+
+  Port* get_output_port () { return output_port; }
 };
 
 class Label : public Fl_Widget
@@ -91,16 +108,14 @@ class Label : public Fl_Widget
 protected:
   logic::Value value{logic::Value::Undef};
   bool is_entered = false;
+  Fl_Menu_Item* menu{nullptr};
 
 public:
-  logic::Element* elem;
+  logic::Element* logic_elem;
 
   Label(
       int x, int y, int w, int h, const char* l = 0,
-      std::function<void(int, int, int, int, logic::Value)> Label_draw = 0)
-      : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
-  {
-  }
+      std::function<void(int, int, int, int, logic::Value)> Label_draw = 0);
 
   std::function<void(int, int, int, int, logic::Value)> Label_draw_;
 
@@ -110,6 +125,7 @@ public:
 
   int handle (int event) override;
 
+  void delete_all_links ();
   // LinkCircle* get_start_circle {return start_circle;}
 
   // LinkCircle* get_end_circle {return end_circle;}
@@ -140,7 +156,7 @@ protected:
 
   // фигурка
   Label* draw_elem;
-  int inputs_n{0}, outputs_n{0};
+  int inputs_n{-1}, outputs_n{0};
   Fl_Menu_Item* menu{nullptr};
 
 public:
@@ -182,6 +198,20 @@ public:
   virtual void invert ();
 };
 
+// класс для элемента Source
+class graph::Src0 : public graph::Element
+{
+public:
+  Src0(int x, int y, int s = 50, int h = 0, const char* l = 0);
+};
+
+// класс для элемента Source
+class graph::Src1 : public graph::Element
+{
+public:
+  Src1(int x, int y, int s = 50, int h = 0, const char* l = 0);
+};
+
 // класс для элемента И
 class graph::And : public graph::Element
 {
@@ -211,5 +241,7 @@ void draw_buff (int x, int y, int w, int h,
 
 void draw_or (int x, int y, int w, int h,
               logic::Value = logic::Value::False);
+void draw_src0 (int x, int y, int w, int h, logic::Value value);
+void draw_src1 (int x, int y, int w, int h, logic::Value value);
 
 #endif
