@@ -43,10 +43,16 @@ void And::calculate_value()
   {
     Value temp = Value::True;
     for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
+    {
+      std::cout << "input " << i << " " << arg_vec[i].get_value()
+                << std::endl;
       if (temp > arg_vec[i].get_value())
         temp = arg_vec[i].get_value();
+    }
     value = temp;
-    // value = inverted ? !temp : temp;
+    // elem->redraw();
+    auto value_ = inverted ? !temp : temp;
+    std::cout << value_ << std::endl;
   }
   // std::cout << "\nafter: " << value << "\n";
 }
