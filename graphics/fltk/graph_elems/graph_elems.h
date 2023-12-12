@@ -120,6 +120,7 @@ public:
 
   int handle (int event) override;
 
+  void delete_all_links ();
   // LinkCircle* get_start_circle {return start_circle;}
 
   // LinkCircle* get_end_circle {return end_circle;}

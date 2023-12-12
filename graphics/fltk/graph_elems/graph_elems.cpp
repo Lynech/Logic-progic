@@ -47,51 +47,16 @@ void invert_elem (Fl_Widget*, void* userdata)
 void delete_all_elem_links (Fl_Widget*, void* userdata)
 {
   Label* l = (Label*)userdata;
-
-  Element* el = (Element*)(l->parent());
-  std::vector<Port*> ports = el->get_input_ports();
-
-  // удаляем связи у каждого входа
-  for (Port* i : ports)
-  {
-    if (i != nullptr)
-    {
-      std::vector<Link*> links = i->get_links();
-      for (Link* j : links)
-        if (j != nullptr)
-        {
-          j->delete_link();
-        }
-    }
-  }
-
-  // удаляем каждый вход
-  for (Port* i : ports)
-  {
-    if (i != nullptr)
-    {
-      el->delete_port(i);
-    }
-  }
-
-  // удаляем все связи у выхода
-  Port* output_port = el->get_output_port();
-  std::vector<Link*> links = output_port->get_links();
-  for (Link* i : links)
-    if (i != nullptr)
-    {
-      i->delete_link();
-    }
-
-  // удаляем выход
-  el->delete_port(output_port);
+  l->delete_all_links();
 }
 
 void delete_elem (Fl_Widget* a, void* userdata)
 {
   Label* l = (Label*)userdata;
+
   // удаляем связи
-  // l->call(delete_all_elem_links);
+  l->delete_all_links();
+
   // удаляем Element
   Fl::delete_widget(l->parent());
   Fl::do_widget_deletion();
@@ -140,6 +105,47 @@ int Label::handle(int event)
   }
   return 1;
   return 0;
+}
+
+void Label::delete_all_links()
+{
+  Element* el = (Element*)(this->parent());
+  std::vector<Port*> ports = el->get_input_ports();
+
+  // удаляем связи у каждого входа
+  for (Port* i : ports)
+  {
+    if (i != nullptr)
+    {
+      std::vector<Link*> links = i->get_links();
+      for (Link* j : links)
+        if (j != nullptr)
+        {
+          j->delete_link();
+        }
+    }
+  }
+
+  // удаляем каждый вход
+  for (Port* i : ports)
+  {
+    if (i != nullptr)
+    {
+      el->delete_port(i);
+    }
+  }
+
+  // удаляем все связи у выхода
+  Port* output_port = el->get_output_port();
+  std::vector<Link*> links = output_port->get_links();
+  for (Link* i : links)
+    if (i != nullptr)
+    {
+      i->delete_link();
+    }
+
+  // удаляем выход
+  el->delete_port(output_port);
 }
 
 // отрисовка объектов класса Link
