@@ -33,7 +33,7 @@ void Element::calculate_dependings()
 
 void And::calculate_value()
 {
-  std::cout << "\nbefore: " << value;
+  // std::cout << "\nbefore: " << value;
   if (arg_vec.size() < 2)
     // throw std::runtime_error("and must have >= 2 inputs");
     value = Value::Undef;
@@ -43,9 +43,10 @@ void And::calculate_value()
     for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
       if (temp > arg_vec[i].get_value())
         temp = arg_vec[i].get_value();
-    value = inverted ? !temp : temp;
+    value = temp;
+    // value = inverted ? !temp : temp;
   }
-  std::cout << "\nafter: " << value << "\n";
+  // std::cout << "\nafter: " << value << "\n";
 }
 
 void Or::calculate_value()
@@ -59,23 +60,25 @@ void Or::calculate_value()
     for (size_t i = 0; temp != Value::True && i < arg_vec.size(); i++)
       if (temp < arg_vec[i].get_value())
         temp = arg_vec[i].get_value();
-    value = inverted ? !temp : temp;
+    value = temp;
+    // value = inverted ? !temp : temp;
   }
 }
 
 void Buff::calculate_value()
 {
   if (arg_vec.size() > 1)
-    throw std::runtime_error("or must have >= 2 inputs");
+    throw std::runtime_error("or must have < 1 inputs");
 
   else
   {
     Value temp = arg_vec[0].get_value();
-    value = inverted ? !temp : temp;
+    // value = inverted ? !temp : temp;
+    value = temp;
   }
 }
 
-Value Element::get_value() const { return value; }
+Value Element::get_value() const { return inverted ? !value : value; }
 
 void Src::set_value(bool value_)
 {
@@ -83,29 +86,64 @@ void Src::set_value(bool value_)
   calculate_dependings();
 }
 
-void Element::remove_depending(logic::Logic* t)
-{
-  auto temp = std::find(dependings.begin(), dependings.end(),
-                        t);  // потенциальная ошибка
-  if (temp != dependings.end())
-    dependings.erase(temp);
-}
-
-void spec::Input_element::remove(logic::Logic* t)
-{
-  arg->remove_depending(t);
-}
-
+/// @brief удаляет все входы, ссылки на себя у этих входов
 void Logic ::reset_sorses()
 {
   for (size_t i = 0; i < arg_vec.size(); i++)
   {
-    arg_vec[i].remove(this);
+    arg_vec[i].get_arg()->dependings.erase(
+        std::remove(arg_vec[i].get_arg()->dependings.begin(),
+                    arg_vec[i].get_arg()->dependings.end(), this),
+        arg_vec[i].get_arg()->dependings.end());
   }
   arg_vec.clear();
+  calculate_value();
+  calculate_dependings();
 }
 
-// void Or ::reset_sorses() { arg_vec.clear(); }
+/// @brief полностью удаляет src из своих sorses
+/// @param src ссылка на Src или другой вход
+void Logic::remove_occurences_sourses(Element* src)
+{
+  while (remove_sorse(src, 1))
+    ;
+  while (remove_sorse(src, 0))
+    ;
+}
+
+/// @brief удаляет все выходы и себя из этих выходов
+void Element::reset_dependings()
+{
+  while (dependings.size())
+  {
+    dependings[0]->remove_occurences_sourses(this);
+  }
+  // calculate_value();
+  // calculate_dependings();
+}
+
+/// @brief удаляет конкретную связь оп src и inverted
+/// @param src
+/// @param inverted
+/// @return  0 -- если ничего не нашел, 1 -- если нашел
+int Logic ::remove_sorse(Element* src, bool inverted)
+{
+  for (size_t i = 0; i < arg_vec.size(); i++)
+  {
+    if (arg_vec[i].get_arg() == src && arg_vec[i].is_inverted() == inverted)
+    {
+      auto temp =
+          std::find(src->dependings.begin(), src->dependings.end(), this);
+      src->dependings.erase(temp);
+      // auto temp2 = std::find(arg_vec.begin(), arg_vec.end(), arg_vec[i]);
+      arg_vec.erase(arg_vec.begin() + i);
+      calculate_value();
+      calculate_dependings();
+      return 1;
+    }
+  }
+  return 0;
+}
 
 Src::Src(bool value_) { set_value(value_); }
 
@@ -151,6 +189,27 @@ Element& Element::operator!()
 
   calculate_dependings();
   return *this;
+}
+
+void Logic::invert_sorse(Element* src, bool inverted)
+{
+  for (size_t i = 0; i < arg_vec.size(); i++)
+  {
+    if (arg_vec[i].get_arg() == src && arg_vec[i].is_inverted() == inverted)
+    {
+      arg_vec[i].change_invertion();
+      calculate_value();
+      calculate_dependings();
+      return;
+    }
+  }
+}
+
+void Element::invert()
+{
+  inverted = !inverted;
+  // calculate_value();
+  calculate_dependings();
 }
 
 void Element::add_dependings(logic::Logic& t) { dependings.push_back(&t); }

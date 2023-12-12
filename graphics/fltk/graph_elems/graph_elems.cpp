@@ -31,11 +31,65 @@ void delete_through_port (Fl_Widget*, void* userdata)
   std::vector<Link*> links = l_c->get_links();
   for (Link* i : links)
   {
-    if (i != nullptr)
+    if ((i != nullptr) && ((i->get_input_port()) != nullptr) &&
+        ((i->get_output_port()) != nullptr))
     {
       i->delete_link();
     }
   }
+}
+
+void invert_elem (Fl_Widget*, void* userdata)
+{
+  Label* l = (Label*)userdata;
+}
+
+void delete_all_elem_links (Fl_Widget*, void* userdata)
+{
+  Label* l = (Label*)userdata;
+
+  Element* el = (Element*)(l->parent());
+  std::vector<Port*> ports = el->get_input_ports();
+
+  // удаляем связи у каждого входа
+  for (Port* i : ports)
+  {
+    if (i != nullptr)
+    {
+      std::vector<Link*> links = i->get_links();
+      for (Link* j : links)
+        if (j != nullptr)
+        {
+          j->delete_link();
+        }
+    }
+  }
+
+  // удаляем каждый вход
+  for (Port* i : ports)
+  {
+    if (i != nullptr)
+    {
+      el->delete_port(i);
+    }
+  }
+
+  // удаляем все связи у выхода
+  Port* output_port = el->get_output_port();
+  std::vector<Link*> links = output_port->get_links();
+  for (Link* i : links)
+    if (i != nullptr)
+    {
+      i->delete_link();
+    }
+
+  // удаляем выход
+  el->delete_port(output_port);
+}
+
+void delete_elem (Fl_Widget*, void* userdata)
+{
+  Label* l = (Label*)userdata;
 }
 
 // конструктор класса Link
@@ -72,11 +126,14 @@ int Label::handle(int event)
     redraw();
     return 1;
   }
-  if (event == FL_PUSH)
+  if (event == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
   {
-    std::cout << "+__Label push handled -- here should be menu__+\n";
+    auto temp = menu->popup(Fl::event_x(), Fl::event_y());
+    if (temp && temp->callback())
+      temp->do_callback(nullptr);
     return 1;
   }
+  return 1;
   return 0;
 }
 
@@ -93,44 +150,59 @@ void Link::draw()
 
 void Link::delete_link()
 {
+  logic::Element* input_log_el;
+  logic::Element* output_log_el;
+
   // удаляем связь из порта-начала:
-  for (int i = 0; i < input_port->get_links().size(); i++)
+  for (int i = 0;
+       ((input_port != nullptr) && (i < input_port->get_links().size()));
+       i++)
   {
     if (input_port->get_links()[i] == this)
     {
-      input_port->delete_link(i);
+      input_port->delete_link_by_index(i);
+
+      input_log_el =
+          ((Element*)(input_port->parent()))->get_draw_elem()->logic_elem;
+      break;
     }
   }
 
   // удаляем связь из порта-конца:
-  for (int i = 0; i < output_port->get_links().size(); i++)
+  for (int i = 0;
+       ((input_port != nullptr) && (i < output_port->get_links().size()));
+       i++)
   {
     if (output_port->get_links()[i] == this)
     {
-      output_port->delete_link(i);
+      output_port->delete_link_by_index(i);
 
-      // нужно удалять сам входной порт
-      auto temp = (graph::Element*)input_port->parent();
-      temp->delete_port(input_port);
-      int n = temp->get_input_ports().size();
-
-      temp->resize(temp->x(), temp->y(), temp->w(),
-                   (temp->h()) * (n + 1) / (n + 2));
-      int circle_w = temp->w();
-      circle_w /= 9;
-      for (int i = 0; i < n; i++)
-      {
-        Port* l_c = temp->get_input_ports()[i];
-        l_c->resize(temp->x(),
-                    temp->y() + temp->h() / (n + 1) * (i + 1) -
-                        circle_w / 2,
-                    circle_w, circle_w);
-      }
-      temp->get_output_port()->resize(
-          temp->x() + temp->w() - circle_w,
-          temp->y() + temp->h() / 2 - circle_w / 2, circle_w, circle_w);
+      output_log_el =
+          ((Element*)(output_port->parent()))->get_draw_elem()->logic_elem;
+      break;
     }
   }
+
+  // нужно удалять сам входной порт
+  auto temp = (graph::Element*)input_port->parent();
+  temp->delete_port(input_port);
+  int n = temp->get_input_ports().size();
+
+  temp->resize(temp->x(), temp->y(), temp->w(),
+               (temp->h()) * (n + 1) / (n + 2));
+  int circle_w = temp->w();
+  circle_w /= 9;
+  for (int i = 0; i < n; i++)
+  {
+    Port* l_c = temp->get_input_ports()[i];
+    l_c->resize(temp->x(),
+                temp->y() + temp->h() / (n + 1) * (i + 1) - circle_w / 2,
+                circle_w, circle_w);
+  }
+  temp->get_output_port()->resize(temp->x() + temp->w() - circle_w,
+                                  temp->y() + temp->h() / 2 - circle_w / 2,
+                                  circle_w, circle_w);
+
   // удаляем связь как виджет:
   Fl::delete_widget(this);
   Fl::do_widget_deletion();
@@ -143,13 +215,17 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
 {
   draw_elem = new Label{x_, y_, w_, h_};
   add(draw_elem);
+  // TODO: не рисовать вход если max_input_amount = 0
+  if (l != "no_input")
+  {
+    Port* first_input_port =
+        new Port{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10, w_ / 5, w_ / 5,
+                 port_types::input};
 
-  Port* first_input_port = new Port{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
-                                    w_ / 5, w_ / 5, port_types::input};
+    add(first_input_port);
 
-  add(first_input_port);
-
-  input_ports.push_back(first_input_port);
+    input_ports.push_back(first_input_port);
+  }
 
   // Выходной порт
   output_port = new Port{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10, w_ / 5,
@@ -157,12 +233,39 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
   add(output_port);
 }
 
+//  конструктор класса Source
+
+Src0::Src0(int x, int y, int h, int w, const char* l)
+    : Element{x, y, h, w, "no_input"}
+{
+  outputs_n = 1;
+  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->set_value(logic::Value::False);
+  input_ports = {};
+
+  set_lable(draw_src0);
+}
+
+//  конструктор класса Source
+
+Src1::Src1(int x, int y, int h, int w, const char* l)
+    : Element{x, y, h, w, "no_input"}
+{
+  inputs_n = 0;
+  outputs_n = 1;
+  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->set_value(logic::Value::True);
+  input_ports = {};
+
+  set_lable(draw_src1);
+}
+
 //  конструктор класса И
 And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 {
-  inputs_n = 1;
+  inputs_n = -1;
   outputs_n = 1;
-  draw_elem->elem = new logic::And{};
+  draw_elem->logic_elem = new logic::And{};
   set_lable(draw_and);
 }
 
@@ -227,6 +330,38 @@ void Element::add_input_port()
   window()->redraw();
 }
 
+Label::Label(
+    int x, int y, int w, int h, const char* l,
+    std::function<void(int, int, int, int, logic::Value)> Label_draw)
+    : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
+{
+  menu = new Fl_Menu_Item[4];
+  menu[0] = Fl_Menu_Item{"invert",
+                         port_menu::noshortcut,
+                         invert_elem,
+                         this,
+                         port_menu::noflag,
+                         port_menu::labeltype,
+                         port_menu::labelfont,
+                         port_menu::labelsize,
+                         port_menu::labelcolor};
+  menu[1] = Fl_Menu_Item{"delete all links",    port_menu::noshortcut,
+                         delete_all_elem_links, this,
+                         port_menu::noflag,     port_menu::labeltype,
+                         port_menu::labelfont,  port_menu::labelsize,
+                         port_menu::labelcolor};
+  menu[2] = Fl_Menu_Item{"delete elem",        port_menu::noshortcut,
+                         delete_elem,          this,
+                         port_menu::noflag,    port_menu::labeltype,
+                         port_menu::labelfont, port_menu::labelsize,
+                         port_menu::labelcolor};
+
+  menu[3] = Fl_Menu_Item{
+      port_menu::endmenu,    port_menu::noshortcut, port_menu::nocallback,
+      port_menu::nouserdata, port_menu::noflag,     port_menu::labeltype,
+      port_menu::labelfont,  port_menu::labelsize,  port_menu::labelcolor};
+}
+
 void Label::draw()
 {
   draw_box(FL_FLAT_BOX, 16);
@@ -289,16 +424,16 @@ Buff::Buff(int x, int y, int w, int h, const char* l)
 {
   inputs_n = 1;
   outputs_n = 1;
-  draw_elem->elem = new logic::And{};
+  draw_elem->logic_elem = new logic::Buff{};
   set_lable(draw_buff);
 }
 
 // конструктор класса ИЛИ
 Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
 {
-  inputs_n = 1;
+  inputs_n = -1;
   outputs_n = 1;
-  draw_elem->elem = new logic::Or{};
+  draw_elem->logic_elem = new logic::Or{};
   set_lable(draw_or);
 }
 
@@ -327,6 +462,52 @@ void draw_and (int x, int y, int w, int h, logic::Value value)
 
   // правая часть обрамление
   fl_arc(x, y, w, h, -90.0, 90.0);
+}
+
+void draw_src0 (int x, int y, int w, int h, logic::Value value)
+{
+  // выбор цвета в зависимости от значения
+  auto draw_color = FL_BLUE;
+  if (value == logic::Value::False)
+    draw_color = FL_RED;
+  else if (value == logic::Value::True)
+    draw_color = FL_GREEN;
+
+  fl_color(draw_color);
+  fl_line_style(0, 2);
+  fl_rectf(x + 1, y + 1, w - 2, h - 2);
+  fl_color(FL_BLACK);
+  if (value == logic::Value::False)
+  {
+    fl_draw("0", x + w / 2, y + h / 2);
+  }
+  else if (value == logic::Value::True)
+  {
+    fl_draw("1", x + w / 2, y + h / 2);
+  }
+}
+
+void draw_src1 (int x, int y, int w, int h, logic::Value value)
+{
+  // выбор цвета в зависимости от значения
+  auto draw_color = FL_BLUE;
+  if (value == logic::Value::False)
+    draw_color = FL_RED;
+  else if (value == logic::Value::True)
+    draw_color = FL_GREEN;
+
+  fl_color(draw_color);
+  fl_line_style(0, 2);
+  fl_rectf(x + 1, y + 1, w - 2, h - 2);
+  fl_color(FL_BLACK);
+  if (value == logic::Value::False)
+  {
+    fl_draw("0", x + w / 2, y + h / 2);
+  }
+  else if (value == logic::Value::True)
+  {
+    fl_draw("1", x + w / 2, y + h / 2);
+  }
 }
 
 void draw_buff (int x, int y, int w, int h, logic::Value value)
@@ -497,8 +678,8 @@ int Port::handle(int event)
     graph::Element* output_el;
     if (this->type == port_types::input)
     {
-      // ведем связь из this в p -> нужно добавить еще один вход в элемент
-      // порта
+      // ведем связь из this в p -> нужно добавить еще один вход в
+      // элемент порта
       input_el = (graph::Element*)this->parent();
       output_el = (graph::Element*)p->parent();
     }
@@ -515,6 +696,26 @@ int Port::handle(int event)
     // добавляем связи в порты
     this->add_link(l);
     p->add_link(l);
+
+    {  // add link to logic
+      Port *in_p, *out_p;
+      if (this->get_type() == port_types::input)
+      {
+        in_p = this;
+        out_p = p;
+      }
+      else
+      {
+        in_p = p;
+        out_p = this;
+      }
+      logic::Element* in_log_el =
+          ((graph::Element*)(in_p->parent()))->get_draw_elem()->logic_elem;
+      logic::Element* out_log_el =
+          ((graph::Element*)(out_p->parent()))->get_draw_elem()->logic_elem;
+      // Установили связь
+      *out_log_el >> *in_log_el;
+    }
 
     map->add(l);
 
@@ -534,7 +735,7 @@ int Port::handle(int event)
   }
 }
 
-void Port::delete_link(int i)
+void Port::delete_link_by_index(int i)
 {
   links.erase(links.begin() + i);
   std::vector<Link*>(links).swap(links);
