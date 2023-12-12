@@ -1,4 +1,5 @@
 #include "logic_elems.h"
+#include "graph_elems.h"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -20,6 +21,7 @@ Value spec::Input_element::get_value() const
 
 void Element::calculate_dependings()
 {
+  elem->redraw();
   std::vector<Value> depend_value;
   for (size_t i = 0; i < dependings.size(); i++)
   {
@@ -41,10 +43,16 @@ void And::calculate_value()
   {
     Value temp = Value::True;
     for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
+    {
+      std::cout << "input " << i << " " << arg_vec[i].get_value()
+                << std::endl;
       if (temp > arg_vec[i].get_value())
         temp = arg_vec[i].get_value();
+    }
     value = temp;
-    // value = inverted ? !temp : temp;
+    // elem->redraw();
+    auto value_ = inverted ? !temp : temp;
+    std::cout << value_ << std::endl;
   }
   // std::cout << "\nafter: " << value << "\n";
 }
@@ -145,9 +153,9 @@ int Logic ::remove_sorse(Element* src, bool inverted)
   return 0;
 }
 
-Src::Src(bool value_) { set_value(value_); }
+Src::Src(Label* l, bool value_) : Element{l} { set_value(value_); }
 
-Src::Src() { set_value(0); }
+// Src::Src() { set_value(0); }
 
 void Logic::add_sorce(Element& t) { add_sorce(&t); }
 

@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <vector>
 
+class Label;
+
 namespace logic {
 class Element;
 class Logic;
@@ -33,7 +35,7 @@ logic::Value operator!(logic::Value value);
 class logic::Element
 {
 protected:
-  // Label* elem{nullptr};
+  Label* elem{nullptr};
   bool inverted{0};
   Value value{Value::Undef};
   void add_dependings (logic::Logic& t);
@@ -54,8 +56,12 @@ public:
   Element& operator!();
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
+  virtual void reset_sorses () = 0;
+  virtual void remove_occurences_sourses (Element* src) = 0;
+  virtual int remove_sorse (Element* src, bool inverted) = 0;
+  virtual void invert_sorse (Element* src, bool inverted) = 0;
 
-  // Element(Label* elem) { this->elem = elem; }
+  Element(Label* elem) { this->elem = elem; }
 };
 
 class logic::Logic : public logic::Element
@@ -67,15 +73,17 @@ protected:
   // std::vector<logic::spec::Input_element> arg_vec;
 
 public:
+  Logic(Label* l) : Element{l} {}
+
   std::vector<logic::spec::Input_element> arg_vec;
   Logic& operator~();
   virtual void calculate_value () = 0;
   void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
-  void reset_sorses ();
-  void remove_occurences_sourses (Element* src);
-  int remove_sorse (Element* src, bool inverted);
-  void invert_sorse (Element* src, bool inverted);
+  void reset_sorses () override;
+  void remove_occurences_sourses (Element* src) override;
+  int remove_sorse (Element* src, bool inverted) override;
+  void invert_sorse (Element* src, bool inverted) override;
 };
 
 class logic::And : public logic::Logic
@@ -83,6 +91,8 @@ class logic::And : public logic::Logic
 private:
 
 public:
+  And(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -91,6 +101,8 @@ class logic::Or : public logic::Logic
 private:
 
 public:
+  Or(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -99,6 +111,8 @@ class logic::Buff : public logic::Logic
 private:
 
 public:
+  Buff(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -107,9 +121,29 @@ class logic::Src : public logic::Element
 private:
 
 public:
-  Src();
-  Src(bool value_);
+  // Src();
+  Src(Label* l, bool value_ = 0);
   void set_value (bool value_);
+
+  void reset_sorses () override
+  {
+    throw std::runtime_error("src has no sources");
+  }
+
+  void remove_occurences_sourses (Element* src) override
+  {
+    throw std::runtime_error("src has no sources");
+  }
+
+  int remove_sorse (Element* src, bool inverted) override
+  {
+    throw std::runtime_error("src has no sources");
+  }
+
+  void invert_sorse (Element* src, bool inverted) override
+  {
+    throw std::runtime_error("src has no sources");
+  }
 
   // void calculate_value () override;
 

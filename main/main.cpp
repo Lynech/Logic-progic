@@ -1,5 +1,6 @@
 #include "logic_elems/logic_elems.h"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <string>
@@ -10,7 +11,7 @@ try
 {
   map<string, logic::Element*> sheme;
   // vector<string> out;
-  ifstream f("C:/university\ projects/logic/Logic-progic/main/sheme.txt",
+  ifstream f("C:/Users/Niyaz/git_projects/Logic-progic/main/sheme.txt",
              ios_base::in);
   string str;
   while (f)
@@ -90,6 +91,7 @@ try
     }
   }
   f.close();
+  ///////////////////////////////////////////////////////
   // for (size_t i = 0; i < out.size(); i++)
   // {
   //   logic::Value val = sheme[out[i]]->get_value();
@@ -102,6 +104,56 @@ try
   // }
   // for (auto i = sheme.begin(); i != sheme.end(); i++)
   //   delete i->second;
+
+  // logic::Src s1;
+  // logic::Src s2{1};
+  // logic::Src s3;
+  // logic::Src s4{1};
+  // logic::And a1;
+  // s4 >> a1;
+  // s1 >> ~a1;
+  // s1 >> ~a1;
+  // s2 >> a1;
+  // s3 >> ~a1;
+  // s4 >> ~a1;
+  // s4 >> ~a1;
+
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << endl;
+  // cout << a1.get_value() << endl;
+
+  // a1.remove_sorse(&s4, 1);
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << endl;
+  // cout << a1.get_value() << endl;
+
+  // a1.invert_sorse(&s4, 1);
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << endl;
+  // cout << a1.get_value() << endl;
+
+  // a1.remove_occurences_sourses(&s4);
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << endl;
+  // cout << a1.get_value() << endl;
+
+  // // a1.remove_occurences_sourses(&s3);
+  // a1.invert();
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << endl;
+  // cout << a1.get_value() << endl;
+
+  // s2.invert();
+
+  // a1.reset_sorses();
+  // for (int i = 0; i < a1.arg_vec.size(); i++)
+  //   printf("%p    ", a1.arg_vec[i]);
+  // cout << a1.get_value() << endl;
 }
 catch (exception& e)
 {

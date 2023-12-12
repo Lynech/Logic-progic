@@ -1,4 +1,5 @@
 #include "graph_elems.h"
+#include "logic_elems.h"
 #include <algorithm>
 #include <cmath>
 
@@ -191,6 +192,7 @@ void Link::delete_link()
 
       input_log_el =
           ((Element*)(input_port->parent()))->get_draw_elem()->logic_elem;
+      input_log_el->remove_sorse(output_log_el, input_port->is_inverted());
       break;
     }
   }
@@ -266,7 +268,7 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
     : Element{x, y, h, w, "no_input"}
 {
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->logic_elem = new logic::Src{draw_elem, 0};
   draw_elem->set_value(logic::Value::False);
   input_ports = {};
 
@@ -280,7 +282,7 @@ Src1::Src1(int x, int y, int h, int w, const char* l)
 {
   inputs_n = 0;
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->logic_elem = new logic::Src{draw_elem, 1};
   draw_elem->set_value(logic::Value::True);
   input_ports = {};
 
@@ -292,7 +294,7 @@ And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 {
   inputs_n = -1;
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::And{};
+  draw_elem->logic_elem = new logic::And{draw_elem};
   set_lable(draw_and);
 }
 
@@ -395,7 +397,7 @@ void Label::draw()
     int y_elem = y() + h() / 6;
     int w_elem = 2 * w() / 3;
     int h_elem = 2 * h() / 3;
-    Label_draw_(x_elem, y_elem, w_elem, h_elem, value);
+    Label_draw_(x_elem, y_elem, w_elem, h_elem, logic_elem->get_value());
   }
   if (is_entered)
   {
@@ -488,7 +490,7 @@ Buff::Buff(int x, int y, int w, int h, const char* l)
 {
   inputs_n = 1;
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Buff{};
+  draw_elem->logic_elem = new logic::Buff{draw_elem};
   set_lable(draw_buff);
 }
 
@@ -497,7 +499,7 @@ Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
 {
   inputs_n = -1;
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Or{};
+  draw_elem->logic_elem = new logic::Or{draw_elem};
   set_lable(draw_or);
 }
 
