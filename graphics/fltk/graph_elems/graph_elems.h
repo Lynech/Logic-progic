@@ -27,44 +27,63 @@ class Buff;
 class Element;
 };  // namespace graph
 
-enum class link_circle_types
+#include "fltk.h"
+#include "graph_elems.h"
+#include <vector>
+
+enum class port_types
 {
   input = 0,
   output = 1
 };
+class Link;
 
 // класс кружочков связи
-class LinkCircle : public Fl_Widget
+class Port : public Fl_Widget
 {
 private:
+  port_types type;
+  std::vector<Link*> links{};
+  Fl_Menu_Item* menu;
 
-  link_circle_types type;
   bool is_entered = false;
-  Fl_Menu_Item* menu;  /// дописать в конструкторе
 
 public:
-  LinkCircle(int x, int y, int w, int h, link_circle_types t,
-             const char* l = 0);
+  Port(int x, int y, int w, int h, port_types t, const char* l = 0);
 
   void draw () override;
   int handle (int event) override;
-  // добавить метод change inverted
-  bool inverted = false;  /// добавить изменения в draw() у Elem
 
-  link_circle_types get_type () { return type; }
+  // TODO добавить метод change inverted
+  bool inverted = false;
+
+  // TODO ;  /// добавить изменения в draw() у Elem
+
+  port_types get_type () { return type; }
+
+  std::vector<Link*> get_links () { return links; }
+
+  void add_link (Link* l) { links.push_back(l); }
+
+  void delete_link (int i);
 };
+
+void invert_port (Fl_Widget*, void* userdata);
+void delete_through_port (Fl_Widget*, void* userdata);
 
 // доделать
 // класс связи
+// class Element;
 class Link : public Fl_Widget
 {
 private:
-  LinkCircle *start_circle, *end_circle;
+  Port *input_port, *output_port;
 
 public:
-  Link(LinkCircle* c1, LinkCircle* c2);
+  Link(Port* c1, Port* c2);
 
   void draw () override;
+  void delete_link ();
 };
 
 class Label : public Fl_Widget
@@ -90,6 +109,10 @@ public:
   void set_value (logic::Value value_) { value = value_; }
 
   int handle (int event) override;
+
+  // LinkCircle* get_start_circle {return start_circle;}
+
+  // LinkCircle* get_end_circle {return end_circle;}
 };
 
 // абстрактный класс для всех элементов
@@ -106,14 +129,14 @@ private:
   int line_thikness{2};
 
 protected:
-  // убрать input_links output_links
-  std::vector<Link*> input_links{0};
-  std::vector<Link*> output_links{0};
+  // // убрать input_links output_links
+  // std::vector<Link*> input_links{0};
+  // std::vector<Link*> output_links{0};
 
   // единственный выход:
-  LinkCircle *output_port;
+  Port* output_port;
   // мно-во входов
-  std::vector<LinkCircle *>input_ports;
+  std::vector<Port*> input_ports;
 
   // фигурка
   Label* draw_elem;
@@ -121,8 +144,8 @@ protected:
   Fl_Menu_Item* menu{nullptr};
 
 public:
+  Label* get_draw_elem () { return draw_elem; }
 
-  Label* get_draw_elem() {return draw_elem;}
   void set_lable (
       std::function<void(int, int, int, int, logic::Value)> label_draw)
   {
@@ -134,9 +157,9 @@ public:
 
   // Element(Element&) = delete;
 
-  void add_input_link (Link* link) { input_links.push_back(link); }
+  // void add_input_link (Link* link) { input_links.push_back(link); }
 
-  void add_output_link (Link* link) { output_links.push_back(link); }
+  // void add_output_link (Link* link) { output_links.push_back(link); }
 
   void add_input_port ();
 
@@ -144,12 +167,17 @@ public:
 
   void draw () override;
 
+  void delete_port (Port* l_c);
+
   // void resize(int x, int y, int w, int h) override
   // {
-    
+
   //   draw_elem->resize(x+2*w/9, y, w/9*5, h);
   //   redraw();
   // }
+  std::vector<Port*> get_input_ports () { return input_ports; }
+
+  Port* get_output_port () { return output_port; }
 
   virtual void invert ();
 };

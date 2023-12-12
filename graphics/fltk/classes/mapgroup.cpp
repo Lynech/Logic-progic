@@ -1,18 +1,16 @@
 #include "mapgroup.h"
 
-namespace graph {
-namespace menu {
+namespace map_menu {
 uchar noflag = 0;
 uchar labeltype = FL_NORMAL_LABEL;
 uchar labelfont = FL_HELVETICA;
 uchar labelsize = FL_NORMAL_SIZE;
 uchar labelcolor = FL_BLACK;
-uchar noshortcut = FL_BLACK;
+uchar noshortcut = 0;
 const char* endmenu = 0;
 Fl_Callback* nocallback = nullptr;
 void* nouserdata = nullptr;
-};  // namespace menu
-};  // namespace graph
+};  // namespace map_menu
 
 int MapGroup::handle(int event)
 {
@@ -65,61 +63,54 @@ MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
     : Fl_Group{x, y, w, h, l}
 {
   menu = new Fl_Menu_Item[7];
-  menu[0] = Fl_Menu_Item{"add elem",
-                         graph::menu::noshortcut,
-                         graph::menu::nocallback,
-                         graph::menu::nouserdata,
-                         FL_SUBMENU,
-                         graph::menu::labeltype,
-                         graph::menu::labelfont,
-                         graph::menu::labelsize,
-                         graph::menu::labelcolor};
+  menu[0] = Fl_Menu_Item{
+      "add elem",           map_menu::noshortcut, map_menu::nocallback,
+      map_menu::nouserdata, FL_SUBMENU,           map_menu::labeltype,
+      map_menu::labelfont,  map_menu::labelsize,  map_menu::labelcolor};
   menu[1] = Fl_Menu_Item{"and",
-                         graph::menu::noshortcut,
+                         map_menu::noshortcut,
                          add_elem<graph::And>,
                          this,
-                         graph::menu::noflag,
-                         graph::menu::labeltype,
-                         graph::menu::labelfont,
-                         graph::menu::labelsize,
-                         graph::menu::labelcolor};
+                         map_menu::noflag,
+                         map_menu::labeltype,
+                         map_menu::labelfont,
+                         map_menu::labelsize,
+                         map_menu::labelcolor};
   menu[2] = Fl_Menu_Item{"or",
-                         graph::menu::noshortcut,
+                         map_menu::noshortcut,
                          add_elem<graph::Or>,
                          this,
-                         graph::menu::noflag,
-                         graph::menu::labeltype,
-                         graph::menu::labelfont,
-                         graph::menu::labelsize,
-                         graph::menu::labelcolor};
+                         map_menu::noflag,
+                         map_menu::labeltype,
+                         map_menu::labelfont,
+                         map_menu::labelsize,
+                         map_menu::labelcolor};
   menu[3] = Fl_Menu_Item{"not",
-                         graph::menu::noshortcut,
+                         map_menu::noshortcut,
                          add_elem<graph::Buff>,
                          this,
-                         graph::menu::noflag,
-                         graph::menu::labeltype,
-                         graph::menu::labelfont,
-                         graph::menu::labelsize,
-                         graph::menu::labelcolor};
-  menu[4] = Fl_Menu_Item{graph::menu::endmenu,    graph::menu::noshortcut,
-                         graph::menu::nocallback, graph::menu::nouserdata,
-                         graph::menu::noflag,     graph::menu::labeltype,
-                         graph::menu::labelfont,  graph::menu::labelsize,
-                         graph::menu::labelcolor};
+                         map_menu::noflag,
+                         map_menu::labeltype,
+                         map_menu::labelfont,
+                         map_menu::labelsize,
+                         map_menu::labelcolor};
+  menu[4] = Fl_Menu_Item{
+      map_menu::endmenu,    map_menu::noshortcut, map_menu::nocallback,
+      map_menu::nouserdata, map_menu::noflag,     map_menu::labeltype,
+      map_menu::labelfont,  map_menu::labelsize,  map_menu::labelcolor};
   menu[5] = Fl_Menu_Item{"00",
-                         graph::menu::noshortcut,
+                         map_menu::noshortcut,
                          add_elem<graph::And>,
                          this,
-                         graph::menu::noflag,
-                         graph::menu::labeltype,
-                         graph::menu::labelfont,
-                         graph::menu::labelsize,
-                         graph::menu::labelcolor};
-  menu[6] = Fl_Menu_Item{graph::menu::endmenu,    graph::menu::noshortcut,
-                         graph::menu::nocallback, graph::menu::nouserdata,
-                         graph::menu::noflag,     graph::menu::labeltype,
-                         graph::menu::labelfont,  graph::menu::labelsize,
-                         graph::menu::labelcolor};
+                         map_menu::noflag,
+                         map_menu::labeltype,
+                         map_menu::labelfont,
+                         map_menu::labelsize,
+                         map_menu::labelcolor};
+  menu[6] = Fl_Menu_Item{
+      map_menu::endmenu,    map_menu::noshortcut, map_menu::nocallback,
+      map_menu::nouserdata, map_menu::noflag,     map_menu::labeltype,
+      map_menu::labelfont,  map_menu::labelsize,  map_menu::labelcolor};
 
   // Fl_Menu_Item temp_menu[] = {{"add elem", 0, 0, 0, FL_SUBMENU},
   //                             {"and", 0, add_elem<graph::And>, this},
