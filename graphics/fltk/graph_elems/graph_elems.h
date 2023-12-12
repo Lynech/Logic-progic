@@ -1,7 +1,7 @@
 #ifndef GRAPH_ELEMS_H
 #define GRAPH_ELEMS_H
 #include "fltk.h"
-#include "logic_elems/logic_elems.h"
+#include "logic_elems.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Counter.H>

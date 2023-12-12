@@ -15,7 +15,8 @@ set(HEADERS
     classes/createbutton.h
     classes/logicwindow.h
     classes/add_elem_impl.h
-    ${LIB_DIR}/logic_elems/logic_elems.h
+    graph_elems/logic_elems.h
+    # ${LIB_DIR}/logic_elems/logic_elems.h
 )
 set(SOURCES
     classes/fltk.cpp
@@ -25,11 +26,13 @@ set(SOURCES
     classes/elemlist.cpp
     classes/createbutton.cpp
     classes/logicwindow.cpp
-    ${LIB_DIR}/logic_elems/logic_elems.cpp
+    graph_elems/logic_elems.cpp
+    # ${LIB_DIR}/logic_elems/logic_elems.cpp
 )
 
 add_library(my_lib ${HEADERS} ${SOURCES})
 
+target_precompile_headers(my_lib PRIVATE graph_elems/graph_elems.h graph_elems/logic_elems.h)
 target_precompile_headers(my_lib PUBLIC ${HEADERS})
 
 target_include_directories(
@@ -44,6 +47,7 @@ target_include_directories(
     PUBLIC
     classes/
     graph_elems/
+    # ${LIB_DIR}/logic_elems/
 )
 
 target_link_directories(

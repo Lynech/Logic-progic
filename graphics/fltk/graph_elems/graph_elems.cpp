@@ -1,4 +1,5 @@
 #include "graph_elems.h"
+#include "logic_elems.h"
 #include <algorithm>
 #include <cmath>
 
@@ -162,7 +163,7 @@ And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
 {
   inputs_n = 1;
   outputs_n = 1;
-  draw_elem->elem = new logic::And{};
+  draw_elem->elem = new logic::And{draw_elem};
   set_lable(draw_and);
 }
 
@@ -289,7 +290,7 @@ Buff::Buff(int x, int y, int w, int h, const char* l)
 {
   inputs_n = 1;
   outputs_n = 1;
-  draw_elem->elem = new logic::And{};
+  draw_elem->elem = new logic::Buff{draw_elem};
   set_lable(draw_buff);
 }
 
@@ -298,7 +299,7 @@ Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
 {
   inputs_n = 1;
   outputs_n = 1;
-  draw_elem->elem = new logic::Or{};
+  draw_elem->elem = new logic::Or{draw_elem};
   set_lable(draw_or);
 }
 

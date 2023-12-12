@@ -15,3 +15,4 @@ include_directories(
 
 # add_subdirectory("main")
 add_subdirectory("graphics")
+# add_subdirectory("lib/logic_elems")

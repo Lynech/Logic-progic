@@ -1,8 +1,11 @@
 #ifndef LOGIC_ELEMS_H
 #define LOGIC_ELEMS_H
+#include "graph_elems.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+
+class Label;
 
 namespace logic {
 class Element;
@@ -31,6 +34,7 @@ logic::Value operator!(logic::Value value);
 class logic::Element
 {
 protected:
+  Label* elem{nullptr};
   bool inverted{0};
   Value value{Value::Undef};
   void add_dependings (logic::Logic& t);
@@ -49,6 +53,8 @@ public:
   Element& operator!();
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
+
+  Element(Label* elem) { this->elem = elem; }
 };
 
 class logic::Logic : public logic::Element
@@ -60,6 +66,8 @@ protected:
   // std::vector<logic::spec::Input_element> arg_vec;
 
 public:
+  Logic(Label* l) : Element{l} {}
+
   std::vector<logic::spec::Input_element> arg_vec;
   Logic& operator~();
   virtual void calculate_value () = 0;
@@ -76,6 +84,8 @@ class logic::And : public logic::Logic
 private:
 
 public:
+  And(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -84,6 +94,8 @@ class logic::Or : public logic::Logic
 private:
 
 public:
+  Or(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -92,6 +104,8 @@ class logic::Buff : public logic::Logic
 private:
 
 public:
+  Buff(Label* l) : Logic{l} {}
+
   void calculate_value () override;
 };
 
@@ -100,8 +114,8 @@ class logic::Src : public logic::Element
 private:
 
 public:
-  Src();
-  Src(bool value_);
+  // Src();
+  Src(Label* l, bool value_);
   void set_value (bool value_);
 
   // void calculate_value () override;
