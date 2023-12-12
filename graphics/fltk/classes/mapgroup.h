@@ -2,6 +2,7 @@
 #define MAPGROUP_H
 
 #include "fltk.h"
+#include "type_elem.h"
 
 class MapGroup : public Fl_Group
 {
@@ -14,6 +15,8 @@ public:
   MapGroup(int x, int y, int w, int h, const char* l = 0);
 
   int handle (int event) override;
+
+  void add_el (TypeElement what_el, int x, int y);
 };
 
 #endif

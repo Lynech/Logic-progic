@@ -1,5 +1,7 @@
 #include "logicwindow.h"
 #include "..\graph_elems\graph_elems.h"
+#include "add_elem_impl.h"
+#include "createbutton.h"
 #include "drawing_elems.h"
 
 Fl_File_Chooser* file_choose;

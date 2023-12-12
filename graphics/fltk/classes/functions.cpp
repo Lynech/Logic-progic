@@ -4,15 +4,6 @@
 
 std::vector<DrawingElement*> sheme;
 
-enum class TypeElement
-{
-  SRC,
-  OR,
-  AND,
-  BUFF,
-  RES
-};
-
 int get_pos (const std::string& el)
 {
   for (size_t i = 0; i < sheme.size(); ++i)
@@ -141,16 +132,16 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
     if (str == "and" || str == "src" || str == "or" || str == "buff")
     {
       TypeElement what_el;
-      if (str == "src")
-        what_el = TypeElement::SRC;
+      if (str == "src0")
+        what_el = TypeElement::SRC0;
+      else if (str == "src1")
+        what_el = TypeElement::SRC1;
       else if (str == "or")
         what_el = TypeElement::OR;
       else if (str == "and")
         what_el = TypeElement::AND;
       else if (str == "buff")
         what_el = TypeElement::BUFF;
-      else if (str == "res")
-        what_el = TypeElement::RES;
       f >> str;
       std::string name = str;
       f >> str;
@@ -159,30 +150,7 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
       int xx = stoi(str);
       f >> str;
       int yy = stoi(str);
-      DrawingElement* temp;
-      // if (what_el == TypeElement::SRC)
-      //   temp = new DrawingSrc{new logic::Src, name, inverted, xx, yy};
-      if (what_el == TypeElement::OR)
-      {
-        graph::Or* elem = new graph::Or{0, 0};
-        add_elem2<graph::Or>(elem, map, xx, yy);
-      }
-      // temp = new DrawingOr{new logic::Or, name, inverted, xx, yy};
-      else if (what_el == TypeElement::AND)
-      {
-        graph::And* elem = new graph::And{0, 0};
-        add_elem2<graph::And>(elem, map, xx, yy);
-      }
-      // temp = new DrawingAnd{new logic::And, name, inverted, xx, yy};
-      // else if (what_el == TypeElement::BUFF)
-      // {
-      //   graph::Buff* temp = new graph::Buff{xx, yy, };
-      //   add_elem<graph::Buff>(temp, map);
-      // }
-      // temp = new DrawingBuff{new logic::Buff, name, inverted, xx, yy};
-      // else if (what_el == TypeElement::RES)
-      //   temp = new DrawingRes{new logic::Res, name, inverted, xx, yy};
-      sheme.push_back(temp);
+      map->map()->add_el(what_el, xx, yy);
     }
     f >> str;
   }

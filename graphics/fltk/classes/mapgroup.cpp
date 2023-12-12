@@ -61,6 +61,20 @@ int MapGroup::handle(int event)
   // }
 }
 
+void MapGroup::add_el(TypeElement what_el, int x, int y)
+{
+  if (what_el == TypeElement::AND)
+    add_elem2<graph::And>(nullptr, this, x, y);
+  else if (what_el == TypeElement::OR)
+    add_elem2<graph::Or>(nullptr, this, x, y);
+  else if (what_el == TypeElement::BUFF)
+    add_elem2<graph::Buff>(nullptr, this, x, y);
+  else if (what_el == TypeElement::SRC0)
+    add_elem2<graph::Src0>(nullptr, this, x, y);
+  else if (what_el == TypeElement::SRC1)
+    add_elem2<graph::Src1>(nullptr, this, x, y);
+}
+
 MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
     : Fl_Group{x, y, w, h, l}
 {

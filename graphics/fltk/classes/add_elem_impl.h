@@ -1,6 +1,7 @@
 #ifndef ADD_ELEM_IMPL_H
 #define ADD_ELEM_IMPL_H
 #include "fltk.h"
+#include "type_elem.h"
 
 template <class T> void add_elem (Fl_Widget*, void* userdata)
 {
