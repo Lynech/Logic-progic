@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -19,6 +20,12 @@ const char* endmenu = 0;
 Fl_Callback* nocallback = nullptr;
 void* nouserdata = nullptr;
 };  // namespace port_menu
+
+void callback4logic (void* lable)
+{
+  Label* lableptr = (Label*)(lable);
+  lableptr->redraw();
+}
 
 void invert_port (Fl_Widget*, void* userdata)
 {
@@ -192,7 +199,6 @@ void Link::delete_link()
 
       input_log_el =
           ((Element*)(input_port->parent()))->get_draw_elem()->logic_elem;
-      input_log_el->remove_sorse(output_log_el, input_port->is_inverted());
       break;
     }
   }
@@ -211,6 +217,9 @@ void Link::delete_link()
       break;
     }
   }
+
+  if (input_log_el->remove_sorse(output_log_el, input_port->is_inverted()))
+    std::cout << "deleted sorse" << std::endl;
 
   // нужно удалять сам входной порт
   auto temp = (graph::Element*)input_port->parent();
@@ -238,14 +247,16 @@ void Link::delete_link()
 }
 
 // конструктор абстрактного класса Element
-Element::Element(int x_, int y_, int w_, int h_, const char* l)
-    : Fl_Group{x_ - w_ * 2 / 5, y_, w_ * 9 / 5, h_, l},
+Element::Element(int x_, int y_, int w_, int h_, int inputs_n_,
+                 const char* l)
+    : Fl_Group{x_ - w_ * 2 / 5, y_, w_ * 9 / 5, h_, l}, inputs_n{inputs_n_},
       elem_link_lenth{w_ * 2 / 5}, line_thikness{w_ / 25}
 {
+  end();
   draw_elem = new Label{x_, y_, w_, h_};
-  add(draw_elem);
+  add_resizable(*draw_elem);
   // TODO: не рисовать вход если max_input_amount = 0
-  if (l != "no_input")
+  if (inputs_n != 0)
   {
     Port* first_input_port =
         new Port{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10, w_ / 5, w_ / 5,
@@ -260,15 +271,21 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
   output_port = new Port{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10, w_ / 5,
                          w_ / 5, port_types::output};
   add(output_port);
+
+  // Входные порты если их число конечно или ограничено снизу
+  for (int i = 1; i < inputs_n; i++)
+    add_input_port_pre();
+  if (inputs_n < 0)
+    for (int i = 1; i < -inputs_n; i++)
+      add_input_port_pre();
 }
 
 //  конструктор класса Source
 
 Src0::Src0(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, "no_input"}
+    : Element{x, y, h, w, 0, "no_input"}
 {
-  outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{draw_elem, 0};
+  draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 0);
   draw_elem->set_value(logic::Value::False);
   input_ports = {};
 
@@ -278,11 +295,9 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
 //  конструктор класса Source
 
 Src1::Src1(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, "no_input"}
+    : Element{x, y, h, w, 0, "no_input"}
 {
-  inputs_n = 0;
-  outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{draw_elem, 1};
+  draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 1);
   draw_elem->set_value(logic::Value::True);
   input_ports = {};
 
@@ -290,11 +305,10 @@ Src1::Src1(int x, int y, int h, int w, const char* l)
 }
 
 //  конструктор класса И
-And::And(int x, int y, int h, int w, const char* l) : Element{x, y, h, w, l}
+And::And(int x, int y, int h, int w, const char* l)
+    : Element{x, y, h, w, -1, l}
 {
-  inputs_n = -1;
-  outputs_n = 1;
-  draw_elem->logic_elem = new logic::And{draw_elem};
+  draw_elem->logic_elem = new logic::And{callback4logic, draw_elem};
   set_lable(draw_and);
 }
 
@@ -327,18 +341,53 @@ void Element::delete_port(Port* l_c)
 
 void Element::add_input_port()
 {
+  if (inputs_n < 0)
+  {
+    int n = this->input_ports.size();  // кол-во входов
+    std::cout << x() << std::endl
+              << y() << std::endl
+              << w() << std::endl
+              << h();
+    this->resize(x(), y(), w(),
+                 (h()) * (n + 2) /
+                     (n + 1));  // пропорционально увеличили всю группу
+
+    int circle_w = this->w();
+    circle_w /= 9;
+    Port* new_l_s = new Port{0, 0, circle_w, circle_w, port_types::input};
+
+    this->input_ports.push_back(new_l_s);
+    this->add(new_l_s);
+
+    n++;
+
+    for (int i = 0; i < n; i++)
+    {
+      Port* l_c = input_ports[i];
+      l_c->resize(x(), y() + h() / (n + 1) * (i + 1) - circle_w / 2,
+                  circle_w, circle_w);
+    }
+
+    output_port->resize(x() + w() - circle_w, y() + h() / 2 - circle_w / 2,
+                        circle_w, circle_w);
+    redraw();
+    window()->redraw();
+  }
+}
+
+void Element::add_input_port_pre()
+{
   int n = this->input_ports.size();  // кол-во входов
   std::cout << x() << std::endl
             << y() << std::endl
             << w() << std::endl
             << h();
   this->resize(x(), y(), w(),
-               (h()) * (n + 2) /
+               (h()) * (n + 3) /
                    (n + 1));  // пропорционально увеличили всю группу
 
   int circle_w = this->w();
   circle_w /= 9;
-
   Port* new_l_s = new Port{0, 0, circle_w, circle_w, port_types::input};
 
   this->input_ports.push_back(new_l_s);
@@ -355,8 +404,6 @@ void Element::add_input_port()
 
   output_port->resize(x() + w() - circle_w, y() + h() / 2 - circle_w / 2,
                       circle_w, circle_w);
-  redraw();
-  window()->redraw();
 }
 
 Label::Label(
@@ -431,17 +478,20 @@ void Label::draw()
   {
     if (input_ports[i]->is_inverted())
     {
+      Port* p = input_ports[i];
       fl_color(FL_BLACK);
       fl_line_style(0, 2);
 
       fl_begin_polygon();
-      fl_circle(x() + w() / 11, y() + h() / 2, w() / 11);
+      fl_circle(this->x() + this->w() / 11, p->y() + p->h() / 2,
+                this->w() / 11);
       fl_end_polygon();
 
       fl_color(FL_WHITE);
       fl_line_style(0, 2);
       fl_begin_loop();
-      fl_circle(x() + w() / 10, y() + h() / 2, w() / 10);
+      fl_circle(this->x() + this->w() / 10, p->y() + p->h() / 2,
+                this->w() / 10);
       fl_end_loop;
     }
   }
@@ -486,20 +536,19 @@ void Element::invert()
 
 // конструктор класса НЕ
 Buff::Buff(int x, int y, int w, int h, const char* l)
-    : Element{x, y, w, h, l}
+    : Element{x, y, w, h, 1, l}
 {
   inputs_n = 1;
-  outputs_n = 1;
-  draw_elem->logic_elem = new logic::Buff{draw_elem};
+  draw_elem->logic_elem = new logic::Buff{callback4logic, draw_elem};
   set_lable(draw_buff);
 }
 
 // конструктор класса ИЛИ
-Or::Or(int x, int y, int w, int h, const char* l) : Element{x, y, w, h, l}
+Or::Or(int x, int y, int w, int h, const char* l)
+    : Element{x, y, w, h, -1, l}
 {
   inputs_n = -1;
-  outputs_n = 1;
-  draw_elem->logic_elem = new logic::Or{draw_elem};
+  draw_elem->logic_elem = new logic::Or{callback4logic, draw_elem};
   set_lable(draw_or);
 }
 

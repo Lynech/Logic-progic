@@ -131,6 +131,8 @@ public:
   // LinkCircle* get_end_circle {return end_circle;}
 };
 
+void callback4logic (void* lable);
+
 // абстрактный класс для всех элементов
 class graph::Element : public Fl_Group
 {
@@ -156,7 +158,7 @@ protected:
 
   // фигурка
   Label* draw_elem;
-  int inputs_n{-1}, outputs_n{0};
+  int inputs_n{0};
   Fl_Menu_Item* menu{nullptr};
 
 public:
@@ -168,7 +170,7 @@ public:
     draw_elem->Label_draw_ = label_draw;
   }
 
-  Element(int x = 50, int y = 50, int w = 50, int h = 50,
+  Element(int x = 50, int y = 50, int w = 50, int h = 50, int inputs_n = 0,
           const char* l = 0);
 
   // Element(Element&) = delete;
@@ -178,6 +180,8 @@ public:
   // void add_output_link (Link* link) { output_links.push_back(link); }
 
   void add_input_port ();
+
+  void add_input_port_pre ();
 
   int handle (int x) override;
 

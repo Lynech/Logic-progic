@@ -21,7 +21,7 @@ Value spec::Input_element::get_value() const
 
 void Element::calculate_dependings()
 {
-  elem->redraw();
+  callback(lable);
   std::vector<Value> depend_value;
   for (size_t i = 0; i < dependings.size(); i++)
   {
@@ -117,6 +117,9 @@ void Logic::remove_occurences_sourses(Element* src)
     ;
   while (remove_sorse(src, 0))
     ;
+
+  calculate_value();
+  calculate_dependings();
 }
 
 /// @brief удаляет все выходы и себя из этих выходов
@@ -127,7 +130,7 @@ void Element::reset_dependings()
     dependings[0]->remove_occurences_sourses(this);
   }
   // calculate_value();
-  // calculate_dependings();
+  calculate_dependings();
 }
 
 /// @brief удаляет конкретную связь оп src и inverted
@@ -138,7 +141,8 @@ int Logic ::remove_sorse(Element* src, bool inverted)
 {
   for (size_t i = 0; i < arg_vec.size(); i++)
   {
-    if (arg_vec[i].get_arg() == src && arg_vec[i].is_inverted() == inverted)
+    if ((arg_vec[i].get_arg() == src) &&
+        (arg_vec[i].is_inverted() == inverted))
     {
       auto temp =
           std::find(src->dependings.begin(), src->dependings.end(), this);
@@ -150,10 +154,16 @@ int Logic ::remove_sorse(Element* src, bool inverted)
       return 1;
     }
   }
+  // calculate_value();
+  // calculate_dependings();
   return 0;
 }
 
-Src::Src(Label* l, bool value_) : Element{l} { set_value(value_); }
+Src::Src(std::function<void(void*)> callback, void* lable, bool value_)
+    : Element{callback, lable}
+{
+  set_value(value_);
+}
 
 // Src::Src() { set_value(0); }
 

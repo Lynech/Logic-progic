@@ -1,6 +1,7 @@
 #ifndef LOGIC_ELEMS_H
 #define LOGIC_ELEMS_H
 #include "graph_elems.h"
+#include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -35,7 +36,8 @@ logic::Value operator!(logic::Value value);
 class logic::Element
 {
 protected:
-  Label* elem{nullptr};
+  std::function<void(void*)> callback;
+  void* lable;
   bool inverted{0};
   Value value{Value::Undef};
   void add_dependings (logic::Logic& t);
@@ -61,7 +63,13 @@ public:
   virtual int remove_sorse (Element* src, bool inverted) = 0;
   virtual void invert_sorse (Element* src, bool inverted) = 0;
 
-  Element(Label* elem) { this->elem = elem; }
+  Element(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr)
+  {
+    this->callback = callback;
+    this->lable = lable;
+  }
 };
 
 class logic::Logic : public logic::Element
@@ -73,7 +81,12 @@ protected:
   // std::vector<logic::spec::Input_element> arg_vec;
 
 public:
-  Logic(Label* l) : Element{l} {}
+  Logic(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr)
+      : Element{callback, lable}
+  {
+  }
 
   std::vector<logic::spec::Input_element> arg_vec;
   Logic& operator~();
@@ -91,7 +104,12 @@ class logic::And : public logic::Logic
 private:
 
 public:
-  And(Label* l) : Logic{l} {}
+  And(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr)
+      : Logic{callback, lable}
+  {
+  }
 
   void calculate_value () override;
 };
@@ -101,7 +119,12 @@ class logic::Or : public logic::Logic
 private:
 
 public:
-  Or(Label* l) : Logic{l} {}
+  Or(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr)
+      : Logic{callback, lable}
+  {
+  }
 
   void calculate_value () override;
 };
@@ -111,7 +134,12 @@ class logic::Buff : public logic::Logic
 private:
 
 public:
-  Buff(Label* l) : Logic{l} {}
+  Buff(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr)
+      : Logic{callback, lable}
+  {
+  }
 
   void calculate_value () override;
 };
@@ -122,7 +150,9 @@ private:
 
 public:
   // Src();
-  Src(Label* l, bool value_ = 0);
+  Src(
+      std::function<void(void*)> callback = [] (void*) {},
+      void* lable = nullptr, bool value_ = 0);
   void set_value (bool value_);
 
   void reset_sorses () override
