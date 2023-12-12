@@ -7,26 +7,52 @@
 
 using namespace graph;
 
-// конструктор класса LinkCircle
-LinkCircle::LinkCircle(int x, int y, int w, int h, link_circle_types t,
-                       const char* l)
-    : Fl_Widget{x, y, w, h, l}
+namespace port_menu {
+uchar noflag = 0;
+uchar labeltype = FL_NORMAL_LABEL;
+uchar labelfont = FL_HELVETICA;
+uchar labelsize = FL_NORMAL_SIZE;
+uchar labelcolor = FL_BLACK;
+uchar noshortcut = 0;
+const char* endmenu = 0;
+Fl_Callback* nocallback = nullptr;
+void* nouserdata = nullptr;
+};  // namespace port_menu
+
+void invert_port (Fl_Widget*, void* userdata)
 {
-  
-  type = t;
+  Port* l_c = (Port*)userdata;
 }
 
-// отрисовка объектов класса LinkCircle
-void LinkCircle::draw()
+void delete_through_port (Fl_Widget*, void* userdata)
 {
-  fl_color(16);
-  fl_line_style(0, 4);
-  fl_pie(x(), y(), w(), h(), 0., 360.);
-  if (is_entered)
+  Port* l_c = (Port*)userdata;
+
+  std::vector<Link*> links = l_c->get_links();
+  for (Link* i : links)
   {
-    fl_color(FL_BLACK);
-    fl_line_style(0, 2);
-    fl_arc(x(), y(), w(), h(), 0., 360.);
+    if (i != nullptr)
+    {
+      i->delete_link();
+    }
+  }
+}
+
+// конструктор класса Link
+Link::Link(Port* c1, Port* c2)
+    : Fl_Widget{std::min(c1->x(), c2->x()), std::min(c1->y(), c2->y()),
+                abs(c1->x() - c2->x()) + c1->w(),
+                abs(c1->y() - c2->y()) + c1->w()}
+{
+  if (c1->get_type() == port_types::input)
+  {
+    input_port = c1;
+    output_port = c2;
+  }
+  else
+  {
+    output_port = c1;
+    input_port = c2;
   }
 }
 
@@ -54,139 +80,60 @@ int Label::handle(int event)
   return 0;
 }
 
-// обработка взаимодействий с объектом класса LinkCircle
-int LinkCircle::handle(int event)
-{
-
-  int x_ = x(), y_ = y(), w_ = w(), h_ = h();
-
-  // std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << event << " "
-  //           << FL_ENTER << std::endl;
-  switch (event)
-  {
-  case FL_PUSH:
-    // if(event_button == fl_left) ... что-то тут
-    //
-    std::cout << "__LinkCircle push handled -- here should be menu__\n";
-    //
-    return 1;
-  // case FL_MOVE:
-  case FL_ENTER:
-    std::cout << "______entered_circle________\n";
-    // draw_focus(FL_FRAME_BOX, x(), y(), w(), h());
-    is_entered = true;
-    redraw();
-    return 1;
-
-  case FL_LEAVE:
-    std::cout << "______leave_circle________\n";
-    is_entered = false;
-    redraw();
-    return 1;
-  case FL_DRAG:
-    // is_entered =
-    //     true;  //////////////////////////////// рисование новой линии
-    // redraw();
-    return 1;
-  case FL_RELEASE:
-  {
-    // элемент (группа), которому принадлежит этот порт
-    Element* this_elem_group = (Element*)this->parent();
-    MapGroup* map = (MapGroup*)this_elem_group->parent();
-    int n = map ->children();
-
-    // int x = Fl::event_x();
-    // int y = Fl::event_y();
-    Element* elem_group;
-    LinkCircle* l_c;
-
-    bool needed_found = false;
-    for (int i = 0; i < n && !needed_found; i++)
-    {
-      // взяли элемент (группа)
-      elem_group = dynamic_cast<Element*>(map->child(i));
-      // кол-во сущностей в элементе
-      if (elem_group != nullptr)
-      {
-        int n1 = elem_group->children();
-        for (int j = 0; j < n1 && !needed_found; j++)
-        {
-          // взяли сущность в надежде что она порт
-          l_c = dynamic_cast<LinkCircle*>(elem_group->child(j));
-          // проверяем, что это порт, он нужного типа и что наведение на него
-          if ((l_c != nullptr) && (l_c != this) && (Fl::event_inside(l_c)) &&
-              (l_c->type != this->type))
-            {
-              needed_found = true;
-              break;
-            }
-        }
-      }
-    }
-    if (!needed_found)
-      return 1;
-    // определяем, из какого выходит связь и в какой входит
-    Element* input_el;
-    Element* output_el;
-    if (this->type == link_circle_types::input)
-    {
-      // ведем связь из this в l_c -> нужно добавить еще один вход в элемент порта
-      input_el = (graph::Element*)this->parent();
-      output_el = (graph::Element*)l_c->parent();
-    }
-    else
-    {
-      // ведем связь из l_c в this -> нужно добавить в еще один вход в элемент порта
-      output_el = (graph::Element*)this->parent();
-      input_el = (graph::Element*)l_c->parent();
-    }
-    input_el ->add_input_port();
-    Link* l = new Link{l_c, this};
-    map->add(l);
-
-    l->redraw();
-
-    input_el->add_input_link(l);
-    output_el->add_output_link(l);
-    
-    input_el ->redraw();
-    output_el ->redraw();
-
-    is_entered = false;
-    redraw();
-    return 1;
-  }
-  default:
-    return Fl_Widget::handle(event);
-  }
-}
-
-// конструктор класса Link
-Link::Link(LinkCircle* c1, LinkCircle* c2)
-    : Fl_Widget{std::min(c1->x(), c2->x()), std::min(c1->y(), c2->y()),
-                abs(c1->x() - c2->x()) + c1->w(),
-                abs(c1->y() - c2->y()) + c1->w()}
-{
-  start_circle = c1;
-  end_circle = c2;
-}
-
 // отрисовка объектов класса Link
 void Link::draw()
 {
   fl_line_style(0, 3);
   fl_color(FL_BLACK);
 
-  if (start_circle->get_type() == link_circle_types::input)
-  {
-  fl_line(start_circle->x(), start_circle->y() + start_circle->h()/2, end_circle->x() + end_circle->w(),
-          end_circle->y()+ end_circle->h()/2) ;
-  }
-  else{
-        fl_line(start_circle->x() +start_circle->w()/2 , start_circle->y() + start_circle->h()/2, end_circle->x(),
-          end_circle->y()+ end_circle->h()/2) ;
+  fl_line(input_port->x(), input_port->y() + input_port->h() / 2,
+          output_port->x() + output_port->w(),
+          output_port->y() + output_port->h() / 2);
+}
 
+void Link::delete_link()
+{
+  // удаляем связь из порта-начала:
+  for (int i = 0; i < input_port->get_links().size(); i++)
+  {
+    if (input_port->get_links()[i] == this)
+    {
+      input_port->delete_link(i);
+    }
   }
+
+  // удаляем связь из порта-конца:
+  for (int i = 0; i < output_port->get_links().size(); i++)
+  {
+    if (output_port->get_links()[i] == this)
+    {
+      output_port->delete_link(i);
+
+      // нужно удалять сам входной порт
+      auto temp = (graph::Element*)input_port->parent();
+      temp->delete_port(input_port);
+      int n = temp->get_input_ports().size();
+
+      temp->resize(temp->x(), temp->y(), temp->w(),
+                   (temp->h()) * (n + 1) / (n + 2));
+      int circle_w = temp->w();
+      circle_w /= 9;
+      for (int i = 0; i < n; i++)
+      {
+        Port* l_c = temp->get_input_ports()[i];
+        l_c->resize(temp->x(),
+                    temp->y() + temp->h() / (n + 1) * (i + 1) -
+                        circle_w / 2,
+                    circle_w, circle_w);
+      }
+      temp->get_output_port()->resize(
+          temp->x() + temp->w() - circle_w,
+          temp->y() + temp->h() / 2 - circle_w / 2, circle_w, circle_w);
+    }
+  }
+  // удаляем связь как виджет:
+  Fl::delete_widget(this);
+  Fl::do_widget_deletion();
 }
 
 // конструктор абстрактного класса Element
@@ -197,16 +144,16 @@ Element::Element(int x_, int y_, int w_, int h_, const char* l)
   draw_elem = new Label{x_, y_, w_, h_};
   add(draw_elem);
 
-  LinkCircle* first_input_port = new LinkCircle{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
-                              w_ / 5, w_ / 5, link_circle_types::input};
-  
+  Port* first_input_port = new Port{x_ - w_ * 2 / 5, y_ + h_ / 2 - w_ / 10,
+                                    w_ / 5, w_ / 5, port_types::input};
+
   add(first_input_port);
 
   input_ports.push_back(first_input_port);
 
   // Выходной порт
-  output_port = new LinkCircle{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10,
-                               w_ / 5, w_ / 5, link_circle_types::output};
+  output_port = new Port{x_ + w_ * 6 / 5, y_ + h_ / 2 - w_ / 10, w_ / 5,
+                         w_ / 5, port_types::output};
   add(output_port);
 }
 
@@ -227,29 +174,55 @@ int Element::handle(int event)
   return 0;
 }
 
+void Element::delete_port(Port* l_c)
+{
+  if (l_c->get_type() == port_types::input)
+  {
+    for (int i = 0; i < input_ports.size(); i++)
+    {
+      if (input_ports[i] == l_c)
+      {
+        input_ports.erase(input_ports.begin() + i);
+        std::vector<Port*>(input_ports).swap(input_ports);
+
+        Fl::delete_widget(l_c);
+        Fl::do_widget_deletion();
+        break;
+      }
+    }
+  }
+}
+
 void Element::add_input_port()
 {
-  int n = this->input_ports.size(); // кол-во входов
-  std::cout<<x()<<std::endl<<y()<<std::endl<<w()<<std::endl<<h();
-  this->resize(x(), y(), w(), (h()) * (n+2)/(n+1)); // пропорционально увеличили всю группу
+  int n = this->input_ports.size();  // кол-во входов
+  std::cout << x() << std::endl
+            << y() << std::endl
+            << w() << std::endl
+            << h();
+  this->resize(x(), y(), w(),
+               (h()) * (n + 2) /
+                   (n + 1));  // пропорционально увеличили всю группу
 
   int circle_w = this->w();
-  circle_w /=9;
-  LinkCircle* new_l_s = new LinkCircle{0, 0, circle_w, circle_w, link_circle_types::input};
+  circle_w /= 9;
+
+  Port* new_l_s = new Port{0, 0, circle_w, circle_w, port_types::input};
+
   this->input_ports.push_back(new_l_s);
   this->add(new_l_s);
 
   n++;
 
-  for (int i = 0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
-    LinkCircle* l_c = input_ports[i];
-    l_c->resize(x(), y() + h() / (n+1) * (i+1) - circle_w/2,
-                              circle_w, circle_w);
+    Port* l_c = input_ports[i];
+    l_c->resize(x(), y() + h() / (n + 1) * (i + 1) - circle_w / 2, circle_w,
+                circle_w);
   }
 
-  output_port->resize(x() + w() - circle_w, y() + h()/2 - circle_w/2,
-                              circle_w, circle_w);
+  output_port->resize(x() + w() - circle_w, y() + h() / 2 - circle_w / 2,
+                      circle_w, circle_w);
   redraw();
   window()->redraw();
 }
@@ -282,28 +255,26 @@ void Element::draw()
   int x_input_link = x_ - elem_link_lenth;
   int y_input_link = y_ + h_ / 2;
 
-////// если 0 портов - рисовать 1
+  ////// если 0 портов - рисовать 1
 
-    // input link
-  int n = input_ports.size(); // кол-во входов 
-  for (int i = 0; i<n; i++)
+  // input link
+  int n = input_ports.size();  // кол-во входов
+  for (int i = 0; i < n; i++)
   {
-  fl_color(16);
-  fl_line_style(0, 4);
-  fl_line(x_, y_ + (h_ / (n+1)) * (i + 1), x_input_link, y_ +  (h_ / (n+1)) * (i + 1));
+    fl_color(16);
+    fl_line_style(0, 4);
+    fl_line(x_, y_ + (h_ / (n + 1)) * (i + 1), x_input_link,
+            y_ + (h_ / (n + 1)) * (i + 1));
   }
   int x_output_link = x_ + w_ + elem_link_lenth;
   int y_output_link = y_ + h_ / 2;
 
-
-  
   //  output link
   fl_color(16);
   fl_line_style(0, 4);
   fl_line(x_ + w_, y_ + h_ / 2, x_output_link, y_output_link);
-  
-  Fl_Group::draw();
 
+  Fl_Group::draw();
 }
 
 void Element::invert()
@@ -412,4 +383,159 @@ void draw_or (int x, int y, int w, int h, logic::Value value)
   fl_arc(0, y + h / 2, h / 2, 90, -90);
   fl_end_loop();
   fl_pop_matrix();
+}
+
+// конструктор класса LinkCircle
+Port::Port(int x, int y, int w, int h, port_types t, const char* l)
+    : Fl_Widget{x, y, w, h, l}
+{
+  type = t;
+  menu = new Fl_Menu_Item[3];
+  menu[0] = Fl_Menu_Item{"invert",
+                         port_menu::noshortcut,
+                         invert_port,
+                         this,
+                         port_menu::noflag,
+                         port_menu::labeltype,
+                         port_menu::labelfont,
+                         port_menu::labelsize,
+                         port_menu::labelcolor};
+  menu[1] = Fl_Menu_Item{"delete",
+                         port_menu::noshortcut,
+                         delete_through_port,
+                         this,
+                         port_menu::noflag,
+                         port_menu::labeltype,
+                         port_menu::labelfont,
+                         port_menu::labelsize,
+                         port_menu::labelcolor};
+  menu[2] = Fl_Menu_Item{
+      port_menu::endmenu,    port_menu::noshortcut, port_menu::nocallback,
+      port_menu::nouserdata, port_menu::noflag,     port_menu::labeltype,
+      port_menu::labelfont,  port_menu::labelsize,  port_menu::labelcolor};
+}
+
+// отрисовка объектов класса LinkCircle
+void Port::draw()
+{
+  fl_color(16);
+  fl_line_style(0, 4);
+  fl_pie(x(), y(), w(), h(), 0., 360.);
+  if (is_entered)
+  {
+    fl_color(FL_BLACK);
+    fl_line_style(0, 2);
+    fl_arc(x(), y(), w(), h(), 0., 360.);
+  }
+}
+
+// обработка взаимодействий с объектом класса LinkCircle
+int Port::handle(int event)
+{
+
+  int x_ = x(), y_ = y(), w_ = w(), h_ = h();
+  switch (event)
+  {
+  case FL_PUSH:
+    if (event == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
+    {
+      auto temp = menu->popup(Fl::event_x(), Fl::event_y());
+      if (temp && temp->callback())
+        temp->do_callback(nullptr);
+      return 1;
+    }
+    return 1;
+  case FL_ENTER:
+    is_entered = true;
+    redraw();
+    return 1;
+  case FL_LEAVE:
+    is_entered = false;
+    redraw();
+    return 1;
+  case FL_DRAG:
+    return 1;
+  case FL_RELEASE:
+  {
+    // элемент (группа), которому принадлежит этот порт
+    graph::Element* this_elem_group = (graph::Element*)this->parent();
+    MapGroup* map = (MapGroup*)this_elem_group->parent();
+    int n = map->children();
+
+    graph::Element* elem_group;
+    Port* p;
+
+    bool needed_found = false;
+    for (int i = 0; i < n && !needed_found; i++)
+    {
+      // взяли элемент (группа)
+      elem_group = dynamic_cast<graph::Element*>(map->child(i));
+      // кол-во сущностей в элементе
+      if (elem_group != nullptr)
+      {
+        int n1 = elem_group->children();
+        for (int j = 0; j < n1 && !needed_found; j++)
+        {
+          // взяли сущность в надежде что она порт
+          p = dynamic_cast<Port*>(elem_group->child(j));
+          // проверяем, что это порт, он нужного типа и что наведение на
+          // него
+          if ((p != nullptr) && (p != this) && (Fl::event_inside(p)) &&
+              (p->type != this->type) &&
+              ("вход не занят"))  // TODO: проверка занятости входа
+          {
+            needed_found = true;
+            break;
+          }
+        }
+      }
+    }
+    if (!needed_found)
+      return 1;
+    // определяем, из какого выходит связь и в какой входит
+    graph::Element* input_el;
+    graph::Element* output_el;
+    if (this->type == port_types::input)
+    {
+      // ведем связь из this в p -> нужно добавить еще один вход в элемент
+      // порта
+      input_el = (graph::Element*)this->parent();
+      output_el = (graph::Element*)p->parent();
+    }
+    else
+    {
+      // ведем связь из p в this -> нужно добавить в еще один вход в
+      // элемент порта
+      output_el = (graph::Element*)this->parent();
+      input_el = (graph::Element*)p->parent();
+    }
+    Link* l = new Link{p, this};
+    input_el->add_input_port();
+
+    // добавляем связи в порты
+    this->add_link(l);
+    p->add_link(l);
+
+    map->add(l);
+
+    l->redraw();
+
+    // input_el->add_input_link(l);
+    // output_el->add_output_link(l);
+
+    input_el->redraw();
+    output_el->redraw();
+
+    is_entered = false;
+    return 1;
+  }
+  default:
+    return Fl_Widget::handle(event);
+  }
+}
+
+void Port::delete_link(int i)
+{
+  links.erase(links.begin() + i);
+  std::vector<Link*>(links).swap(links);
 }
