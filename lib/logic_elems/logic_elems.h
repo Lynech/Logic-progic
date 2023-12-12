@@ -45,6 +45,8 @@ public:
   Value get_value () const;
   void calculate_dependings ();
 
+  bool is_inverted () { return inverted; }
+
   // void remove_depending (logic::Logic* t);
   // virtual void calculate_value () { value = inverted ? !value : value; }
 

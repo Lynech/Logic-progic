@@ -22,6 +22,7 @@ void* nouserdata = nullptr;
 void invert_port (Fl_Widget*, void* userdata)
 {
   Port* l_c = (Port*)userdata;
+  l_c->invert();
 }
 
 void delete_through_port (Fl_Widget*, void* userdata)
@@ -39,9 +40,13 @@ void delete_through_port (Fl_Widget*, void* userdata)
   }
 }
 
+// инвертирует выход
 void invert_elem (Fl_Widget*, void* userdata)
 {
   Label* l = (Label*)userdata;
+  logic::Element* log_el = l->logic_elem;
+  log_el->invert();
+  l->redraw();
 }
 
 void delete_all_elem_links (Fl_Widget*, void* userdata)
@@ -126,12 +131,12 @@ void Label::delete_all_links()
     }
   }
 
-  // удаляем каждый вход
-  for (Port* i : ports)
+  // удаляем каждый вход (size -1 означает, что 1 оставляем)
+  for (int i = 0; i < ports.size() - 1; i++)
   {
-    if (i != nullptr)
+    if (ports[i] != nullptr)
     {
-      el->delete_port(i);
+      el->delete_port(ports[i]);
     }
   }
 
@@ -347,15 +352,12 @@ Label::Label(
     : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
 {
   menu = new Fl_Menu_Item[4];
-  menu[0] = Fl_Menu_Item{"invert",
-                         port_menu::noshortcut,
-                         invert_elem,
-                         this,
-                         port_menu::noflag,
-                         port_menu::labeltype,
-                         port_menu::labelfont,
-                         port_menu::labelsize,
+  menu[0] = Fl_Menu_Item{"inversion",          port_menu::noshortcut,
+                         invert_elem,          this,
+                         port_menu::noflag,    port_menu::labeltype,
+                         port_menu::labelfont, port_menu::labelsize,
                          port_menu::labelcolor};
+
   menu[1] = Fl_Menu_Item{"delete all links",    port_menu::noshortcut,
                          delete_all_elem_links, this,
                          port_menu::noflag,     port_menu::labeltype,
@@ -389,6 +391,21 @@ void Label::draw()
     fl_color(FL_BLACK);
     fl_line_style(0, 2);
     fl_rect(x() + 4, y() + 4, w() - 8, h() - 8);
+  }
+  if (logic_elem->is_inverted())
+  {
+    fl_color(FL_BLACK);
+    fl_line_style(0, 2);
+
+    fl_begin_polygon();
+    fl_circle(x() + w() - w() / 11, y() + h() / 2, w() / 11);
+    fl_end_polygon();
+
+    fl_color(FL_WHITE);
+    fl_line_style(0, 2);
+    fl_begin_loop();
+    fl_circle(x() + w() - w() / 10, y() + h() / 2, w() / 10);
+    fl_end_loop;
   }
 }
 
@@ -425,7 +442,7 @@ void Element::draw()
 
 void Element::invert()
 {
-  output_port->inverted = !(output_port->inverted);
+  output_port->invert();
   redraw();
 }
 
@@ -583,14 +600,11 @@ Port::Port(int x, int y, int w, int h, port_types t, const char* l)
 {
   type = t;
   menu = new Fl_Menu_Item[3];
-  menu[0] = Fl_Menu_Item{"invert",
-                         port_menu::noshortcut,
-                         invert_port,
-                         this,
-                         port_menu::noflag,
-                         port_menu::labeltype,
-                         port_menu::labelfont,
-                         port_menu::labelsize,
+  // TODO: make if-else to swap from "invert" to "uninvert"
+  menu[0] = Fl_Menu_Item{"inversion",          port_menu::noshortcut,
+                         invert_port,          this,
+                         port_menu::noflag,    port_menu::labeltype,
+                         port_menu::labelfont, port_menu::labelsize,
                          port_menu::labelcolor};
   menu[1] = Fl_Menu_Item{"delete",
                          port_menu::noshortcut,

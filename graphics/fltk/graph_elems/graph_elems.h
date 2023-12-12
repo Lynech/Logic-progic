@@ -50,6 +50,8 @@ private:
 
   bool is_entered = false;
 
+  bool inverted = false;
+
 public:
   Port(int x, int y, int w, int h, port_types t, const char* l = 0);
 
@@ -57,7 +59,6 @@ public:
   int handle (int event) override;
 
   // TODO добавить метод change inverted
-  bool inverted = false;
 
   // TODO ;  /// добавить изменения в draw() у Elem
 
@@ -68,6 +69,10 @@ public:
   void add_link (Link* l) { links.push_back(l); }
 
   void delete_link_by_index (int i);
+
+  void invert () { inverted = !inverted; }
+
+  bool is_inverted () { return inverted; }
 };
 
 // ports callbacks
