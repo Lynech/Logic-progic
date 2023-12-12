@@ -93,17 +93,17 @@ public:
   }
 };
 
-class DrawingRes : public DrawingLogic
-{
-private:
+// class DrawingRes : public DrawingLogic
+// {
+// private:
 
-public:
-  DrawingRes(logic::Res* const elem_, const std::string& name_,
-             bool inverted_, int x_, int y_)
-      : DrawingLogic(elem_, name_, inverted_, x_, y_)
-  {
-  }
-};
+// public:
+//   DrawingRes(logic::Res* const elem_, const std::string& name_,
+//              bool inverted_, int x_, int y_)
+//       : DrawingLogic(elem_, name_, inverted_, x_, y_)
+//   {
+//   }
+// };
 
 class DrawingSrc : public DrawingElement
 
@@ -123,7 +123,8 @@ public:
   };
 };
 
-std::vector<DrawingElement*> read_file (const std::string& file_name);
+std::vector<DrawingElement*> read_file (const std::string& file_name,
+                                        LogicMap* map);
 void write_file (const std::string& file_name);
 
 #endif

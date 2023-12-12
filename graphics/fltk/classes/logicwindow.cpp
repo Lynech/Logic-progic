@@ -4,6 +4,8 @@
 
 Fl_File_Chooser* file_choose;
 
+LogicMap* map_ptr = nullptr;
+
 void open_cb (Fl_Widget*, void*)
 {
   file_choose->show();
@@ -12,7 +14,8 @@ void open_cb (Fl_Widget*, void*)
   if (file_choose->count() == 1)
   {
     std::string file_name = file_choose->value();
-    std::vector<DrawingElement*> sheme = read_file(file_name);
+    std::vector<DrawingElement*> sheme = read_file(file_name, map_ptr);
+    std::cout << "here\n";
   }
 }
 
@@ -34,10 +37,15 @@ LogicWindow::LogicWindow() : Fl_Window{50, 50, 900, 620, "LOGIC"}
   map_box = new Fl_Box{FL_BORDER_BOX, 5, 25, 690, 590, ""};
 
   map = new LogicMap{10, 30, 680, 580};
+
+  map_ptr = map;
+
   map->end();
 
   elems_box = new Fl_Box{FL_BORDER_BOX, 700, 25, 195, 590, ""};
+
   elems = new ElemList{705, 30, 185, 580, map->map()};
+
   /////////////////////////////////////////////////////////
   elems->end();
   color(FL_MAGENTA);

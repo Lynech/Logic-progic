@@ -10,12 +10,12 @@ LogicMap::LogicMap(int x, int y, int w, int h, const char* l)
   color(FL_WHITE);
 };
 
-int LogicMap::handle(int x)
-{
-  if (x == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
-  {
-    return map_group->handle(x);
-  }
-  else
-    return Fl_Scroll::handle(x);
-}
+// int LogicMap::handle(int x)
+// {
+//   if (x == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
+//   {
+//     return map_group->handle(x);
+//   }
+//   else
+//     return Fl_Scroll::handle(x);
+// }

@@ -1,4 +1,6 @@
+#include "add_elem_impl.h"
 #include "drawing_elems.h"
+#include "mapgroup.h"
 
 std::vector<DrawingElement*> sheme;
 
@@ -47,6 +49,7 @@ std::string is_valid_logic_elem (std::string str)
   return "";
 }
 
+// Функция, которая проверяет, принадлежит ли файл нашей грамматике
 std::string is_valid_file (const std::string& file_name)
 try
 {
@@ -124,7 +127,8 @@ catch (const std::exception& e)
   return "syntax error";
 }
 
-std::vector<DrawingElement*> read_file (const std::string& file_name)
+std::vector<DrawingElement*> read_file (const std::string& file_name,
+                                        LogicMap* map)
 {
   std::string what_err = is_valid_file(file_name);
   if (what_err != "")
@@ -156,48 +160,60 @@ std::vector<DrawingElement*> read_file (const std::string& file_name)
       f >> str;
       int yy = stoi(str);
       DrawingElement* temp;
-      if (what_el == TypeElement::SRC)
-        temp = new DrawingSrc{new logic::Src, name, inverted, xx, yy};
-      else if (what_el == TypeElement::OR)
-        temp = new DrawingOr{new logic::Or, name, inverted, xx, yy};
+      // if (what_el == TypeElement::SRC)
+      //   temp = new DrawingSrc{new logic::Src, name, inverted, xx, yy};
+      if (what_el == TypeElement::OR)
+      {
+        graph::Or* elem = new graph::Or{0, 0};
+        add_elem2<graph::Or>(elem, map, xx, yy);
+      }
+      // temp = new DrawingOr{new logic::Or, name, inverted, xx, yy};
       else if (what_el == TypeElement::AND)
-        temp = new DrawingAnd{new logic::And, name, inverted, xx, yy};
-      else if (what_el == TypeElement::BUFF)
-        temp = new DrawingBuff{new logic::Buff, name, inverted, xx, yy};
-      else if (what_el == TypeElement::RES)
-        temp = new DrawingRes{new logic::Res, name, inverted, xx, yy};
+      {
+        graph::And* elem = new graph::And{0, 0};
+        add_elem2<graph::And>(elem, map, xx, yy);
+      }
+      // temp = new DrawingAnd{new logic::And, name, inverted, xx, yy};
+      // else if (what_el == TypeElement::BUFF)
+      // {
+      //   graph::Buff* temp = new graph::Buff{xx, yy, };
+      //   add_elem<graph::Buff>(temp, map);
+      // }
+      // temp = new DrawingBuff{new logic::Buff, name, inverted, xx, yy};
+      // else if (what_el == TypeElement::RES)
+      //   temp = new DrawingRes{new logic::Res, name, inverted, xx, yy};
       sheme.push_back(temp);
     }
     f >> str;
   }
-  while (f)
-  {
-    f >> str;
-    int elpos = get_pos(str);
-    if (elpos != -1)
-    {
-      f >> str;
-      while (str != ".")
-      {
-        f >> str;
-        if (str == "~")
-        {
-          f >> str;
-          int input_elpos = get_pos(str);
-          if (input_elpos != -1)
-            *(sheme[input_elpos]->get_element()) >>
-                ~*(sheme[elpos]->get_element());
-        }
-        else
-        {
-          int input_elpos = get_pos(str);
-          if (input_elpos != -1)
-            *(sheme[elpos]->get_element())
-                << *(sheme[input_elpos]->get_element());
-        }
-      }
-    }
-  }
+  // while (f)
+  // {
+  //   f >> str;
+  //   int elpos = get_pos(str);
+  //   if (elpos != -1)
+  //   {
+  //     f >> str;
+  //     while (str != ".")
+  //     {
+  //       f >> str;
+  //       if (str == "~")
+  //       {
+  //         f >> str;
+  //         int input_elpos = get_pos(str);
+  //         if (input_elpos != -1)
+  //           *(sheme[input_elpos]->get_element()) >>
+  //               ~*(sheme[elpos]->get_element());
+  //       }
+  //       else
+  //       {
+  //         int input_elpos = get_pos(str);
+  //         if (input_elpos != -1)
+  //           *(sheme[elpos]->get_element())
+  //               << *(sheme[input_elpos]->get_element());
+  //       }
+  //     }
+  //   }
+  // }
   f.close();
   return sheme;
 }

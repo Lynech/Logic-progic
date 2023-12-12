@@ -10,9 +10,9 @@ const std::string& DrawingElement::get_name() { return name; }
 
 logic::Logic* DrawingLogic::get_element() { return elem; }
 
-std::vector<logic::spec::Input_element> DrawingLogic::get_input_elems()
-{
-  return get_element()->get_input_elements();
-}
+// std::vector<logic::spec::Input_element> DrawingLogic::get_input_elems()
+// {
+//   return get_element()->get_input_elements();
+// }
 
 logic::Element* DrawingElement::get_element() { return elem; }

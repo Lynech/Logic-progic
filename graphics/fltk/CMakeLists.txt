@@ -9,6 +9,7 @@ find_package(OpenGL REQUIRED)
 set(HEADERS
     classes/fltk.h
     graph_elems/graph_elems.h
+    classes/drawing_elems.h
     classes/mapgroup.h
     classes/logicmap.h
     classes/elemlist.h
@@ -25,6 +26,8 @@ set(SOURCES
     classes/elemlist.cpp
     classes/createbutton.cpp
     classes/logicwindow.cpp
+    classes/functions.cpp
+    classes/drawing_elems.cpp
     ${LIB_DIR}/logic_elems/logic_elems.cpp
 )
 
