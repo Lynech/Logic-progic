@@ -87,9 +87,14 @@ void delete_all_elem_links (Fl_Widget*, void* userdata)
   el->delete_port(output_port);
 }
 
-void delete_elem (Fl_Widget*, void* userdata)
+void delete_elem (Fl_Widget* a, void* userdata)
 {
   Label* l = (Label*)userdata;
+  // удаляем связи
+  // l->call(delete_all_elem_links);
+  // удаляем Element
+  Fl::delete_widget(l->parent());
+  Fl::do_widget_deletion();
 }
 
 // конструктор класса Link
