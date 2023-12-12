@@ -147,7 +147,7 @@ int Logic ::remove_sorse(Element* src, bool inverted)
   return 0;
 }
 
-Src::Src(Label* l, bool value_ = 0) : Element{l} { set_value(value_); }
+Src::Src(Label* l, bool value_) : Element{l} { set_value(value_); }
 
 // Src::Src() { set_value(0); }
 

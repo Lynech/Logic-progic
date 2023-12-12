@@ -256,7 +256,7 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
     : Element{x, y, h, w, "no_input"}
 {
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->logic_elem = new logic::Src{draw_elem};
   draw_elem->set_value(logic::Value::False);
   input_ports = {};
 
@@ -270,7 +270,7 @@ Src1::Src1(int x, int y, int h, int w, const char* l)
 {
   inputs_n = 0;
   outputs_n = 1;
-  draw_elem->logic_elem = new logic::Src{};
+  draw_elem->logic_elem = new logic::Src{draw_elem};
   draw_elem->set_value(logic::Value::True);
   input_ports = {};
 

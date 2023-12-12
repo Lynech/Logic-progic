@@ -35,7 +35,7 @@ logic::Value operator!(logic::Value value);
 class logic::Element
 {
 protected:
-  Label* logic_elem{nullptr};
+  Label* elem{nullptr};
   bool inverted{0};
   Value value{Value::Undef};
   void add_dependings (logic::Logic& t);
@@ -57,7 +57,7 @@ public:
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
 
-  Element(Label* logic_elem) { this->logic_elem = logic_elem; }
+  Element(Label* elem) { this->elem = elem; }
 };
 
 class logic::Logic : public logic::Element
@@ -118,7 +118,7 @@ private:
 
 public:
   // Src();
-  Src(Label* l, bool value_);
+  Src(Label* l, bool value_ = 0);
   void set_value (bool value_);
 
   // void calculate_value () override;
