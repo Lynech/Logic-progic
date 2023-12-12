@@ -37,12 +37,15 @@ protected:
   void add_dependings (logic::Logic* t);
 
 public:
+  void invert ();
   std::vector<logic::Logic*> dependings;
   Value get_value () const;
   void calculate_dependings ();
-  void remove_depending (logic::Logic* t);
-  // virtual void calculate_value () = 0;
 
+  // void remove_depending (logic::Logic* t);
+  // virtual void calculate_value () { value = inverted ? !value : value; }
+
+  void reset_dependings ();
   Element& operator!();
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
@@ -54,15 +57,18 @@ private:
   bool inverse_input{0};
 
 protected:
-  std::vector<logic::spec::Input_element> arg_vec;
+  // std::vector<logic::spec::Input_element> arg_vec;
 
 public:
+  std::vector<logic::spec::Input_element> arg_vec;
   Logic& operator~();
   virtual void calculate_value () = 0;
   void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
   void reset_sorses ();
-  void remove_sorse (Element* src);
+  void remove_occurences_sourses (Element* src);
+  int remove_sorse (Element* src, bool inverted);
+  void invert_sorse (Element* src, bool inverted);
 };
 
 class logic::And : public logic::Logic
@@ -122,13 +128,19 @@ private:
 
 public:
   Value get_value () const;
-  void remove (logic::Logic*);
+  // void remove (logic::Logic*);
   Input_element() : arg{nullptr}, inverted{0} {};
   Input_element(const logic::spec::Input_element& elem)
       : arg{elem.arg}, inverted{elem.inverted} {};
   Input_element(logic::Element* arg_) : arg{arg_}, inverted{0} {};
   Input_element(logic::Element* arg_, bool inverted_)
       : arg{arg_}, inverted{inverted_} {};
+
+  logic::Element* get_arg () { return arg; }
+
+  bool is_inverted () { return inverted; }
+
+  void change_invertion () { inverted = (!inverted); }
 };
 
 #endif
