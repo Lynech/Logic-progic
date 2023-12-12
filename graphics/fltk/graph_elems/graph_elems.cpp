@@ -22,7 +22,18 @@ void* nouserdata = nullptr;
 void invert_port (Fl_Widget*, void* userdata)
 {
   Port* l_c = (Port*)userdata;
-  l_c->invert();
+  Label* label = ((Element*)(l_c->parent()))->get_draw_elem();
+
+  if (l_c->get_type() == port_types::input)
+  {
+    l_c->invert();
+  }
+  else
+  {
+    logic::Element* log_el = label->logic_elem;
+    log_el->invert();
+  }
+  label->redraw();
 }
 
 void delete_through_port (Fl_Widget*, void* userdata)
@@ -392,6 +403,8 @@ void Label::draw()
     fl_line_style(0, 2);
     fl_rect(x() + 4, y() + 4, w() - 8, h() - 8);
   }
+
+  // рисуем инвертированность выхода
   if (logic_elem->is_inverted())
   {
     fl_color(FL_BLACK);
@@ -406,6 +419,29 @@ void Label::draw()
     fl_begin_loop();
     fl_circle(x() + w() - w() / 10, y() + h() / 2, w() / 10);
     fl_end_loop;
+  }
+
+  // рисуем инвертированность входа
+  Element* par = (Element*)(this->parent());
+  std::vector<Port*> input_ports = par->get_input_ports();
+
+  for (int i = 0; i < input_ports.size(); i++)
+  {
+    if (input_ports[i]->is_inverted())
+    {
+      fl_color(FL_BLACK);
+      fl_line_style(0, 2);
+
+      fl_begin_polygon();
+      fl_circle(x() + w() / 11, y() + h() / 2, w() / 11);
+      fl_end_polygon();
+
+      fl_color(FL_WHITE);
+      fl_line_style(0, 2);
+      fl_begin_loop();
+      fl_circle(x() + w() / 10, y() + h() / 2, w() / 10);
+      fl_end_loop;
+    }
   }
 }
 
