@@ -153,7 +153,7 @@ void Element::add_input_port_nodraw()
             << w() << std::endl
             << h();
   this->resize(x(), y(), w(),
-               (h()) * (n + 3) /
+               (h()) * (n + 2) /
                    (n + 1));  // пропорционально увеличили всю группу
 
   int circle_w = this->w();
