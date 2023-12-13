@@ -40,12 +40,13 @@ enum class port_types
 };
 class Link;
 
+//// Все что связано с классом #Port vvvvvvvvvvvvvvvvvvvvvvvvv
 // класс кружочков связи
 class Port : public Fl_Widget
 {
 private:
-  port_types type;
-  std::vector<Link*> links{};
+  port_types type;           //
+  std::vector<Link*> links;  //
   Fl_Menu_Item* menu;
 
   bool is_entered = false;
@@ -56,19 +57,16 @@ public:
   Port(int x, int y, int w, int h, port_types t, const char* l = 0);
 
   void draw () override;
+
   int handle (int event) override;
 
-  // TODO добавить метод change inverted
+  port_types get_type () { return type; }  //
 
-  // TODO ;  /// добавить изменения в draw() у Elem
+  std::vector<Link*> get_links () { return links; }  //
 
-  port_types get_type () { return type; }
+  void add_link (Link* l) { links.push_back(l); }  //
 
-  std::vector<Link*> get_links () { return links; }
-
-  void add_link (Link* l) { links.push_back(l); }
-
-  void delete_link_by_index (int i);
+  void delete_link_by_index (int i);  //
 
   void invert () { inverted = !inverted; }
 
@@ -79,14 +77,49 @@ public:
 void invert_port (Fl_Widget*, void* userdata);
 void delete_through_port (Fl_Widget*, void* userdata);
 
-// elems callbacks
-void invert_elem (Fl_Widget*, void* userdata);
-void delete_elem (Fl_Widget*, void* userdata);
-void delete_all_elem_links (Fl_Widget*, void* userdata);
+// --------------------------------------------------------------
+// class InputPort : public Port
+// {
+// private:
+//   Link* link;
 
-// доделать
+// public:
+//   InputPort(int x, int y, int w, int h, const char* l = 0);
+
+//   Link* get_link () { return link; }
+
+//   void set_link (Link* l) { link = l; }
+
+//   void delete_link ();
+// };
+
+// class OutportPort : public Port
+// {
+// private:
+//   std::vector<Link*> links;
+
+// public:
+//   OutportPort(int x, int y, int w, int h, const char* l = 0);
+
+//   std::vector<Link*> get_links () { return links; }
+
+//   void push_link (Link* l) { links.push_back(l); }
+
+//   void delete_link_by_index (int i);
+// };
+
+// void invert_output_port (Fl_Widget*, void* userdata);
+// void delete_output_linkS (Fl_Widget*, void* userdata);
+
+// void delete_input_link (Fl_Widget*, void* userdata);
+// void delete_input_port (Fl_Widget*, void* userdata);
+// void invert_input_port (Fl_Widget*, void* userdata);
+
+//// Все что связано с классом ##Port ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//// Все что связано с классом #Link vvvvvvvvvvvvvvvvvvvvvvvvv
+// доделать -- нияз: что доделать?
 // класс связи
-// class Element;
 class Link : public Fl_Widget
 {
 private:
@@ -101,12 +134,19 @@ public:
   Port* get_input_port () { return input_port; }
 
   Port* get_output_port () { return output_port; }
+
+  // logic::Element* get_output_element () {return...
+  // ...output_port->parent()->get_draw_elem()->logic_elem} типа того
 };
 
+//// Все что связано с классом ##Link ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//// Все что связано с классом #Label vvvvvvvvvvvvvvvvvvvvvvvvv
+// Класс фигурки для отрисовки (содержит логику)
 class Label : public Fl_Widget
 {
 protected:
-  logic::Value value{logic::Value::Undef};
+  // logic::Value value{logic::Value::Undef};
   bool is_entered = false;
   Fl_Menu_Item* menu{nullptr};
 
@@ -121,47 +161,46 @@ public:
 
   void draw () override;
 
-  void set_value (logic::Value value_) { value = value_; }
+  // void set_value (logic::Value value_) { value = value_; }
 
   int handle (int event) override;
 
   void delete_all_links ();
+
+  // TODO: удалить:
   // LinkCircle* get_start_circle {return start_circle;}
 
   // LinkCircle* get_end_circle {return end_circle;}
 };
 
-void callback4logic (void* lable);
+//// Все что связано с классом #Label ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-// абстрактный класс для всех элементов
+//// Все что связано с классом #Element vvvvvvvvvvvvvvvvvvvvvvvvv
+// абстрактный класс для всех элементов (графическая часть логики)
 class graph::Element : public Fl_Group
 {
 private:
-  // logic::Value get_value () { return elem->get_value(); }
-
-  logic::Value get_value () { return logic::Value::Undef; }
-
-  void set_value (logic::Value val) { draw_elem->set_value(val); }
+  // TODO удалить:
+  // void set_value (logic::Value val);
 
   int elem_link_lenth{20};
   int line_thikness{2};
 
 protected:
-  // // убрать input_links output_links
-  // std::vector<Link*> input_links{0};
-  // std::vector<Link*> output_links{0};
-
   // единственный выход:
   Port* output_port;
   // мно-во входов
   std::vector<Port*> input_ports;
 
   // фигурка
-  Label* draw_elem;
-  int inputs_n{0};
+  Label* draw_elem;  // TODO: ПЕРЕИМЕНОВАТЬ В figure или т.п.
+  int inputs_n;
   Fl_Menu_Item* menu{nullptr};
 
 public:
+  Element(int x = 50, int y = 50, int w = 50, int h = 50, int inputs_n = 0,
+          const char* l = 0);
+
   Label* get_draw_elem () { return draw_elem; }
 
   void set_lable (
@@ -170,18 +209,13 @@ public:
     draw_elem->Label_draw_ = label_draw;
   }
 
-  Element(int x = 50, int y = 50, int w = 50, int h = 50, int inputs_n = 0,
-          const char* l = 0);
-
-  // Element(Element&) = delete;
-
   // void add_input_link (Link* link) { input_links.push_back(link); }
 
   // void add_output_link (Link* link) { output_links.push_back(link); }
 
   void add_input_port ();
 
-  void add_input_port_pre ();
+  void add_input_port_nodraw ();
 
   int handle (int x) override;
 
@@ -189,18 +223,35 @@ public:
 
   void delete_port (Port* l_c);
 
-  // void resize(int x, int y, int w, int h) override
-  // {
+  // void delete_link (Port* l_c); TODO: СДЕЛАТЬ!!!
 
-  //   draw_elem->resize(x+2*w/9, y, w/9*5, h);
-  //   redraw();
-  // }
   std::vector<Port*> get_input_ports () { return input_ports; }
 
   Port* get_output_port () { return output_port; }
 
   virtual void invert ();
 };
+
+// callback для перерисовки фигурки Label в graph::Element
+void callback4logic (void* lable);
+
+// elems callbacks
+void invert_elem (Fl_Widget*, void* userdata);
+void delete_elem (Fl_Widget*, void* userdata);
+void delete_all_elem_links (Fl_Widget*, void* userdata);
+
+//// Все что связано с классом ##Element ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+//// Все что связано с классами элементов vvvvvvvvvvvvvvvvvvvvvvvvv
+// функции для отрисовки рисунков на элементах
+void draw_and (int x, int y, int w, int h,
+               logic::Value = logic::Value::False);
+void draw_buff (int x, int y, int w, int h,
+                logic::Value = logic::Value::False);
+void draw_or (int x, int y, int w, int h,
+              logic::Value = logic::Value::False);
+void draw_src0 (int x, int y, int w, int h, logic::Value value);
+void draw_src1 (int x, int y, int w, int h, logic::Value value);
 
 // класс для элемента Source
 class graph::Src0 : public graph::Element
@@ -236,16 +287,5 @@ class graph::Or : public Element
 public:
   Or(int x, int y, int fr_size = 50, int h = 0, const char* l = 0);
 };
-
-void draw_and (int x, int y, int w, int h,
-               logic::Value = logic::Value::False);
-
-void draw_buff (int x, int y, int w, int h,
-                logic::Value = logic::Value::False);
-
-void draw_or (int x, int y, int w, int h,
-              logic::Value = logic::Value::False);
-void draw_src0 (int x, int y, int w, int h, logic::Value value);
-void draw_src1 (int x, int y, int w, int h, logic::Value value);
 
 #endif
