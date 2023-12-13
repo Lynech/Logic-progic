@@ -56,6 +56,7 @@ public:
 
   void reset_dependings ();
   Element& operator!();
+  virtual Element& operator~() = 0;
   virtual void add_sorce (logic::Element& t) = 0;
   virtual void add_sorce (logic::Element* t) = 0;
   virtual void reset_sorses () = 0;
@@ -89,7 +90,7 @@ public:
   }
 
   std::vector<logic::spec::Input_element> arg_vec;
-  Logic& operator~();
+  Element& operator~() override;
   virtual void calculate_value () = 0;
   void add_sorce (logic::Element& t) override;
   void add_sorce (logic::Element* t) override;
@@ -173,6 +174,11 @@ public:
   void invert_sorse (Element* src, bool inverted) override
   {
     throw std::runtime_error("src has no sources");
+  }
+
+  virtual Element& operator~() override
+  {
+    throw std::runtime_error("src has no sources to invert");
   }
 
   // void calculate_value () override;

@@ -191,7 +191,7 @@ Element& operator<< (Element& a, Element& b)
   return a;
 }
 
-Logic& Logic::operator~()
+Element& Logic::operator~()
 {
   inverse_input = !inverse_input;
   return *this;

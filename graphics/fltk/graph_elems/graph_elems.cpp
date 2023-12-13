@@ -415,7 +415,10 @@ int Port::handle(int event)
       logic::Element* out_log_el =
           ((graph::Element*)(out_p->parent()))->get_draw_elem()->logic_elem;
       // Установили связь
-      *out_log_el >> *in_log_el;
+      if (in_p->is_inverted())
+        (*out_log_el) >> ~(*in_log_el);
+      else
+        (*out_log_el) >> (*in_log_el);
     }
 
     map->add(l);
