@@ -68,6 +68,12 @@ public:
 
   void delete_link_by_index (int i);  //
 
+  int release_handle ();  //
+
+  Port* find_port ();  //
+
+  bool linked ();  //
+
   void invert () { inverted = !inverted; }
 
   bool is_inverted () { return inverted; }
@@ -239,6 +245,7 @@ void callback4logic (void* lable);
 void invert_elem (Fl_Widget*, void* userdata);
 void delete_elem (Fl_Widget*, void* userdata);
 void delete_all_elem_links (Fl_Widget*, void* userdata);
+void add_port (Fl_Widget* w, void* userdata);
 
 //// Все что связано с классом ##Element ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

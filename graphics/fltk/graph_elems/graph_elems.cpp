@@ -140,7 +140,8 @@ void Element::add_input_port()
   if (inputs_n < 0)
   {
     add_input_port_nodraw();
-    redraw();
+    // если закомментировать, предположительно перестенет мерцать
+    //  redraw();
     window()->redraw();
   }
 }
@@ -302,20 +303,18 @@ void Port::draw()
 {
   fl_color(16);
   fl_line_style(0, 4);
-  fl_pie(x(), y(), w(), h(), 0., 360.);
+  fl_pie(x(), y(), w(), h(), 0, 360);
   if (is_entered)
   {
     fl_color(FL_BLACK);
     fl_line_style(0, 2);
-    fl_arc(x(), y(), w(), h(), 0., 360.);
+    fl_arc(x(), y(), w(), h(), 0, 360);
   }
 }
 
 // обработка взаимодействий с объектом класса LinkCircle
 int Port::handle(int event)
 {
-
-  int x_ = x(), y_ = y(), w_ = w(), h_ = h();
   switch (event)
   {
   case FL_PUSH:
@@ -339,104 +338,102 @@ int Port::handle(int event)
     return 1;
   case FL_RELEASE:
   {
-    // элемент (группа), которому принадлежит этот порт
-    graph::Element* this_elem_group = (graph::Element*)this->parent();
-    MapGroup* map = (MapGroup*)this_elem_group->parent();
-    int n = map->children();
-
-    graph::Element* elem_group;
-    Port* p;
-
-    bool needed_found = false;
-    for (int i = 0; i < n && !needed_found; i++)
-    {
-      // взяли элемент (группа)
-      elem_group = dynamic_cast<graph::Element*>(map->child(i));
-      // кол-во сущностей в элементе
-      if (elem_group != nullptr)
-      {
-        int n1 = elem_group->children();
-        for (int j = 0; j < n1 && !needed_found; j++)
-        {
-          // взяли сущность в надежде что она порт
-          p = dynamic_cast<Port*>(elem_group->child(j));
-          // проверяем, что это порт, он нужного типа и что наведение на
-          // него
-          if ((p != nullptr) && (p != this) && (Fl::event_inside(p)) &&
-              (p->type != this->type) &&
-              ("вход не занят"))  // TODO: проверка занятости входа
-          {
-            needed_found = true;
-            break;
-          }
-        }
-      }
-    }
-    if (!needed_found)
-      return 1;
-    // определяем, из какого выходит связь и в какой входит
-    graph::Element* input_el;
-    graph::Element* output_el;
-    if (this->type == port_types::input)
-    {
-      // ведем связь из this в p -> нужно добавить еще один вход в
-      // элемент порта
-      input_el = (graph::Element*)this->parent();
-      output_el = (graph::Element*)p->parent();
-    }
-    else
-    {
-      // ведем связь из p в this -> нужно добавить в еще один вход в
-      // элемент порта
-      output_el = (graph::Element*)this->parent();
-      input_el = (graph::Element*)p->parent();
-    }
-    Link* l = new Link{p, this};
-    input_el->add_input_port();
-
-    // добавляем связи в порты
-    this->add_link(l);
-    p->add_link(l);
-
-    {  // add link to logic
-      Port *in_p, *out_p;
-      if (this->get_type() == port_types::input)
-      {
-        in_p = this;
-        out_p = p;
-      }
-      else
-      {
-        in_p = p;
-        out_p = this;
-      }
-      logic::Element* in_log_el =
-          ((graph::Element*)(in_p->parent()))->get_draw_elem()->logic_elem;
-      logic::Element* out_log_el =
-          ((graph::Element*)(out_p->parent()))->get_draw_elem()->logic_elem;
-      // Установили связь
-      if (in_p->is_inverted())
-        (*out_log_el) >> ~(*in_log_el);
-      else
-        (*out_log_el) >> (*in_log_el);
-    }
-
-    map->add(l);
-
-    l->redraw();
-
-    // input_el->add_input_link(l);
-    // output_el->add_output_link(l);
-
-    input_el->redraw();
-    output_el->redraw();
-
-    is_entered = false;
-    return 1;
+    return release_handle();
   }
   default:
     return Fl_Widget::handle(event);
   }
+}
+
+int Port::release_handle()
+{  // элемент (группа), которому принадлежит этот порт
+  graph::Element* this_elem_group = (graph::Element*)this->parent();
+  MapGroup* map = (MapGroup*)this_elem_group->parent();
+  int n = map->children();
+
+  Port* p = find_port();
+  if (!p)
+    return 1;
+
+  Link* l = new Link{p, this};
+
+  graph::Element* input_el = nullptr;
+  if (this->type == port_types::input)
+  {
+    input_el = (graph::Element*)(this->parent());
+  }
+  else
+  {
+    input_el = (graph::Element*)(p->parent());
+  }
+  // закоментировал, чтобы пользователь мог сам добавлять порты, когда
+  // захочет
+  input_el->add_input_port();
+
+  // добавляем связи в порты
+  // this->add_link(l);
+  // p->add_link(l);
+
+  map->add(l);
+
+  // l->redraw();
+
+  // // input_el->add_input_link(l);
+  // // output_el->add_output_link(l);
+
+  // input_el->redraw();
+  // output_el->redraw();
+  window()->redraw();
+
+  is_entered = false;
+  return 1;
+}
+
+Port* Port::find_port()
+{
+  graph::Element* this_elem_group = (graph::Element*)this->parent();
+  MapGroup* map = (MapGroup*)this_elem_group->parent();
+  int n = map->children();
+
+  Port* p;
+
+  graph::Element* elem_group;
+  // bool needed_found = false;
+  for (int i = 0; i < n; i++)
+  {
+    // взяли элемент (группа)
+    elem_group = dynamic_cast<graph::Element*>(map->child(i));
+    // кол-во сущностей в элементе
+    if (elem_group != nullptr && (Fl::event_inside(elem_group)))
+    {
+      int n1 = elem_group->children();
+      for (int j = 0; j < n1; j++)
+      {
+        // взяли сущность в надежде что она порт
+        p = dynamic_cast<Port*>(elem_group->child(j));
+        // проверяем, что это порт, он нужного типа и что наведение на
+        // него
+        if ((p != nullptr) && (Fl::event_inside(p)))
+        {
+          if ((p->type == this->type) || (p->linked()))
+            return nullptr;
+          return p;
+        }
+      }
+    }
+  }
+  return nullptr;
+}
+
+bool Port::linked()
+{
+  bool res = 0;
+  for (int i = 0; i < links.size() && !res; i++)
+  {
+    if (links[i])
+      res = 1;
+  }
+  return res;
 }
 
 void Port::delete_link_by_index(int i)
@@ -499,6 +496,22 @@ Link::Link(Port* c1, Port* c2)
   {
     output_port = c1;
     input_port = c2;
+  }
+  c1->add_link(this);
+  c2->add_link(this);
+  {  // add link to logic
+
+    logic::Element* in_log_el = ((graph::Element*)(input_port->parent()))
+                                    ->get_draw_elem()
+                                    ->logic_elem;
+    logic::Element* out_log_el = ((graph::Element*)(output_port->parent()))
+                                     ->get_draw_elem()
+                                     ->logic_elem;
+    // Установили связь
+    if (input_port->is_inverted())
+      (*out_log_el) >> ~(*in_log_el);
+    else
+      (*out_log_el) >> (*in_log_el);
   }
 }
 
@@ -685,7 +698,7 @@ Label::Label(
     std::function<void(int, int, int, int, logic::Value)> Label_draw)
     : Label_draw_{Label_draw}, Fl_Widget{x, y, w, h, l}
 {
-  menu = new Fl_Menu_Item[4];
+  menu = new Fl_Menu_Item[5];
   menu[0] = Fl_Menu_Item{"inversion",          port_menu::noshortcut,
                          invert_elem,          this,
                          port_menu::noflag,    port_menu::labeltype,
@@ -703,10 +716,27 @@ Label::Label(
                          port_menu::labelfont, port_menu::labelsize,
                          port_menu::labelcolor};
 
-  menu[3] = Fl_Menu_Item{
+  menu[3] = Fl_Menu_Item{"add port",
+                         port_menu::noshortcut,
+                         add_port,
+                         this,
+                         port_menu::noflag,
+                         port_menu::labeltype,
+                         port_menu::labelfont,
+                         port_menu::labelsize,
+                         port_menu::labelcolor};
+
+  menu[4] = Fl_Menu_Item{
       port_menu::endmenu,    port_menu::noshortcut, port_menu::nocallback,
       port_menu::nouserdata, port_menu::noflag,     port_menu::labeltype,
       port_menu::labelfont,  port_menu::labelsize,  port_menu::labelcolor};
+}
+
+void add_port (Fl_Widget* w, void* userdata)
+{
+  Label* label = (Label*)userdata;
+  Element* elem = (Element*)(label->parent());
+  elem->add_input_port();
 }
 
 void Label::draw()
