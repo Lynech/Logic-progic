@@ -22,6 +22,7 @@ Value spec::Input_element::get_value() const
 void Element::calculate_dependings()
 {
   callback(lable);
+  std::cout << "wqertyuiop[qwertyuioptyertyioup[]]" << std::endl;
   std::vector<Value> depend_value;
   for (size_t i = 0; i < dependings.size(); i++)
   {
@@ -36,7 +37,7 @@ void Element::calculate_dependings()
 void And::calculate_value()
 {
   // std::cout << "\nbefore: " << value;
-  if (arg_vec.size() < 2)
+  if (arg_vec.size() < 1)
     // throw std::runtime_error("and must have >= 2 inputs");
     value = Value::Undef;
   else
@@ -59,7 +60,7 @@ void And::calculate_value()
 
 void Or::calculate_value()
 {
-  if (arg_vec.size() < 2)
+  if (arg_vec.size() < 1)
     // throw std::runtime_error("or must have >= 2 inputs");
     value = Value::Undef;
   else

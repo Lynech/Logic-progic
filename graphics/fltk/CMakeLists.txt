@@ -16,6 +16,11 @@ set(HEADERS
     classes/logicwindow.h
     classes/add_elem_impl.h
     graph_elems/logic_elems.h
+
+    graph_elems/graph_elem.h
+    graph_elems/graph_label.h
+    graph_elems/graph_link.h
+    graph_elems/graph_port.h
     # ${LIB_DIR}/logic_elems/logic_elems.h
 )
 set(SOURCES
@@ -27,12 +32,18 @@ set(SOURCES
     classes/createbutton.cpp
     classes/logicwindow.cpp
     graph_elems/logic_elems.cpp
+
+    
+    graph_elems/graph_elem.cpp
+    graph_elems/graph_label.cpp
+    graph_elems/graph_link.cpp
+    graph_elems/graph_port.cpp
     # ${LIB_DIR}/logic_elems/logic_elems.cpp
 )
 
 add_library(my_lib ${HEADERS} ${SOURCES})
 
-target_precompile_headers(my_lib PRIVATE graph_elems/graph_elems.h graph_elems/logic_elems.h)
+# target_precompile_headers(my_lib PRIVATE graph_elems/graph_elems.h graph_elems/logic_elems.h)
 target_precompile_headers(my_lib PUBLIC ${HEADERS})
 
 target_include_directories(

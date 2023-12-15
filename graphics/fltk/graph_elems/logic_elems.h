@@ -156,10 +156,7 @@ public:
       void* lable = nullptr, bool value_ = 0);
   void set_value (bool value_);
 
-  void reset_sorses () override
-  {
-    throw std::runtime_error("src has no sources");
-  }
+  void reset_sorses () override { return; }
 
   void remove_occurences_sourses (Element* src) override
   {
