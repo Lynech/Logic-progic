@@ -24,6 +24,7 @@ private:
   int line_thikness{2};
 
 protected:
+  std::string type;
   // единственный выход:
   Port* output_port;
   // мно-во входов
@@ -53,6 +54,8 @@ public:
   void draw () override;
 
   int delete_port (Port* l_c);
+
+  const std::string get_type () { return type; }
 
   // void delete_link (Port* l_c); TODO: СДЕЛАТЬ!!!
 

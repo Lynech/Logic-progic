@@ -771,6 +771,7 @@ void delete_input_port (Fl_Widget* w, void* userdata)
 Src0::Src0(int x, int y, int h, int w, const char* l)
     : Element{x, y, h, w, 0}
 {
+  type = "src0";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 0);
   // draw_elem->set_value(logic::Value::False);
   // input_ports = {};
@@ -783,6 +784,7 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
 Src1::Src1(int x, int y, int h, int w, const char* l)
     : Element{x, y, h, w, 0}
 {
+  type = "src1";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 1);
   // draw_elem->set_value(logic::Value::True);
   // input_ports = {};
@@ -794,6 +796,7 @@ Src1::Src1(int x, int y, int h, int w, const char* l)
 And::And(int x, int y, int h, int w, const char* l)
     : Element{x, y, h, w, -2, l}
 {
+  type = "and";
   draw_elem->logic_elem = new logic::And{callback4logic, draw_elem};
   set_lable(draw_and);
 }
@@ -912,6 +915,7 @@ void add_port (Fl_Widget* w, void* userdata)
 Buff::Buff(int x, int y, int w, int h, const char* l)
     : Element{x, y, w, h, 1, l}
 {
+  type = "buff";
   draw_elem->logic_elem = new logic::Buff{callback4logic, draw_elem};
   set_lable(draw_buff);
 }
@@ -920,6 +924,7 @@ Buff::Buff(int x, int y, int w, int h, const char* l)
 Or::Or(int x, int y, int w, int h, const char* l)
     : Element{x, y, w, h, -2, l}
 {
+  type = "or";
   draw_elem->logic_elem = new logic::Or{callback4logic, draw_elem};
   set_lable(draw_or);
 }

@@ -44,6 +44,7 @@ Element::Element(int x_, int y_, int w_, int h_, int inputs_n_,
     : Fl_Group{x_ - w_ * 2 / 5, y_, w_ * 9 / 5, h_, l}, inputs_n{inputs_n_},
       elem_link_lenth{w_ * 2 / 5}, line_thikness{w_ / 25}
 {
+  type = "element";
   input_ports.clear();
   end();
   draw_elem = new Label{x_, y_, w_, h_};

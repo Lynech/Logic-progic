@@ -49,6 +49,10 @@ constexpr Fl_Callback* nocallback = nullptr;
 constexpr void* nouserdata = nullptr;
 };  // namespace port_menu
 
+// bool add_input (graph::Element E, graph::Element e) {
+
+// }
+
 // enum class port_types
 // {
 //   input = 0,
