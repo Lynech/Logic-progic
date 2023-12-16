@@ -21,11 +21,13 @@ void open_cb (Fl_Widget*, void*)
   }
 }
 
-Fl_Menu_Item MenuEng[] = {{"&File", 0, 0, 0, FL_SUBMENU},
-                          {"&Open", FL_CTRL + 'o', (Fl_Callback*)open_cb},
-                          {"&Save", FL_CTRL + 's', 0},
-                          {"&Delete", FL_CTRL + 'd', 0},
-                          {0}};
+Fl_Menu_Item MenuEng[] = {
+    {"&File", 0, 0, 0, FL_SUBMENU},
+    {"&Open", FL_CTRL + 'o', (Fl_Callback*)open_cb},
+    {"&Save as", FL_CTRL + 's', (Fl_Callback*)open_cb},
+    {"&Save", FL_CTRL + 'd', 0},
+    {"&Delete", 0, 0},
+    {0}};
 
 LogicWindow::LogicWindow() : Fl_Window{50, 50, 900, 620, "LOGIC"}
 {

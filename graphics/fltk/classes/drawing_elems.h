@@ -125,6 +125,6 @@ public:
 
 std::vector<DrawingElement*> read_file (const std::string& file_name,
                                         LogicMap* map);
-void write_file (const std::string& file_name);
+void write_file (const std::string& file_name, LogicMap* map);
 
 #endif

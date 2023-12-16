@@ -4,6 +4,15 @@
 
 std::vector<DrawingElement*> sheme;
 
+void write_elem (std::string elem, int is_inverted, int x, int y,
+                 std::ofstream file)
+{
+  file << elem << ' ';
+  file << is_inverted << ' ';
+  file << x << ' ';
+  file << y;
+}
+
 int get_pos (const std::string& el)
 {
   for (size_t i = 0; i < sheme.size(); ++i)
@@ -143,14 +152,13 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
       else if (str == "buff")
         what_el = TypeElement::BUFF;
       f >> str;
-      std::string name = str;
-      f >> str;
       bool inverted = stoi(str);
       f >> str;
       int xx = stoi(str);
       f >> str;
       int yy = stoi(str);
-      map->map()->add_el(what_el, xx, yy);
+      // map->map()->add_el(what_el, xx, yy);
+      // std::string name = map->map()->
     }
     f >> str;
   }
@@ -186,25 +194,31 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
   return sheme;
 }
 
-void write_file (const std::string& file_name)
+void write_file (const std::string& file_name, LogicMap* map)
 {
   std::ofstream f{file_name, std::ios_base::trunc};
-  for (size_t i = 0; i < sheme.size(); ++i)
+  // for (size_t i = 0; i < sheme.size(); ++i)
+  // {
+  //   std::string name = sheme[i]->get_name();
+  //   if (name[0] == 's')
+  //     f << "src" << ' ';
+  //   else if (name[0] == 'o')
+  //     f << "or" << ' ';
+  //   else if (name[0] == 'a')
+  //     f << "and" << ' ';
+  //   else if (name[0] == 'b')
+  //     f << "buff" << ' ';
+  //   else if (name[0] == 'r')
+  //     f << "res" << ' ';
+  //   f << sheme[i]->get_name() << ' ' << sheme[i]->is_inverted() << ' '
+  //     << sheme[i]->get_x() << ' ' << sheme[i]->get_y() << '\n';
+  // }
+
+  for (size_t i = 0; i < map->map()->children(); ++i)
   {
-    std::string name = sheme[i]->get_name();
-    if (name[0] == 's')
-      f << "src" << ' ';
-    else if (name[0] == 'o')
-      f << "or" << ' ';
-    else if (name[0] == 'a')
-      f << "and" << ' ';
-    else if (name[0] == 'b')
-      f << "buff" << ' ';
-    else if (name[0] == 'r')
-      f << "res" << ' ';
-    f << sheme[i]->get_name() << ' ' << sheme[i]->is_inverted() << ' '
-      << sheme[i]->get_x() << ' ' << sheme[i]->get_y() << '\n';
+    auto* graph_elem = map->map()->child(i);
   }
+
   f << ';' << '\n';
   for (size_t i = 0; i < sheme.size(); ++i)
   {
