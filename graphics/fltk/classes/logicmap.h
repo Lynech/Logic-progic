@@ -16,5 +16,7 @@ public:
   // int handle (int x) override;
 
   MapGroup* map () { return map_group; }
+
+  ~LogicMap() { delete map_group; }
 };
 #endif

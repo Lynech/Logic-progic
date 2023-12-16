@@ -55,6 +55,15 @@ Port::Port(int x, int y, int w, int h, port_types t, const char* l)
   }
 }
 
+Port::~Port()
+{
+  delete menu;
+  for (size_t i = 0; i < links.size(); i++)
+  {
+    delete links[i];
+  }
+}
+
 // отрисовка объектов класса LinkCircle
 void Port::draw()
 {
@@ -104,8 +113,6 @@ int Port::release_handle()
 {  // элемент (группа), которому принадлежит этот порт
   graph::Element* this_elem_group = (graph::Element*)this->parent();
   MapGroup* map = (MapGroup*)this_elem_group->parent();
-  int n = map->children();
-
   Port* p = find_port();
   if (!p)
     return 1;
@@ -191,7 +198,7 @@ Port* Port::find_port()
 bool Port::linked()
 {
   bool res = 0;
-  for (int i = 0; i < links.size() && !res; i++)
+  for (size_t i = 0; i < links.size() && !res; i++)
   {
     if (links[i])
       res = 1;

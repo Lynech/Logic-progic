@@ -54,7 +54,7 @@ void Link::delete_link()
   logic::Element* output_log_el;
 
   // удаляем связь из порта-начала:
-  for (int i = 0;
+  for (size_t i = 0;
        ((input_port != nullptr) && (i < input_port->get_links().size()));
        i++)
   {
@@ -69,7 +69,7 @@ void Link::delete_link()
   }
 
   // удаляем связь из порта-конца:
-  for (int i = 0;
+  for (size_t i = 0;
        ((input_port != nullptr) && (i < output_port->get_links().size()));
        i++)
   {
@@ -119,7 +119,7 @@ void Link::delete_link_input_port()
   logic::Element* output_log_el;
 
   // удаляем связь из порта-начала:
-  for (int i = 0;
+  for (size_t i = 0;
        ((input_port != nullptr) && (i < input_port->get_links().size()));
        i++)
   {
@@ -134,7 +134,7 @@ void Link::delete_link_input_port()
   }
 
   // удаляем связь из порта-конца:
-  for (int i = 0;
+  for (size_t i = 0;
        ((input_port != nullptr) && (i < output_port->get_links().size()));
        i++)
   {

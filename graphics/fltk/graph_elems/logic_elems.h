@@ -72,6 +72,8 @@ public:
     this->callback = callback;
     this->lable = lable;
   }
+
+  virtual ~Element() { delete lable; }
 };
 
 class logic::Logic : public logic::Element

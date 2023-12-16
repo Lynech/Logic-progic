@@ -37,6 +37,15 @@ Element::Element(int x_, int y_, int w_, int h_, int inputs_n_,
       add_input_port_nodraw();
 }
 
+Element::~Element()
+{
+  delete draw_elem;
+  delete menu;
+  delete output_port;
+  for (size_t i = 0; i < input_ports.size(); i++)
+    delete input_ports[i];
+}
+
 void Element::draw()
 {
   int x_ = x() + elem_link_lenth;

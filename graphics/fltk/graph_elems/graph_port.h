@@ -46,6 +46,8 @@ public:
   void invert () { inverted = !inverted; }
 
   bool is_inverted () { return inverted; }
+
+  ~Port();
 };
 
 #endif

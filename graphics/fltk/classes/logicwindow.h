@@ -14,6 +14,7 @@ class LogicWindow : public Fl_Window
 
 public:
   LogicWindow();
+  ~LogicWindow();
 };
 
 #endif

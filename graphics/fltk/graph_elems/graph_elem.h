@@ -66,6 +66,8 @@ public:
   Port* get_output_port () { return output_port; }
 
   virtual void invert ();
+
+  virtual ~Element();
 };
 
 #endif

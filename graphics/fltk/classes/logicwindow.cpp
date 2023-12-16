@@ -15,3 +15,11 @@ LogicWindow::LogicWindow() : Fl_Window{50, 50, 900, 620, "LOGIC"}
   color(FL_MAGENTA);
   resizable(map_box);
 }
+
+LogicWindow::~LogicWindow()
+{
+  delete menu_bar;
+  delete map_box;
+  delete map;
+  delete elems;
+}

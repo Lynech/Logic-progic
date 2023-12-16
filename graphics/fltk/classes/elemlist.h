@@ -15,6 +15,8 @@ public:
   ElemList(int x, int y, int w, int h, MapGroup* mapgroup);
 
   MapGroup* map () { return mapgroup; }
+
+  ~ElemList();
 };
 
 #endif

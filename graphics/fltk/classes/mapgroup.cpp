@@ -108,3 +108,9 @@ MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
   y_max = h - mama->h() + mama->hscrollbar.h();
   last_pused = nullptr;
 }
+
+MapGroup::~MapGroup()
+{
+  delete last_pused;
+  delete menu;
+}

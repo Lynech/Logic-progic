@@ -1,6 +1,7 @@
 #ifndef GRAPH_LABEL_H
 #define GRAPH_LABEL_H
 
+#include "graph_elem.h"
 #include "graph_elems.h"
 
 // Класс фигурки для отрисовки (содержит логику)
@@ -28,10 +29,7 @@ public:
 
   void delete_all_links ();
 
-  // TODO: удалить:
-  // LinkCircle* get_start_circle {return start_circle;}
-
-  // LinkCircle* get_end_circle {return end_circle;}
+  ~Label();
 };
 
 #endif

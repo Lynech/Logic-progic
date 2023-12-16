@@ -26,7 +26,6 @@
 #include "graph_label.h"
 #include "graph_link.h"
 #include "graph_port.h"
-#include <vector>
 
 namespace graph {
 class And;
