@@ -173,8 +173,8 @@ bool Element::does_include(Element* e)
 
 bool Logic::add_sorce(Element* t)
 {
-  // if (does_include(t))
-  //   return 0;
+  if (does_include(t))
+    return 0;
 
   spec::Input_element temp{t, inverse_input};
   this->arg_vec.push_back(temp);
