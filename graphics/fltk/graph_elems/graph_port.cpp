@@ -110,6 +110,36 @@ int Port::release_handle()
   if (!p)
     return 1;
 
+  {  // add link to logic
+    Port* input_port;
+    Port* output_port;
+
+    if (this->get_type() == port_types::input)
+    {
+      input_port = this;
+      output_port = p;
+    }
+    else
+    {
+      output_port = this;
+      input_port = p;
+    }
+
+    logic::Element* in_log_el = ((graph::Element*)(input_port->parent()))
+                                    ->get_draw_elem()
+                                    ->logic_elem;
+    logic::Element* out_log_el = ((graph::Element*)(output_port->parent()))
+                                     ->get_draw_elem()
+                                     ->logic_elem;  // Установили связь
+    if (input_port->is_inverted())
+    {
+      if (!((*out_log_el) >> ~(*in_log_el)))
+        return 1;
+    }
+    else if (!((*out_log_el) >> (*in_log_el)))
+      return 1;
+  }
+
   Link* l = new Link{p, this};
 
   map->add(l);

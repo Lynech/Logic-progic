@@ -28,8 +28,9 @@ class Input_element;
 }
 }  // namespace logic
 
-logic::Element& operator>> (logic::Element& a, logic::Element& b);
-logic::Element& operator<< (logic::Element& a, logic::Element& b);
+bool operator>> (logic::Element& a, logic::Element& b);
+// logic::Element& operator>> (logic::Element& a, logic::Element& b);
+// logic::Element& operator<< (logic::Element& a, logic::Element& b);
 std::ostream& operator<< (std::ostream& a, logic::Value b);
 logic::Value operator!(logic::Value value);
 
@@ -53,12 +54,12 @@ public:
 
   // void remove_depending (logic::Logic* t);
   // virtual void calculate_value () { value = inverted ? !value : value; }
-
+  bool does_include (Element* e);
   void reset_dependings ();
   Element& operator!();
   virtual Element& operator~() = 0;
-  virtual void add_sorce (logic::Element& t) = 0;
-  virtual void add_sorce (logic::Element* t) = 0;
+  virtual bool add_sorce (logic::Element& t) = 0;
+  virtual bool add_sorce (logic::Element* t) = 0;
   virtual void reset_sorses () = 0;
   virtual void remove_occurences_sourses (Element* src) = 0;
   virtual int remove_sorse (Element* src, bool inverted) = 0;
@@ -92,8 +93,8 @@ public:
   std::vector<logic::spec::Input_element> arg_vec;
   Element& operator~() override;
   virtual void calculate_value () = 0;
-  void add_sorce (logic::Element& t) override;
-  void add_sorce (logic::Element* t) override;
+  bool add_sorce (logic::Element& t) override;
+  bool add_sorce (logic::Element* t) override;
   void reset_sorses () override;
   void remove_occurences_sourses (Element* src) override;
   int remove_sorse (Element* src, bool inverted) override;
@@ -180,15 +181,17 @@ public:
 
   // void calculate_value () override;
 
-  void
+  bool
   add_sorce (logic::Element&) override  // возможна ошибка, надо обдумать
   {
     throw std::runtime_error("src can't get '&'sources");
+    return 0;
   }
 
-  void add_sorce (logic::Element*) override
+  bool add_sorce (logic::Element*) override
   {
     throw std::runtime_error("src can't get '*'sources");
+    return 0;
   }
 };
 

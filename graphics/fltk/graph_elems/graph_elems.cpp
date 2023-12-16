@@ -769,7 +769,7 @@ void delete_input_port (Fl_Widget* w, void* userdata)
 //  конструктор класса Source
 
 Src0::Src0(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, 0, "no_input"}
+    : Element{x, y, h, w, 0}
 {
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 0);
   // draw_elem->set_value(logic::Value::False);
@@ -781,7 +781,7 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
 //  конструктор класса Source
 
 Src1::Src1(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, 0, "no_input"}
+    : Element{x, y, h, w, 0}
 {
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 1);
   // draw_elem->set_value(logic::Value::True);

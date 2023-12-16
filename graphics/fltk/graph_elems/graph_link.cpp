@@ -20,20 +20,21 @@ Link::Link(Port* c1, Port* c2)
   }
   c1->add_link(this);
   c2->add_link(this);
-  {  // add link to logic
+  // {  // add link to logic
 
-    logic::Element* in_log_el = ((graph::Element*)(input_port->parent()))
-                                    ->get_draw_elem()
-                                    ->logic_elem;
-    logic::Element* out_log_el = ((graph::Element*)(output_port->parent()))
-                                     ->get_draw_elem()
-                                     ->logic_elem;
-    // Установили связь
-    if (input_port->is_inverted())
-      (*out_log_el) >> ~(*in_log_el);
-    else
-      (*out_log_el) >> (*in_log_el);
-  }
+  //   logic::Element* in_log_el = ((graph::Element*)(input_port->parent()))
+  //                                   ->get_draw_elem()
+  //                                   ->logic_elem;
+  //   logic::Element* out_log_el =
+  //   ((graph::Element*)(output_port->parent()))
+  //                                    ->get_draw_elem()
+  //                                    ->logic_elem;
+  //   // Установили связь
+  //   if (input_port->is_inverted())
+  //     (*out_log_el) >> ~(*in_log_el);
+  //   else
+  //     (*out_log_el) >> (*in_log_el);
+  // }
 }
 
 // отрисовка объектов класса Link
