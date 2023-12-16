@@ -11,7 +11,7 @@ ElemList::ElemList(int x, int y, int w, int h, MapGroup* map)
   button_h = h / 5 - 2 * gap_y / 3;
   button_w = w - scrollbar.w() - 2 * gap_x;
   new CreateButton<graph::Buff>{gap_x + x, y + gap_y, button_w, button_h,
-                                "not"};
+                                "buff"};
   new CreateButton<graph::And>{gap_x + x, y + 2 * gap_y + button_h,
                                button_w, button_h, "and"};
   new CreateButton<graph::Or>{gap_x + x, y + 3 * gap_y + 2 * button_h,

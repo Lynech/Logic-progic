@@ -13,5 +13,5 @@ LogicWindow::LogicWindow() : Fl_Window{50, 50, 900, 620, "LOGIC"}
   elems = new ElemList{705, 30, 185, 580, map->map()};
   elems->end();
   color(FL_MAGENTA);
-  resizable(this);
+  resizable(map_box);
 }

@@ -16,47 +16,36 @@ int MapGroup::handle(int event)
 {
   if (Fl_Group::handle(event))
     return 1;
-  // if ((void*)this == (void*)(Fl::belowmouse()))
+  if (event == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
   {
-    if (event == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
-    {
-      auto temp = menu->popup(Fl::event_x(), Fl::event_y());
-      if (temp && temp->callback())
-        temp->do_callback(nullptr);
-      return 1;
-    }
-    else if (event == FL_PUSH && Fl::event_button() == FL_LEFT_MOUSE)
-    {
-      Fl_Scroll* mama = (Fl_Scroll*)parent();
-      moving_left = 1;
-      x_ = Fl::event_x() + mama->xposition();
-      y_ = Fl::event_y() + mama->yposition();
-      return 1;
-    }
-    else if (event == FL_DRAG && moving_left &&
-             Fl::event_button() == FL_LEFT_MOUSE)
-    {
-      Fl_Scroll* mama = (Fl_Scroll*)parent();
-
-      mama->scroll_to(choise(x_min, x_ - Fl::event_x(), x_max),
-                      choise(y_min, y_ - Fl::event_y(), y_max));
-
-      // draw_children();
-      return 1;
-    }
-    else if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
-    {
-      moving_left = 0;
-      return 1;
-    }
-    else
-      return Fl_Group::handle(event);
+    auto temp = menu->popup(Fl::event_x(), Fl::event_y());
+    if (temp && temp->callback())
+      temp->do_callback(nullptr);
+    return 1;
   }
-  // else if (Fl::belowmouse() && (event == FL_PUSH || event == FL_RELEASE))
-  // {
-  //   last_pused = Fl::belowmouse();
-  //   return last_pused->handle(event);
-  // }
+  if (event == FL_PUSH && Fl::event_button() == FL_LEFT_MOUSE)
+  {
+    Fl_Scroll* mama = (Fl_Scroll*)parent();
+    moving_left = 1;
+    x_ = Fl::event_x() + mama->xposition();
+    y_ = Fl::event_y() + mama->yposition();
+    return 1;
+  }
+  if (event == FL_DRAG && moving_left &&
+      Fl::event_button() == FL_LEFT_MOUSE)
+  {
+    Fl_Scroll* mama = (Fl_Scroll*)parent();
+
+    mama->scroll_to(choise(x_min, x_ - Fl::event_x(), x_max),
+                    choise(y_min, y_ - Fl::event_y(), y_max));
+    return 1;
+  }
+  if (event == FL_RELEASE && Fl::event_button() == FL_LEFT_MOUSE)
+  {
+    moving_left = 0;
+    return 1;
+  }
+  return 0;
 }
 
 MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
@@ -111,15 +100,6 @@ MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
       map_menu::endmenu,    map_menu::noshortcut, map_menu::nocallback,
       map_menu::nouserdata, map_menu::noflag,     map_menu::labeltype,
       map_menu::labelfont,  map_menu::labelsize,  map_menu::labelcolor};
-
-  // Fl_Menu_Item temp_menu[] = {{"add elem", 0, 0, 0, FL_SUBMENU},
-  //                             {"and", 0, add_elem<graph::And>, this},
-  //                             {"or", 0, add_elem<graph::Or>, this},
-  //                             {"not", 0, add_elem<graph::Buff>, this},
-  //                             {0},
-  //                             {"00", 0, add_elem<graph::And>, this},
-  //                             {0}};
-  // menu = temp_menu;
 
   Fl_Scroll* mama = (Fl_Scroll*)parent();
   x_min = 0;
