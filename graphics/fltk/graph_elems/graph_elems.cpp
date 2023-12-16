@@ -199,7 +199,7 @@ void delete_all_elem_links (Fl_Widget*, void* userdata)
 }
 
 // todo spetial
-void delete_elem (Fl_Widget* a, void* userdata)
+void delete_elem (Fl_Widget*, void* userdata)
 {
   Label* l = (Label*)userdata;
 
@@ -235,7 +235,7 @@ void invert_port (Fl_Widget*, void* userdata)
     //         ->get_draw_elem()
     //         ->logic_elem);
     logic::Element* log_el____leftside = nullptr;
-    for (int i = 0; i < (l_c->get_links().size()) && !log_el____leftside;
+    for (size_t i = 0; i < (l_c->get_links().size()) && !log_el____leftside;
          i++)
       if ((l_c->get_links()[i]) &&
           (l_c->get_links()[i]->get_output_port()) &&
@@ -436,11 +436,11 @@ void delete_through_port (Fl_Widget*, void* userdata)
 // }
 
 // todo spetial
-void delete_link (Fl_Widget* w, void* userdata)
+void delete_link (Fl_Widget*, void* userdata)
 {
   Port* port = (Port*)userdata;
   std::vector<Link*> links = port->get_links();
-  for (int i = 0; i < links.size(); i++)
+  for (size_t i = 0; i < links.size(); i++)
   {
     if ((links[i] != nullptr) &&
         ((links[i]->get_input_port()) != nullptr) &&
@@ -452,7 +452,7 @@ void delete_link (Fl_Widget* w, void* userdata)
 }
 
 // todo spetial
-void delete_input_port (Fl_Widget* w, void* userdata)
+void delete_input_port (Fl_Widget*, void* userdata)
 {
   Port* input_port = (Port*)userdata;
   // проверка на всякий случай
@@ -768,8 +768,7 @@ void delete_input_port (Fl_Widget* w, void* userdata)
 
 //  конструктор класса Source
 
-Src0::Src0(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, 0}
+Src0::Src0(int x, int y, int h, int w, const char*) : Element{x, y, h, w, 0}
 {
   type = "src0";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 0);
@@ -781,8 +780,7 @@ Src0::Src0(int x, int y, int h, int w, const char* l)
 
 //  конструктор класса Source
 
-Src1::Src1(int x, int y, int h, int w, const char* l)
-    : Element{x, y, h, w, 0}
+Src1::Src1(int x, int y, int h, int w, const char*) : Element{x, y, h, w, 0}
 {
   type = "src1";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 1);
@@ -842,7 +840,7 @@ And::And(int x, int y, int h, int w, const char* l)
 // }
 
 // todo spetial
-void add_port (Fl_Widget* w, void* userdata)
+void add_port (Fl_Widget*, void* userdata)
 {
   Label* label = (Label*)userdata;
   Element* elem = (Element*)(label->parent());
