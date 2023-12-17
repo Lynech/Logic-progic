@@ -1,8 +1,11 @@
 #ifndef GRAPH_PORT_H
 #define GRAPH_PORT_H
 
+#include "graph_elem.h"
 #include "graph_elems.h"
 #include "graph_link.h"
+// #include "mapgroup.h"
+class MapGroup;
 enum class port_types
 {
   input = 0,

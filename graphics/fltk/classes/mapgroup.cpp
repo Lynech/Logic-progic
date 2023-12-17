@@ -1,4 +1,5 @@
 #include "mapgroup.h"
+#include "type_elem.h"
 
 namespace map_menu {
 uchar noflag = 0;
@@ -11,6 +12,25 @@ const char* endmenu = 0;
 Fl_Callback* nocallback = nullptr;
 void* nouserdata = nullptr;
 };  // namespace map_menu
+
+graph::Element* MapGroup::add_el(TypeElement what_el, bool inverted, int x,
+                                 int y)
+{
+  graph::Element* temp = nullptr;
+  if (what_el == TypeElement::AND)
+    temp = add_elem_from_file<graph::And>(this, x, y);
+  else if (what_el == TypeElement::OR)
+    temp = add_elem_from_file<graph::Or>(this, x, y);
+  else if (what_el == TypeElement::BUFF)
+    temp = add_elem_from_file<graph::Buff>(this, x, y);
+  else if (what_el == TypeElement::SRC0)
+    temp = add_elem_from_file<graph::Src0>(this, x, y);
+  else if (what_el == TypeElement::SRC1)
+    temp = add_elem_from_file<graph::Src1>(this, x, y);
+  if (inverted)
+    temp->invert();
+  return temp;
+}
 
 int MapGroup::handle(int event)
 {

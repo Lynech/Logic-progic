@@ -264,3 +264,8 @@ logic::Value operator!(logic::Value value)
     value = Value::True;
   return value;
 }
+
+std::vector<logic::spec::Input_element>& logic::Logic::get_input_elements()
+{
+  return arg_vec;
+}
