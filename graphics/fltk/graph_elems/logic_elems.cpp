@@ -39,7 +39,7 @@ void And::calculate_value()
   Value temp = Value::True;
   if (arg_vec.size() <= 1)
     temp = Value::Undef;
-
+  std::cout << arg_vec.size() << std::endl;
   for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
   {
     std::cout << "input " << i << " " << arg_vec[i].get_value()
@@ -55,7 +55,7 @@ void Or::calculate_value()
   Value temp = Value::False;
   if (arg_vec.size() <= 1)
     temp = Value::Undef;
-
+  std::cout << arg_vec.size() << std::endl;
   for (size_t i = 0; temp != Value::True && i < arg_vec.size(); i++)
     if (temp < arg_vec[i].get_value())
       temp = arg_vec[i].get_value();

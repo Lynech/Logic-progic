@@ -126,14 +126,14 @@ void Label::draw()
     fl_line_style(0, 2);
     fl_begin_loop();
     fl_circle(x() + w() - w() / 10, y() + h() / 2, w() / 10);
-    fl_end_loop;
+    fl_end_loop();
   }
 
   // рисуем инвертированность входа
   Element* par = (Element*)(this->parent());
   std::vector<Port*> input_ports = par->get_input_ports();
 
-  for (int i = 0; i < input_ports.size(); i++)
+  for (size_t i = 0; i < input_ports.size(); i++)
   {
     if (input_ports[i]->is_inverted())
     {
@@ -151,7 +151,7 @@ void Label::draw()
       fl_begin_loop();
       fl_circle(this->x() + this->w() / 10, p->y() + p->h() / 2,
                 this->w() / 10);
-      fl_end_loop;
+      fl_end_loop();
     }
   }
 }
