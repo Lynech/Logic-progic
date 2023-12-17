@@ -14,8 +14,6 @@ public:
   MapGroup(int x, int y, int w, int h, const char* l = 0);
 
   int handle (int event) override;
-
-  ~MapGroup();
 };
 
 #endif

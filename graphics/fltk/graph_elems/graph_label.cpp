@@ -1,7 +1,59 @@
 #include "graph_label.h"
 #include "graph_elem.h"
 
+// namespace port_menu {
+// const uchar noflag = 0;
+// const uchar labeltype = FL_NORMAL_LABEL;
+// const uchar labelfont = FL_HELVETICA;
+// const uchar labelsize = FL_NORMAL_SIZE;
+// const uchar labelcolor = FL_BLACK;
+// const uchar noshortcut = 0;
+// const char* endmenu = 0;
+// const Fl_Callback* nocallback = nullptr;
+// void* const nouserdata = nullptr;
+// };  // namespace port_menu
+
 using namespace graph;
+
+void Label::delete_all_links()
+{
+  Element* el = (Element*)(this->parent());
+  std::vector<Port*> ports = el->get_input_ports();
+
+  // удаляем связи у каждого входа
+  for (Port* i : ports)
+  {
+    if (i != nullptr)
+    {
+      std::vector<Link*> links = i->get_links();
+      for (Link* j : links)
+        if (j != nullptr)
+        {
+          j->delete_link();
+        }
+    }
+  }
+
+  // удаляем каждый вход (size -1 означает, что 1 оставляем)
+  // for (int i = 0; i < ports.size() - 1; i++)
+  // {
+  //   if (ports[i])
+  //   {
+  //     el->delete_port(ports[i]);
+  //   }
+  // }
+  // for (auto x : ports)
+  // {
+  //   el->delete_port(x);
+  // }
+
+  // удаляем все связи у выхода
+  Port* output_port = el->get_output_port();
+  // std::vector<Link*> links = output_port->get_links();
+  delete_link(nullptr, output_port);
+  // удаляем выход
+  el->delete_port(output_port);
+}
 
 Label::Label(
     int x, int y, int w, int h, const char* l,
@@ -106,14 +158,14 @@ void Label::draw()
     fl_line_style(0, 2);
     fl_begin_loop();
     fl_circle(x() + w() - w() / 10, y() + h() / 2, w() / 10);
-    fl_end_loop();
+    fl_end_loop;
   }
 
   // рисуем инвертированность входа
   Element* par = (Element*)(this->parent());
   std::vector<Port*> input_ports = par->get_input_ports();
 
-  for (size_t i = 0; i < input_ports.size(); i++)
+  for (int i = 0; i < input_ports.size(); i++)
   {
     if (input_ports[i]->is_inverted())
     {
@@ -131,7 +183,7 @@ void Label::draw()
       fl_begin_loop();
       fl_circle(this->x() + this->w() / 10, p->y() + p->h() / 2,
                 this->w() / 10);
-      fl_end_loop();
+      fl_end_loop;
     }
   }
 }

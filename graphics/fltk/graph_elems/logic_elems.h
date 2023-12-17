@@ -72,8 +72,6 @@ public:
     this->callback = callback;
     this->lable = lable;
   }
-
-  virtual ~Element() { delete lable; }
 };
 
 class logic::Logic : public logic::Element
@@ -101,6 +99,8 @@ public:
   void remove_occurences_sourses (Element* src) override;
   int remove_sorse (Element* src, bool inverted) override;
   void invert_sorse (Element* src, bool inverted) override;
+
+  std::vector<logic::spec::Input_element>& get_input_elements ();
 };
 
 class logic::And : public logic::Logic
@@ -214,6 +214,12 @@ public:
   Input_element(logic::Element* arg_) : arg{arg_}, inverted{0} {};
   Input_element(logic::Element* arg_, bool inverted_)
       : arg{arg_}, inverted{inverted_} {};
+
+  // Input_element& operator= (const Input_element& n)
+  // {
+  //   this->arg = n.arg;
+  //   this->inverted = n.inverted;
+  // }
 
   logic::Element* get_arg () { return arg; }
 

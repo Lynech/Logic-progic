@@ -1,6 +1,7 @@
 #ifndef ADD_ELEM_IMPL_H
 #define ADD_ELEM_IMPL_H
 #include "fltk.h"
+#include "type_elem.h"
 
 template <class T> void add_elem (Fl_Widget*, void* userdata)
 {
@@ -20,6 +21,19 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
     // map->end();
     map->redraw();
   }
+}
+
+template <class T> T* add_elem_from_file (void* userdata, int xx, int yy)
+{
+  MapGroup* map = (MapGroup*)userdata;
+  LogicMap* mamamap = (LogicMap*)map->parent();
+
+  map->begin();
+  T* temp = new T{xx, yy, 70, 70};
+
+  map->end();
+  map->redraw();
+  return temp;
 }
 
 #endif

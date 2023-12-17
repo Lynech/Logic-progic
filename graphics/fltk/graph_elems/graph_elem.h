@@ -3,6 +3,7 @@
 
 #include "graph_elems.h"
 #include "graph_label.h"
+#include "graph_port.h"
 
 namespace graph {
 class And;
@@ -46,6 +47,19 @@ public:
   {
     draw_elem->Label_draw_ = label_draw;
   }
+
+  size_t how_many_inputs ();
+
+  size_t how_many_linked ();
+
+  Port* nonlinked_input ()
+  {
+    for (size_t i = 0; i < input_ports.size(); i++)
+      if (!(input_ports[i]->is_linked()))
+        return input_ports[i];
+  }
+
+  logic::Element* get_logic_elem () { return draw_elem->logic_elem; }
 
   void add_input_port ();
 

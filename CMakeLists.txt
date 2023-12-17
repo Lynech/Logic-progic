@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDSARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
 
 cmake_path(SET LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-# set(CMAKE_CXX_COMPILER i586-mingw32msvc-g++)
 
 include_directories(
     ${LIB_DIR}
@@ -15,4 +14,4 @@ include_directories(
 
 # add_subdirectory("main")
 add_subdirectory("graphics")
-# add_subdirectory("lib/logic_elems")
+add_subdirectory("test_graphics")

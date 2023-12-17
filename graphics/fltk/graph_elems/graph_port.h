@@ -1,14 +1,22 @@
 #ifndef GRAPH_PORT_H
 #define GRAPH_PORT_H
 
+#include "graph_elem.h"
 #include "graph_elems.h"
 #include "graph_link.h"
+// #include "mapgroup.h"
+class MapGroup;
 enum class port_types
 {
   input = 0,
   output = 1
 };
-class Link;
+
+bool made_logic_link (Port* port1, Port* port2);
+
+Link* made_full_link (Port* port1, Port* port2);
+
+void try_make_link (MapGroup* map, Port* port1, Port* port2);
 
 // класс кружочков связи
 class Port : public Fl_Widget
@@ -43,11 +51,17 @@ public:
 
   bool linked ();  //
 
-  void invert () { inverted = !inverted; }
+  bool is_linked ()
+  {
+    for (int i = 0; i < links.size(); i++)
+      if (links[i])
+        return 1;
+    return 0;
+  }
+
+  void invert ();
 
   bool is_inverted () { return inverted; }
-
-  ~Port();
 };
 
 #endif

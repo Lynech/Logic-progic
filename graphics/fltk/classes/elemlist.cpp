@@ -20,11 +20,9 @@ ElemList::ElemList(int x, int y, int w, int h, MapGroup* map)
                                 button_w, button_h, "False src"};
   new CreateButton<graph::Src1>{gap_x + x, y + 5 * gap_y + 4 * button_h,
                                 button_w, button_h, "True src"};
+  // int size = 50;
+  // new graph::Not{x + (w - size) / 2, y + 30, size};
+  // new graph::And{x + (w - size) / 2, y + 30 * 2 + size, size};
+  // new graph::Or{x + (w - size) / 2, x + 30 * 3 + 2 * size, size};
   ElemGroup->end();
 };
-
-ElemList::~ElemList()
-{
-  delete ElemGroup;
-  delete mapgroup;
-}

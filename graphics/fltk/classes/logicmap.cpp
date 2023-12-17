@@ -9,3 +9,13 @@ LogicMap::LogicMap(int x, int y, int w, int h, const char* l)
   type(Fl_Scroll::BOTH_ALWAYS);
   color(FL_WHITE);
 };
+
+// int LogicMap::handle(int x)
+// {
+//   // if (x == FL_PUSH && Fl::event_button() == FL_RIGHT_MOUSE)
+//   // {
+//   //   return map_group->handle(x);
+//   // }
+//   // else
+//   return Fl_Scroll::handle(x);
+// }

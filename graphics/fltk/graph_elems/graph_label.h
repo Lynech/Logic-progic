@@ -1,7 +1,6 @@
 #ifndef GRAPH_LABEL_H
 #define GRAPH_LABEL_H
 
-#include "graph_elem.h"
 #include "graph_elems.h"
 
 // Класс фигурки для отрисовки (содержит логику)

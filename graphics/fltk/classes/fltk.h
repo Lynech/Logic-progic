@@ -20,10 +20,8 @@
 
 int choise (int a, int b, int c);
 
-void add_butt (Fl_Widget*, void*);
-
-void add_butt2 (Fl_Widget*, void*);
-
 template <class T> void add_elem (Fl_Widget*, void*);
+
+template <class T> T* add_elem_from_file (void* userdata, int xx, int yy);
 
 #endif

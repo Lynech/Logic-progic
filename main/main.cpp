@@ -4,11 +4,19 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include "drawing_elems.h"
 
 using namespace std;
 int main ()
-try
 {
+  string way = "C:/Users/MrWh1teF0x/OneDrive/Engineering_workshop/"
+               "Logic-progic/main/sheme.txt";
+  string way2 = "C:/Users/MrWh1teF0x/OneDrive/Engineering_workshop/"
+                "Logic-progic/main/temp.txt";
+  read_file(way);
+  write_file(way2);
+  return 0;
+  
   map<string, logic::Element*> sheme;
   // vector<string> out;
   ifstream f("C:/Users/Niyaz/git_projects/Logic-progic/main/sheme.txt",
@@ -158,4 +166,5 @@ try
 catch (exception& e)
 {
   cerr << e.what();
+
 }

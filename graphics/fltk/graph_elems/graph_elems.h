@@ -26,6 +26,7 @@
 #include "graph_label.h"
 #include "graph_link.h"
 #include "graph_port.h"
+#include <vector>
 
 namespace graph {
 class And;
@@ -48,9 +49,10 @@ constexpr Fl_Callback* nocallback = nullptr;
 constexpr void* nouserdata = nullptr;
 };  // namespace port_menu
 
-// bool add_input (graph::Element E, graph::Element e) {
+void add_input (graph::Element* inputgoeshere, graph::Element* fromhere);
 
-// }
+void add_inverted_input (graph::Element* inputgoeshere,
+                         graph::Element* fromhere);
 
 // enum class port_types
 // {

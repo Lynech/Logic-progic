@@ -1,8 +1,10 @@
 #ifndef GRAPH_LINK_H
 #define GRAPH_LINK_H
+// #undef GRAPH_PORT_H
 
 #include "graph_elems.h"
 #include "graph_port.h"
+class Port;
 
 class Link : public Fl_Widget
 {
