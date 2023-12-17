@@ -1,4 +1,5 @@
 #include "graph_elem.h"
+#include <vector>
 using namespace graph;
 
 void Element::draw()
@@ -45,7 +46,7 @@ Element::Element(int x_, int y_, int w_, int h_, int inputs_n_,
       elem_link_lenth{w_ * 2 / 5}, line_thikness{w_ / 25}
 {
   type = "element";
-  input_ports.clear();
+  input_ports.resize(0);
   end();
   draw_elem = new Label{x_, y_, w_, h_};
   add_resizable(*draw_elem);
@@ -137,4 +138,23 @@ void Element::add_input_port_nodraw()
 
   output_port->resize(x() + w() - circle_w, y() + h() / 2 - circle_w / 2,
                       circle_w, circle_w);
+}
+
+size_t Element::how_many_inputs()
+{
+  size_t counter = 0;
+  size_t n = input_ports.size();
+  for (size_t i = 0; i < n; i++)
+    if (input_ports[i])
+      counter++;
+  return counter;
+}
+
+size_t Element::how_many_linked()
+{
+  size_t counter = 0;
+  for (size_t i = 0; i < input_ports.size(); i++)
+    if (input_ports[i]->is_linked())
+      counter++;
+  return counter;
 }

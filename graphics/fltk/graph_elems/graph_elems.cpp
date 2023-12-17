@@ -436,7 +436,7 @@ void delete_through_port (Fl_Widget*, void* userdata)
 //   std::vector<Link*>(links).swap(links);
 // }
 
-bool add_input (graph::Element* inputgoeshere, graph::Element* fromhere)
+void add_input (graph::Element* inputgoeshere, graph::Element* fromhere)
 {
   if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())
     inputgoeshere->add_input_port();
@@ -446,7 +446,7 @@ bool add_input (graph::Element* inputgoeshere, graph::Element* fromhere)
   try_make_link(map, input_port, output_port);
 }
 
-bool add_inverted_input (graph::Element* inputgoeshere,
+void add_inverted_input (graph::Element* inputgoeshere,
                          graph::Element* fromhere)
 {
   if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())

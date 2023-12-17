@@ -1,19 +1,3 @@
-#include "add_elem_impl.h"
-#include "drawing_elems.h"
-#include "map"
-#include "mapgroup.h"
-
-std::vector<DrawingElement*> sheme;
-
-void write_elem (std::string elem, int is_inverted, int x, int y,
-                 std::ofstream file)
-{
-  file << elem << ' ';
-  file << is_inverted << ' ';
-  file << x << ' ';
-  file << y;
-}
-
 graph::Element* get_graph_elem (Fl_Widget* elem)
 {
   graph::Src0* src_0 = dynamic_cast<graph::Src0*>(elem);
@@ -125,8 +109,7 @@ catch (const std::exception& e)
   return "syntax error";
 }
 
-std::vector<DrawingElement*> read_file (const std::string& file_name,
-                                        LogicMap* map)
+void read_file (const std::string& file_name, LogicMap* map)
 {
   std::string what_err = is_valid_file(file_name);
   if (what_err != "")
@@ -134,6 +117,7 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
   std::ifstream f(file_name, std::ios_base::in);
   std::string str;
   f >> str;
+  std::vector<graph::Element*> graph_elems;
   while (str != ";")
   {
     TypeElement what_el;
@@ -153,39 +137,30 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
     int xx = stoi(str);
     f >> str;
     int yy = stoi(str);
-    map->map()->add_el(what_el, xx, yy);
+    graph_elems.push_back(map->map()->add_el(what_el, inverted, xx, yy));
     f >> str;
   }
-  // while (f)
-  // {
-  //   f >> str;
-  //   int elpos = get_pos(str);
-  //   if (elpos != -1)
-  //   {
-  //     f >> str;
-  //     while (str != ".")
-  //     {
-  //       f >> str;
-  //       if (str == "~")
-  //       {
-  //         f >> str;
-  //         int input_elpos = get_pos(str);
-  //         if (input_elpos != -1)
-  //           *(sheme[input_elpos]->get_element()) >>
-  //               ~*(sheme[elpos]->get_element());
-  //       }
-  //       else
-  //       {
-  //         int input_elpos = get_pos(str);
-  //         if (input_elpos != -1)
-  //           *(sheme[elpos]->get_element())
-  //               << *(sheme[input_elpos]->get_element());
-  //       }
-  //     }
-  //   }
-  // }
+  while (!f.eof())
+  {
+    f >> str;
+    int ind = stoi(str) - 1;
+    f >> str;
+    while (str != ".")
+    {
+      f >> str;
+      if (str == "~")
+      {
+        f >> str;
+        add_inverted_input(graph_elems[ind], graph_elems[stoi(str) - 1]);
+      }
+      else
+      {
+        add_input(graph_elems[ind], graph_elems[stoi(str) - 1]);
+      }
+      f >> str;
+    }
+  }
   f.close();
-  return sheme;
 }
 
 void write_file (const std::string& file_name, LogicMap* map)
@@ -207,15 +182,12 @@ void write_file (const std::string& file_name, LogicMap* map)
            elem->x(), elem->y()});
     }
   }
-
   for (size_t i = 0; i < params.size(); ++i)
   {
     f << graph_elems[i]->get_type() << ' ';
     f << params[i][0] << ' ' << params[i][1] << ' ' << params[i][2] << '\n';
   }
-
-  f << ';' << '\n';
-
+  f << ';';
   for (size_t i = 0; i < graph_elems.size(); ++i)
   {
     if (graph_elems[i]->get_type() == "src1" ||
@@ -226,54 +198,27 @@ void write_file (const std::string& file_name, LogicMap* map)
     std::vector<logic::spec::Input_element> input_elements =
         logic_el->get_input_elements();
 
-    f << i + 1 << " << ";
-
-    for (size_t j = 0; j < input_elements.size(); ++j)
-      for (size_t k = 0; k < graph_elems.size(); ++k)
-      {
-        logic::spec::Input_element* input_elem = &(input_elements[j]);
-
-        if (input_elem->get_arg() ==
-            graph_elems[k]->get_draw_elem()->get_logic_elem())
+    if (input_elements.size() > 0)
+    {
+      f << '\n';
+      f << i + 1 << " << ";
+      for (size_t j = 0; j < input_elements.size(); j++)
+        for (size_t k = 0; k < graph_elems.size(); k++)
         {
-          if (input_elem->is_inverted())
-            f << "~ ";
-          f << k + 1 << ' ';
-          if (j + 1 != input_elements.size())
-            f << ", ";
-          else
-            f << ".\n";
+          logic::spec::Input_element* input_elem = &(input_elements[j]);
+          if (input_elem->get_arg() ==
+              graph_elems[k]->get_draw_elem()->get_logic_elem())
+          {
+            if (input_elem->is_inverted())
+              f << "~ ";
+            f << k + 1 << ' ';
+            if (j + 1 != input_elements.size())
+              f << ", ";
+            else
+              f << ".";
+          }
         }
-      }
+    }
   }
-  // for (size_t i = 0; i < sheme.size(); ++i)
-  // {
-  //   if (sheme[i]->get_name()[0] == 's')
-  //     continue;
-  //   std::vector<logic::spec::Input_element> input_elements =
-  //       sheme[i]->get_input_elems();
-  //   if (input_elements.size() == 0)
-  //     continue;
-  //   f << sheme[i]->get_name() << " <<";
-  //   for (size_t i = 0; i < input_elements.size(); ++i)
-  //   {
-  //     for (size_t j = 0; j < sheme.size(); ++j)
-  //     {
-  //       if (sheme[j]->get_element() == input_elements[i].get_arg())
-  //       {
-  //         f << " ";
-  //         if (input_elements[i].is_inverted())
-  //           f << "~ ";
-  //         f << sheme[j]->get_name();
-  //         if (i + 1 != input_elements.size())
-  //           f << " ,";
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   f << " .";
-  //   if (i + 1 != sheme.size())
-  //     f << "\n";
-  // }
   f.close();
 }

@@ -49,9 +49,9 @@ constexpr Fl_Callback* nocallback = nullptr;
 constexpr void* nouserdata = nullptr;
 };  // namespace port_menu
 
-bool add_input (graph::Element* inputgoeshere, graph::Element* fromhere);
+void add_input (graph::Element* inputgoeshere, graph::Element* fromhere);
 
-bool add_inverted_input (graph::Element* inputgoeshere,
+void add_inverted_input (graph::Element* inputgoeshere,
                          graph::Element* fromhere);
 
 // enum class port_types

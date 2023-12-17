@@ -8,40 +8,37 @@ find_package(OpenGL REQUIRED)
 
 set(HEADERS
     classes/fltk.h
-    graph_elems/graph_elems.h
     classes/mapgroup.h
     classes/logicmap.h
     classes/elemlist.h
     classes/createbutton.h
     classes/logicwindow.h
     classes/add_elem_impl.h
-    graph_elems/logic_elems.h
-    classes/drawing_elems.h
+    classes/funcs_for_file.h
 
     graph_elems/graph_elem.h
     graph_elems/graph_label.h
     graph_elems/graph_link.h
     graph_elems/graph_port.h
-    # ${LIB_DIR}/logic_elems/logic_elems.h
+    graph_elems/graph_elems.h
+    graph_elems/logic_elems.h
 )
 set(SOURCES
     classes/fltk.cpp
-    graph_elems/graph_elems.cpp
     classes/mapgroup.cpp 
     classes/logicmap.cpp 
     classes/elemlist.cpp
     classes/createbutton.cpp
     classes/logicwindow.cpp
-    graph_elems/logic_elems.cpp
-    classes/drawing_elems.cpp
-    classes/functions.cpp
+    classes/funcs_for_file.cpp
 
     
+    graph_elems/logic_elems.cpp
+    graph_elems/graph_elems.cpp
     graph_elems/graph_elem.cpp
     graph_elems/graph_label.cpp
     graph_elems/graph_link.cpp
     graph_elems/graph_port.cpp
-    # ${LIB_DIR}/logic_elems/logic_elems.cpp
 )
 
 add_library(my_lib ${HEADERS} ${SOURCES})
@@ -61,7 +58,6 @@ target_include_directories(
     PUBLIC
     classes/
     graph_elems/
-    # ${LIB_DIR}/logic_elems/
 )
 
 target_link_directories(

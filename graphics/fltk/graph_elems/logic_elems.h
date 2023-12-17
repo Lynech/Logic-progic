@@ -215,11 +215,11 @@ public:
   Input_element(logic::Element* arg_, bool inverted_)
       : arg{arg_}, inverted{inverted_} {};
 
-  Input_element& operator= (const Input_element& n)
-  {
-    arg = n.arg;
-    inverted = n.inverted;
-  }
+  // Input_element& operator= (const Input_element& n)
+  // {
+  //   this->arg = n.arg;
+  //   this->inverted = n.inverted;
+  // }
 
   logic::Element* get_arg () { return arg; }
 

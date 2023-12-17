@@ -1,7 +1,6 @@
 #include "logicwindow.h"
 #include "add_elem_impl.h"
 #include "createbutton.h"
-#include "drawing_elems.h"
 #include "graph_elems.h"
 
 Fl_File_Chooser* file_choose;
@@ -16,7 +15,7 @@ void open_cb (Fl_Widget*, void*)
   if (file_choose->count() == 1)
   {
     std::string file_name = file_choose->value();
-    std::vector<DrawingElement*> sheme = read_file(file_name, map_ptr);
+    read_file(file_name, map_ptr);
   }
 }
 

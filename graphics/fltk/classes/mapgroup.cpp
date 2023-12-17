@@ -13,18 +13,23 @@ Fl_Callback* nocallback = nullptr;
 void* nouserdata = nullptr;
 };  // namespace map_menu
 
-void MapGroup::add_el(TypeElement what_el, int x, int y)
+graph::Element* MapGroup::add_el(TypeElement what_el, bool inverted, int x,
+                                 int y)
 {
+  graph::Element* temp = nullptr;
   if (what_el == TypeElement::AND)
-    add_elem_from_file<graph::And>(nullptr, this, x, y);
+    temp = add_elem_from_file<graph::And>(this, x, y);
   else if (what_el == TypeElement::OR)
-    add_elem_from_file<graph::Or>(nullptr, this, x, y);
+    temp = add_elem_from_file<graph::Or>(this, x, y);
   else if (what_el == TypeElement::BUFF)
-    add_elem_from_file<graph::Buff>(nullptr, this, x, y);
+    temp = add_elem_from_file<graph::Buff>(this, x, y);
   else if (what_el == TypeElement::SRC0)
-    add_elem_from_file<graph::Src0>(nullptr, this, x, y);
+    temp = add_elem_from_file<graph::Src0>(this, x, y);
   else if (what_el == TypeElement::SRC1)
-    add_elem_from_file<graph::Src1>(nullptr, this, x, y);
+    temp = add_elem_from_file<graph::Src1>(this, x, y);
+  if (inverted)
+    temp->invert();
+  return temp;
 }
 
 int MapGroup::handle(int event)

@@ -14,7 +14,7 @@ class Src0;
 class Src1;
 };  // namespace graph
 
-// class Port;
+class Port;
 class Label;
 
 class graph::Element : public Fl_Group
@@ -48,23 +48,9 @@ public:
     draw_elem->Label_draw_ = label_draw;
   }
 
-  size_t how_many_inputs ()
-  {
-    size_t counter;
-    for (size_t i = 0; i < input_ports.size(); i++)
-      if (input_ports[i])
-        counter++;
-    return counter;
-  }
+  size_t how_many_inputs ();
 
-  size_t how_many_linked ()
-  {
-    size_t counter;
-    for (size_t i = 0; i < input_ports.size(); i++)
-      if (input_ports[i]->is_linked())
-        counter++;
-    return counter;
-  }
+  size_t how_many_linked ();
 
   Port* nonlinked_input ()
   {

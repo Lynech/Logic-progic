@@ -7,8 +7,8 @@ using namespace graph;
 Port::Port(int x, int y, int w, int h, port_types t, const char* l)
     : Fl_Widget{x, y, w, h, l}
 {
-  links.resize(0);
   links.clear();
+  links.resize(0);
   type = t;
   if (type == port_types::input)
   {
@@ -162,9 +162,9 @@ int Port::release_handle()
   if (!p)
     return 1;
 
-  Link* l = made_full_link(this, p);
-  if (!l)
-    return 1;
+  // Link* l = made_full_link(this, p);
+  // if (!l)
+  //   return 1;
 
   try_make_link(map, this, p);
   return 1;
