@@ -29,7 +29,7 @@ public:
 
   void delete_all_links ();
 
-  ~Label();
+  // ~Label() override;
 };
 
 #endif

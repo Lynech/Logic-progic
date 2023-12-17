@@ -48,6 +48,20 @@ int MapGroup::handle(int event)
   return 0;
 }
 
+void clear_map (Fl_Widget*, void* userdata)
+{
+  MapGroup* map = (MapGroup*)userdata;
+  // int n = map->children();
+  // for (int i = 0; i < n; i++)
+  // {
+  //   Fl::delete_widget(map->child(n));
+  //   Fl::do_widget_deletion();
+  // }
+  // n = map->children();
+  map->clear();
+  map->window()->redraw();
+}
+
 MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
     : Fl_Group{x, y, w, h, l}
 {
@@ -87,9 +101,9 @@ MapGroup::MapGroup(int x, int y, int w, int h, const char* l)
       map_menu::endmenu,    map_menu::noshortcut, map_menu::nocallback,
       map_menu::nouserdata, map_menu::noflag,     map_menu::labeltype,
       map_menu::labelfont,  map_menu::labelsize,  map_menu::labelcolor};
-  menu[5] = Fl_Menu_Item{"00",
+  menu[5] = Fl_Menu_Item{"clear",
                          map_menu::noshortcut,
-                         add_elem<graph::And>,
+                         clear_map,
                          this,
                          map_menu::noflag,
                          map_menu::labeltype,

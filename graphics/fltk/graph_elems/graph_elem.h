@@ -67,7 +67,7 @@ public:
 
   virtual void invert ();
 
-  virtual ~Element();
+  // ~Element() override;
 };
 
 #endif

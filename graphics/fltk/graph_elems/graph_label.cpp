@@ -42,11 +42,11 @@ Label::Label(
       port_menu::labelfont,  port_menu::labelsize,  port_menu::labelcolor};
 }
 
-Label::~Label()
-{
-  delete menu;
-  delete logic_elem;
-}
+// Label::~Label()
+// {
+//   delete menu;
+//   delete logic_elem;
+// }
 
 void Label::delete_all_links()
 {
