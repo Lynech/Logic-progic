@@ -59,7 +59,7 @@ public:
     return 0;
   }
 
-  void invert () { inverted = !inverted; }
+  void invert ();
 
   bool is_inverted () { return inverted; }
 };

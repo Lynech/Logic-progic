@@ -179,7 +179,7 @@ void write_file (const std::string& file_name, LogicMap* map)
       graph_elems.push_back(graph_elem);
       params.push_back(
           {graph_elem->get_draw_elem()->get_logic_elem()->is_inverted(),
-           elem->x(), elem->y()});
+           elem->x() - map->map()->x(), elem->y() - map->map()->y()});
     }
   }
   for (size_t i = 0; i < params.size(); ++i)

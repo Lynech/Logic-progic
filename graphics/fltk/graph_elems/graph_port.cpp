@@ -56,6 +56,13 @@ Port::Port(int x, int y, int w, int h, port_types t, const char* l)
   }
 }
 
+void Port::invert()
+{
+  inverted = !inverted;
+  if (type == port_types::output)
+    ((graph::Element*)(parent()))->get_logic_elem()->invert();
+}
+
 // отрисовка объектов класса LinkCircle
 void Port::draw()
 {
