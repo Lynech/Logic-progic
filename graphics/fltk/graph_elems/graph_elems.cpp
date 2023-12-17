@@ -1,4 +1,5 @@
 #include "graph_elems.h"
+#include "graph_port.h"
 #include "logic_elems.h"
 #include <algorithm>
 #include <cmath>
@@ -435,18 +436,42 @@ void delete_through_port (Fl_Widget*, void* userdata)
 //   std::vector<Link*>(links).swap(links);
 // }
 
+bool add_input (graph::Element* inputgoeshere, graph::Element* fromhere)
+{
+  if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())
+    inputgoeshere->add_input_port();
+  Port* input_port = inputgoeshere->nonlinked_input();
+  Port* output_port = fromhere->get_output_port();
+  MapGroup* map = (MapGroup*)(inputgoeshere->parent());
+  try_make_link(map, input_port, output_port);
+}
+
+bool add_inverted_input (graph::Element* inputgoeshere,
+                         graph::Element* fromhere)
+{
+  if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())
+    inputgoeshere->add_input_port();
+  Port* input_port = inputgoeshere->nonlinked_input();
+  input_port->invert();
+  Port* output_port = fromhere->get_output_port();
+  MapGroup* map = (MapGroup*)(inputgoeshere->parent());
+  try_make_link(map, input_port, output_port);
+}
+
 // todo spetial
 void delete_link (Fl_Widget* w, void* userdata)
 {
   Port* port = (Port*)userdata;
   std::vector<Link*> links = port->get_links();
-  for (int i = 0; i < links.size(); i++)
+  for (size_t i = 0; i < links.size(); i++)
   {
     if ((links[i] != nullptr) &&
         ((links[i]->get_input_port()) != nullptr) &&
         ((links[i]->get_output_port()) != nullptr))
     {
       links[i]->delete_link();
+      links.erase(links.begin() + i);
+      i--;
     }
   }
 }
