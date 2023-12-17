@@ -13,4 +13,5 @@ add_executable(
 target_link_libraries(
     my_exe
     my_lib
+    # new_lib
 )

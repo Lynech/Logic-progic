@@ -21,7 +21,8 @@ Value spec::Input_element::get_value() const
 
 void Element::calculate_dependings()
 {
-  elem->redraw();
+  callback(lable);
+  std::cout << "wqertyuiop[qwertyuioptyertyioup[]]" << std::endl;
   std::vector<Value> depend_value;
   for (size_t i = 0; i < dependings.size(); i++)
   {
@@ -35,53 +36,41 @@ void Element::calculate_dependings()
 
 void And::calculate_value()
 {
-  // std::cout << "\nbefore: " << value;
-  if (arg_vec.size() < 2)
-    // throw std::runtime_error("and must have >= 2 inputs");
-    value = Value::Undef;
-  else
+  Value temp = Value::True;
+  if (arg_vec.size() <= 1)
+    temp = Value::Undef;
+
+  for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
   {
-    Value temp = Value::True;
-    for (size_t i = 0; temp != Value::False && i < arg_vec.size(); i++)
-    {
-      std::cout << "input " << i << " " << arg_vec[i].get_value()
-                << std::endl;
-      if (temp > arg_vec[i].get_value())
-        temp = arg_vec[i].get_value();
-    }
-    value = temp;
-    // elem->redraw();
-    auto value_ = inverted ? !temp : temp;
-    std::cout << value_ << std::endl;
+    std::cout << "input " << i << " " << arg_vec[i].get_value()
+              << std::endl;
+    if (temp > arg_vec[i].get_value())
+      temp = arg_vec[i].get_value();
   }
-  // std::cout << "\nafter: " << value << "\n";
+  value = temp;
 }
 
 void Or::calculate_value()
 {
-  if (arg_vec.size() < 2)
-    // throw std::runtime_error("or must have >= 2 inputs");
-    value = Value::Undef;
-  else
-  {
-    Value temp = Value::False;
-    for (size_t i = 0; temp != Value::True && i < arg_vec.size(); i++)
-      if (temp < arg_vec[i].get_value())
-        temp = arg_vec[i].get_value();
-    value = temp;
-    // value = inverted ? !temp : temp;
-  }
+  Value temp = Value::False;
+  if (arg_vec.size() <= 1)
+    temp = Value::Undef;
+
+  for (size_t i = 0; temp != Value::True && i < arg_vec.size(); i++)
+    if (temp < arg_vec[i].get_value())
+      temp = arg_vec[i].get_value();
+  value = temp;
 }
 
 void Buff::calculate_value()
 {
   if (arg_vec.size() > 1)
     throw std::runtime_error("or must have < 1 inputs");
-
+  else if (arg_vec.size() == 0)
+    value = Value::Undef;
   else
   {
     Value temp = arg_vec[0].get_value();
-    // value = inverted ? !temp : temp;
     value = temp;
   }
 }
@@ -117,6 +106,9 @@ void Logic::remove_occurences_sourses(Element* src)
     ;
   while (remove_sorse(src, 0))
     ;
+
+  calculate_value();
+  calculate_dependings();
 }
 
 /// @brief удаляет все выходы и себя из этих выходов
@@ -127,7 +119,7 @@ void Element::reset_dependings()
     dependings[0]->remove_occurences_sourses(this);
   }
   // calculate_value();
-  // calculate_dependings();
+  calculate_dependings();
 }
 
 /// @brief удаляет конкретную связь оп src и inverted
@@ -138,7 +130,8 @@ int Logic ::remove_sorse(Element* src, bool inverted)
 {
   for (size_t i = 0; i < arg_vec.size(); i++)
   {
-    if (arg_vec[i].get_arg() == src && arg_vec[i].is_inverted() == inverted)
+    if ((arg_vec[i].get_arg() == src) &&
+        (arg_vec[i].is_inverted() == inverted))
     {
       auto temp =
           std::find(src->dependings.begin(), src->dependings.end(), this);
@@ -150,38 +143,66 @@ int Logic ::remove_sorse(Element* src, bool inverted)
       return 1;
     }
   }
+  // calculate_value();
+  // calculate_dependings();
   return 0;
 }
 
-Src::Src(Label* l, bool value_) : Element{l} { set_value(value_); }
+Src::Src(std::function<void(void*)> callback, void* lable, bool value_)
+    : Element{callback, lable}
+{
+  set_value(value_);
+}
 
 // Src::Src() { set_value(0); }
 
-void Logic::add_sorce(Element& t) { add_sorce(&t); }
+bool Logic::add_sorce(Element& t) { return add_sorce(&t); }
 
-void Logic::add_sorce(Element* t)
+bool Element::does_include(Element* e)
 {
+  if (this == e)
+    return 1;
+  for (size_t i = 0; i < dependings.size(); i++)
+    if (dependings[i] == e)
+      return 1;
+    else
+      return dependings[i]->does_include(e);
+
+  return 0;
+}
+
+bool Logic::add_sorce(Element* t)
+{
+  if (does_include(t))
+    return 0;
+
   spec::Input_element temp{t, inverse_input};
   this->arg_vec.push_back(temp);
   inverse_input = 0;
   t->dependings.push_back(this);
   calculate_value();
   calculate_dependings();
+  return 1;
 }
 
-Element& operator>> (Element& a, Element& b)
+bool operator>> (logic::Element& a, logic::Element& b)
 {
-  b.add_sorce(a);
-  return b;
+  return b.add_sorce(a);
 }
 
-Element& operator<< (Element& a, Element& b)
-{
-  a.add_sorce(b);
-  return a;
-}
+// Element& operator>> (Element& a, Element& b)
+// {
+//   b.add_sorce(a);
+//   return b;
+// }
 
-Logic& Logic::operator~()
+// Element& operator<< (Element& a, Element& b)
+// {
+//   a.add_sorce(b);
+//   return a;
+// }
+
+Element& Logic::operator~()
 {
   inverse_input = !inverse_input;
   return *this;
