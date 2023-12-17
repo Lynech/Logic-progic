@@ -42,8 +42,6 @@ set(SOURCES
 )
 
 add_library(my_lib ${HEADERS} ${SOURCES})
-
-# target_precompile_headers(my_lib PRIVATE graph_elems/graph_elems.h graph_elems/logic_elems.h)
 target_precompile_headers(my_lib PUBLIC ${HEADERS})
 
 target_include_directories(

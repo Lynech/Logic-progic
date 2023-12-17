@@ -14,4 +14,4 @@ include_directories(
 
 # add_subdirectory("main")
 add_subdirectory("graphics")
-add_subdirectory("test_graphics")
+# add_subdirectory("test_graphics")

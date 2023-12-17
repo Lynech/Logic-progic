@@ -21,4 +21,6 @@ public:
   graph::Element* add_el (TypeElement what_el, bool inverted, int x, int y);
 };
 
+void clear_map (Fl_Widget*, void* userdata);
+
 #endif

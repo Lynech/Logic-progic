@@ -2,7 +2,7 @@
     "editor.formatOnSave": true,
     "cmake.installPrefix": "${workspaceFolder}",
     "cmake.environment": {
-        "PATH": "${env:PATH};C:/Users/MrWh1teF0x/OneDrive/libs/fltk-1.3.8/bin"
+        "PATH": "${env:PATH};C:/msys64/mingw64/my_libs/fltk-1.3.8/bin"
     },
     "files.associations": {
         "iostream": "cpp",
