@@ -1,7 +1,7 @@
 #ifndef DRAWING_ELEMS_H
 #define DRAWING_ELEMS_H
 
-#include "logic_elems/logic_elems.h"
+#include "logic_elems.h"
 #include <FL/Fl_File_Chooser.H>
 #include <algorithm>
 #include <fstream>

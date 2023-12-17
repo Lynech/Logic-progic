@@ -24,13 +24,13 @@ template <class T> void add_elem (Fl_Widget*, void* userdata)
 }
 
 template <class T>
-void add_elem2 (Fl_Widget*, void* userdata, int xx, int yy)
+void add_elem_from_file (Fl_Widget*, void* userdata, int xx, int yy)
 {
   MapGroup* map = (MapGroup*)userdata;
   LogicMap* mamamap = (LogicMap*)map->parent();
 
   map->begin();
-  new T{xx, yy, 70, 50};
+  new T{xx, yy, 70, 70};
   map->end();
   map->redraw();
 }

@@ -1,5 +1,6 @@
 #include "add_elem_impl.h"
 #include "drawing_elems.h"
+#include "map"
 #include "mapgroup.h"
 
 std::vector<DrawingElement*> sheme;
@@ -13,14 +14,24 @@ void write_elem (std::string elem, int is_inverted, int x, int y,
   file << y;
 }
 
-int get_pos (const std::string& el)
+graph::Element* get_graph_elem (Fl_Widget* elem)
 {
-  for (size_t i = 0; i < sheme.size(); ++i)
-  {
-    if (sheme[i]->get_name() == el)
-      return i;
-  }
-  return -1;
+  graph::Src0* src_0 = dynamic_cast<graph::Src0*>(elem);
+  if (src_0)
+    return src_0;
+  graph::Src1* src_1 = dynamic_cast<graph::Src1*>(elem);
+  if (src_1)
+    return src_1;
+  graph::And* and_ = dynamic_cast<graph::And*>(elem);
+  if (and_)
+    return and_;
+  graph::Or* or_ = dynamic_cast<graph::Or*>(elem);
+  if (or_)
+    return or_;
+  graph::Buff* buff_ = dynamic_cast<graph::Buff*>(elem);
+  if (buff_)
+    return buff_;
+  return nullptr;
 }
 
 bool is_number (const std::string& num)
@@ -31,22 +42,10 @@ bool is_number (const std::string& num)
   return num.size() != 0 ? true : false;
 }
 
-bool is_valid_name (std::string name)
+bool is_valid_logic_elem (std::string str)
 {
-  if (name[0] != 'a' && name[0] != 'o' && name[0] != 's' &&
-      name[0] != 'r' && name[0] != 'b')
-    return false;
-  name.erase(0, 1);
-  return is_number(name);
-}
-
-std::string is_valid_logic_elem (std::string str)
-{
-  if (str[0] == 's')
-    return "src has no input elements";
-  if (!is_valid_name(str))
-    return "invalid logic element";
-  return "";
+  return str == "and" || str == "src0" || str == "src1" || str == "or" ||
+         str == "buff";
 }
 
 // Функция, которая проверяет, принадлежит ли файл нашей грамматике
@@ -55,20 +54,16 @@ try
 {
   bool is_inicialization = true;
   std::ifstream f(file_name, std::ios_base::in);
-  std::vector<std::string> names_of_elems;
+  std::vector<std::string> logic_elems;
   std::string str;
   f >> str;
   while (!f.eof())
   {
     if (is_inicialization)
     {
-      if (str == "and" || str == "src" || str == "or" || str == "buff" ||
-          str == "res")
+      if (is_valid_logic_elem(str))
       {
-        f >> str;
-        if (!is_valid_name(str))
-          return "invalid name of element";
-        names_of_elems.push_back(str);
+        logic_elems.push_back(str);
         f >> str;
         if (str != "0" && str != "1")
           return "invalid value of inversion";
@@ -90,9 +85,13 @@ try
     }
     else
     {
-      std::string what_error = is_valid_logic_elem(str);
-      if (what_error == "")
+      if (!is_number(str))
+        return "invalid logic element";
+      int n = stoi(str);
+      if (n >= 1 && n <= logic_elems.size())
       {
+        if (logic_elems[n - 1] == "src0" || logic_elems[n - 1] == "src1")
+          return "src has no input elements";
         f >> str;
         if (str != "<<")
           return "invalid syntax";
@@ -101,8 +100,7 @@ try
           f >> str;
           if (str == "~")
             f >> str;
-          if (std::find(names_of_elems.begin(), names_of_elems.end(),
-                        str) == names_of_elems.end())
+          if (!(stoi(str) >= 1 && stoi(str) <= logic_elems.size()))
             return "invalid input element";
           f >> str;
           if (str == ",")
@@ -117,7 +115,7 @@ try
         }
       }
       else
-        return what_error;
+        return "invalid logic elem";
     }
   }
   return "";
@@ -138,28 +136,24 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
   f >> str;
   while (str != ";")
   {
-    if (str == "and" || str == "src" || str == "or" || str == "buff")
-    {
-      TypeElement what_el;
-      if (str == "src0")
-        what_el = TypeElement::SRC0;
-      else if (str == "src1")
-        what_el = TypeElement::SRC1;
-      else if (str == "or")
-        what_el = TypeElement::OR;
-      else if (str == "and")
-        what_el = TypeElement::AND;
-      else if (str == "buff")
-        what_el = TypeElement::BUFF;
-      f >> str;
-      bool inverted = stoi(str);
-      f >> str;
-      int xx = stoi(str);
-      f >> str;
-      int yy = stoi(str);
-      // map->map()->add_el(what_el, xx, yy);
-      // std::string name = map->map()->
-    }
+    TypeElement what_el;
+    if (str == "src0")
+      what_el = TypeElement::SRC0;
+    else if (str == "src1")
+      what_el = TypeElement::SRC1;
+    else if (str == "or")
+      what_el = TypeElement::OR;
+    else if (str == "and")
+      what_el = TypeElement::AND;
+    else if (str == "buff")
+      what_el = TypeElement::BUFF;
+    f >> str;
+    bool inverted = stoi(str);
+    f >> str;
+    int xx = stoi(str);
+    f >> str;
+    int yy = stoi(str);
+    map->map()->add_el(what_el, xx, yy);
     f >> str;
   }
   // while (f)
@@ -197,57 +191,89 @@ std::vector<DrawingElement*> read_file (const std::string& file_name,
 void write_file (const std::string& file_name, LogicMap* map)
 {
   std::ofstream f{file_name, std::ios_base::trunc};
-  // for (size_t i = 0; i < sheme.size(); ++i)
-  // {
-  //   std::string name = sheme[i]->get_name();
-  //   if (name[0] == 's')
-  //     f << "src" << ' ';
-  //   else if (name[0] == 'o')
-  //     f << "or" << ' ';
-  //   else if (name[0] == 'a')
-  //     f << "and" << ' ';
-  //   else if (name[0] == 'b')
-  //     f << "buff" << ' ';
-  //   else if (name[0] == 'r')
-  //     f << "res" << ' ';
-  //   f << sheme[i]->get_name() << ' ' << sheme[i]->is_inverted() << ' '
-  //     << sheme[i]->get_x() << ' ' << sheme[i]->get_y() << '\n';
-  // }
 
-  for (size_t i = 0; i < map->map()->children(); ++i)
+  std::vector<graph::Element*> graph_elems;
+  std::vector<std::vector<int>> params;
+
+  for (int i = 0; i < map->map()->children(); ++i)
   {
-    auto* graph_elem = map->map()->child(i);
+    Fl_Widget* elem = map->map()->child(i);
+    graph::Element* graph_elem = get_graph_elem(elem);
+    if (graph_elem)
+    {
+      graph_elems.push_back(graph_elem);
+      params.push_back(
+          {graph_elem->get_draw_elem()->get_logic_elem()->is_inverted(),
+           elem->x(), elem->y()});
+    }
+  }
+
+  for (size_t i = 0; i < params.size(); ++i)
+  {
+    f << graph_elems[i]->get_type() << ' ';
+    f << params[i][0] << ' ' << params[i][1] << ' ' << params[i][2] << '\n';
   }
 
   f << ';' << '\n';
-  for (size_t i = 0; i < sheme.size(); ++i)
+
+  for (size_t i = 0; i < graph_elems.size(); ++i)
   {
-    if (sheme[i]->get_name()[0] == 's')
+    if (graph_elems[i]->get_type() == "src1" ||
+        graph_elems[i]->get_type() == "src0")
       continue;
+    logic::Logic* logic_el = dynamic_cast<logic::Logic*>(
+        graph_elems[i]->get_draw_elem()->get_logic_elem());
     std::vector<logic::spec::Input_element> input_elements =
-        sheme[i]->get_input_elems();
-    if (input_elements.size() == 0)
-      continue;
-    f << sheme[i]->get_name() << " <<";
-    for (size_t i = 0; i < input_elements.size(); ++i)
-    {
-      for (size_t j = 0; j < sheme.size(); ++j)
+        logic_el->get_input_elements();
+
+    f << i + 1 << " << ";
+
+    for (size_t j = 0; j < input_elements.size(); ++j)
+      for (size_t k = 0; k < graph_elems.size(); ++k)
       {
-        if (sheme[j]->get_element() == input_elements[i].get_arg())
+        logic::spec::Input_element* input_elem = &(input_elements[j]);
+
+        if (input_elem->get_arg() ==
+            graph_elems[k]->get_draw_elem()->get_logic_elem())
         {
-          f << " ";
-          if (input_elements[i].is_inverted())
+          if (input_elem->is_inverted())
             f << "~ ";
-          f << sheme[j]->get_name();
-          if (i + 1 != input_elements.size())
-            f << " ,";
-          break;
+          f << k + 1 << ' ';
+          if (j + 1 != input_elements.size())
+            f << ", ";
+          else
+            f << ".\n";
         }
       }
-    }
-    f << " .";
-    if (i + 1 != sheme.size())
-      f << "\n";
   }
+  // for (size_t i = 0; i < sheme.size(); ++i)
+  // {
+  //   if (sheme[i]->get_name()[0] == 's')
+  //     continue;
+  //   std::vector<logic::spec::Input_element> input_elements =
+  //       sheme[i]->get_input_elems();
+  //   if (input_elements.size() == 0)
+  //     continue;
+  //   f << sheme[i]->get_name() << " <<";
+  //   for (size_t i = 0; i < input_elements.size(); ++i)
+  //   {
+  //     for (size_t j = 0; j < sheme.size(); ++j)
+  //     {
+  //       if (sheme[j]->get_element() == input_elements[i].get_arg())
+  //       {
+  //         f << " ";
+  //         if (input_elements[i].is_inverted())
+  //           f << "~ ";
+  //         f << sheme[j]->get_name();
+  //         if (i + 1 != input_elements.size())
+  //           f << " ,";
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   f << " .";
+  //   if (i + 1 != sheme.size())
+  //     f << "\n";
+  // }
   f.close();
 }

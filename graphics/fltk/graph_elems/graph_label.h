@@ -28,6 +28,8 @@ public:
 
   void delete_all_links ();
 
+  logic::Element* get_logic_elem () { return logic_elem; }
+
   // TODO: удалить:
   // LinkCircle* get_start_circle {return start_circle;}
 
