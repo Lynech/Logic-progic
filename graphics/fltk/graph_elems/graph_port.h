@@ -8,7 +8,12 @@ enum class port_types
   input = 0,
   output = 1
 };
-class Link;
+
+bool made_logic_link (Port* port1, Port* port2);
+
+Link* made_full_link (Port* port1, Port* port2);
+
+void try_make_link (MapGroup* map, Port* port1, Port* port2);
 
 // класс кружочков связи
 class Port : public Fl_Widget
@@ -42,6 +47,14 @@ public:
   Port* find_port ();  //
 
   bool linked ();  //
+
+  bool is_linked ()
+  {
+    for (int i = 0; i < links.size(); i++)
+      if (links[i])
+        return 1;
+    return 0;
+  }
 
   void invert () { inverted = !inverted; }
 
