@@ -80,8 +80,6 @@ public:
   Port* get_output_port () { return output_port; }
 
   virtual void invert ();
-
-  // ~Element() override;
 };
 
 #endif

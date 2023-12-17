@@ -8,6 +8,7 @@ Port::Port(int x, int y, int w, int h, port_types t, const char* l)
     : Fl_Widget{x, y, w, h, l}
 {
   links.clear();
+  links.resize(0);
   type = t;
   if (type == port_types::input)
   {
@@ -55,6 +56,13 @@ Port::Port(int x, int y, int w, int h, port_types t, const char* l)
   }
 }
 
+void Port::invert()
+{
+  inverted = !inverted;
+  if (type == port_types::output)
+    ((graph::Element*)(parent()))->get_logic_elem()->invert();
+}
+
 // отрисовка объектов класса LinkCircle
 void Port::draw()
 {
@@ -100,55 +108,72 @@ int Port::handle(int event)
   }
 }
 
+bool made_logic_link (Port* port1, Port* port2)
+{  // add link to logic
+  Port* input_port;
+  Port* output_port;
+
+  if (port1->get_type() == port_types::input)
+  {
+    input_port = port1;
+    output_port = port2;
+  }
+  else
+  {
+    output_port = port1;
+    input_port = port2;
+  }
+
+  logic::Element* in_log_el =
+      ((graph::Element*)(input_port->parent()))->get_logic_elem();
+  logic::Element* out_log_el = ((graph::Element*)(output_port->parent()))
+                                   ->get_logic_elem();  // Установили связь
+  if (input_port->is_inverted())
+  {
+    if (!((*out_log_el) >> ~(*in_log_el)))
+      return 0;
+  }
+  else if (!((*out_log_el) >> (*in_log_el)))
+    return 0;
+  return 1;
+}
+
+Link* made_full_link (Port* port1, Port* port2)
+{
+  Link* res = nullptr;
+  if (made_logic_link(port1, port2))
+    res = new Link{port1, port2};
+  return res;
+}
+
+void try_make_link (MapGroup* map, Port* port1, Port* port2)
+{
+  Link* l = made_full_link(port1, port2);
+  if (!l)
+    return;
+
+  map->add(l);
+
+  l->redraw();
+  port1->redraw();
+  port2->redraw();
+}
+
 int Port::release_handle()
 {  // элемент (группа), которому принадлежит этот порт
   graph::Element* this_elem_group = (graph::Element*)this->parent();
   MapGroup* map = (MapGroup*)this_elem_group->parent();
-  int n = map->children();
+  // int n = map->children();
 
   Port* p = find_port();
   if (!p)
     return 1;
 
-  {  // add link to logic
-    Port* input_port;
-    Port* output_port;
+  // Link* l = made_full_link(this, p);
+  // if (!l)
+  //   return 1;
 
-    if (this->get_type() == port_types::input)
-    {
-      input_port = this;
-      output_port = p;
-    }
-    else
-    {
-      output_port = this;
-      input_port = p;
-    }
-
-    logic::Element* in_log_el = ((graph::Element*)(input_port->parent()))
-                                    ->get_draw_elem()
-                                    ->logic_elem;
-    logic::Element* out_log_el = ((graph::Element*)(output_port->parent()))
-                                     ->get_draw_elem()
-                                     ->logic_elem;  // Установили связь
-    if (input_port->is_inverted())
-    {
-      if (!((*out_log_el) >> ~(*in_log_el)))
-        return 1;
-    }
-    else if (!((*out_log_el) >> (*in_log_el)))
-      return 1;
-  }
-
-  Link* l = new Link{p, this};
-
-  map->add(l);
-
-  l->redraw();
-  this->redraw();
-  p->redraw();
-
-  // is_entered = false;
+  try_make_link(map, this, p);
   return 1;
 }
 

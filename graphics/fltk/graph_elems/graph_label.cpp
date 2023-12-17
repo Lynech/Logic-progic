@@ -94,38 +94,6 @@ Label::Label(
       port_menu::labelfont,  port_menu::labelsize,  port_menu::labelcolor};
 }
 
-// Label::~Label()
-// {
-//   delete menu;
-//   delete logic_elem;
-// }
-
-void Label::delete_all_links()
-{
-  Element* el = (Element*)(this->parent());
-  std::vector<Port*> ports = el->get_input_ports();
-
-  // удаляем связи у каждого входа
-  for (Port* i : ports)
-  {
-    if (i != nullptr)
-    {
-      std::vector<Link*> links = i->get_links();
-      for (Link* j : links)
-        if (j != nullptr)
-        {
-          j->delete_link();
-        }
-    }
-  }
-  // удаляем все связи у выхода
-  Port* output_port = el->get_output_port();
-  // std::vector<Link*> links = output_port->get_links();
-  delete_link(nullptr, output_port);
-  // удаляем выход
-  el->delete_port(output_port);
-}
-
 void Label::draw()
 {
   draw_box(FL_FLAT_BOX, 16);
@@ -158,14 +126,14 @@ void Label::draw()
     fl_line_style(0, 2);
     fl_begin_loop();
     fl_circle(x() + w() - w() / 10, y() + h() / 2, w() / 10);
-    fl_end_loop;
+    fl_end_loop();
   }
 
   // рисуем инвертированность входа
   Element* par = (Element*)(this->parent());
   std::vector<Port*> input_ports = par->get_input_ports();
 
-  for (int i = 0; i < input_ports.size(); i++)
+  for (size_t i = 0; i < input_ports.size(); i++)
   {
     if (input_ports[i]->is_inverted())
     {
@@ -183,7 +151,7 @@ void Label::draw()
       fl_begin_loop();
       fl_circle(this->x() + this->w() / 10, p->y() + p->h() / 2,
                 this->w() / 10);
-      fl_end_loop;
+      fl_end_loop();
     }
   }
 }

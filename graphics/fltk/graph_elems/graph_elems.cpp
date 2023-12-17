@@ -1,4 +1,5 @@
 #include "graph_elems.h"
+#include "graph_port.h"
 #include "logic_elems.h"
 #include <algorithm>
 #include <cmath>
@@ -199,7 +200,7 @@ void delete_all_elem_links (Fl_Widget*, void* userdata)
 }
 
 // todo spetial
-void delete_elem (Fl_Widget*, void* userdata)
+void delete_elem (Fl_Widget* a, void* userdata)
 {
   Label* l = (Label*)userdata;
 
@@ -235,7 +236,7 @@ void invert_port (Fl_Widget*, void* userdata)
     //         ->get_draw_elem()
     //         ->logic_elem);
     logic::Element* log_el____leftside = nullptr;
-    for (size_t i = 0; i < (l_c->get_links().size()) && !log_el____leftside;
+    for (int i = 0; i < (l_c->get_links().size()) && !log_el____leftside;
          i++)
       if ((l_c->get_links()[i]) &&
           (l_c->get_links()[i]->get_output_port()) &&
@@ -435,6 +436,28 @@ void delete_through_port (Fl_Widget*, void* userdata)
 //   std::vector<Link*>(links).swap(links);
 // }
 
+void add_input (graph::Element* inputgoeshere, graph::Element* fromhere)
+{
+  if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())
+    inputgoeshere->add_input_port();
+  Port* input_port = inputgoeshere->nonlinked_input();
+  Port* output_port = fromhere->get_output_port();
+  MapGroup* map = (MapGroup*)(inputgoeshere->parent());
+  try_make_link(map, input_port, output_port);
+}
+
+void add_inverted_input (graph::Element* inputgoeshere,
+                         graph::Element* fromhere)
+{
+  if (inputgoeshere->how_many_inputs() == inputgoeshere->how_many_linked())
+    inputgoeshere->add_input_port();
+  Port* input_port = inputgoeshere->nonlinked_input();
+  input_port->invert();
+  Port* output_port = fromhere->get_output_port();
+  MapGroup* map = (MapGroup*)(inputgoeshere->parent());
+  try_make_link(map, input_port, output_port);
+}
+
 // todo spetial
 void delete_link (Fl_Widget*, void* userdata)
 {
@@ -447,6 +470,8 @@ void delete_link (Fl_Widget*, void* userdata)
         ((links[i]->get_output_port()) != nullptr))
     {
       links[i]->delete_link();
+      links.erase(links.begin() + i);
+      i--;
     }
   }
 }
@@ -768,7 +793,8 @@ void delete_input_port (Fl_Widget*, void* userdata)
 
 //  конструктор класса Source
 
-Src0::Src0(int x, int y, int h, int w, const char*) : Element{x, y, h, w, 0}
+Src0::Src0(int x, int y, int h, int w, const char* l)
+    : Element{x, y, h, w, 0}
 {
   type = "src0";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 0);
@@ -780,7 +806,8 @@ Src0::Src0(int x, int y, int h, int w, const char*) : Element{x, y, h, w, 0}
 
 //  конструктор класса Source
 
-Src1::Src1(int x, int y, int h, int w, const char*) : Element{x, y, h, w, 0}
+Src1::Src1(int x, int y, int h, int w, const char* l)
+    : Element{x, y, h, w, 0}
 {
   type = "src1";
   draw_elem->logic_elem = new logic::Src(callback4logic, draw_elem, 1);
@@ -840,7 +867,7 @@ And::And(int x, int y, int h, int w, const char* l)
 // }
 
 // todo spetial
-void add_port (Fl_Widget*, void* userdata)
+void add_port (Fl_Widget* w, void* userdata)
 {
   Label* label = (Label*)userdata;
   Element* elem = (Element*)(label->parent());

@@ -71,13 +71,6 @@ int MapGroup::handle(int event)
 void clear_map (Fl_Widget*, void* userdata)
 {
   MapGroup* map = (MapGroup*)userdata;
-  // int n = map->children();
-  // for (int i = 0; i < n; i++)
-  // {
-  //   Fl::delete_widget(map->child(n));
-  //   Fl::do_widget_deletion();
-  // }
-  // n = map->children();
   map->clear();
   map->window()->redraw();
 }
